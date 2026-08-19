@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 2 — Hebben, Zijn &amp; Present Tense</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #16150F;
+    --red: #DE3B24;
+    --blue: #2247B5;
+    --yellow: #F5C518;
+    --rule: 3px solid var(--ink);
+    --display: "Archivo Black", "Arial Black", sans-serif;
+    --body: "Archivo", "Helvetica Neue", sans-serif;
+    --mono: "IBM Plex Mono", "Menlo", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .frame { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---- Header: Mondrian composition ---- */
+  header { border-bottom: var(--rule); padding: 36px 0 24px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--display); font-size: clamp(30px, 5.5vw, 54px);
+    line-height: 1.02; text-transform: uppercase; letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--red); }
+  header p.sub { margin-top: 12px; max-width: 560px; color: #4a4940; }
+
+  /* ---- Nav as Mondrian blocks ---- */
+  nav {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border: var(--rule); border-top: none; background: var(--ink); gap: 3px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav button {
+    font-family: var(--display); font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.02em; border: none; padding: 16px 6px 14px;
+    cursor: pointer; background: var(--paper); color: var(--ink);
+  }
+  nav button:hover { background: #efede2; }
+  nav button:focus-visible { outline: 3px dashed var(--blue); outline-offset: -6px; }
+  nav button[aria-selected="true"]:nth-child(1) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(2) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(3) { background: var(--blue); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(4) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(5) { background: var(--blue); color: var(--paper); }
+
+  section.panel { display: none; padding-top: 34px; }
+  section.panel.active { display: block; }
+
+  h2 {
+    font-family: var(--display); font-size: 24px; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .note { color: #4a4940; margin-bottom: 22px; max-width: 620px; }
+
+  /* ---- Reference tables ---- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 26px; margin-bottom: 40px; }
+  .card { border: var(--rule); background: #fff; }
+  .card .head {
+    font-family: var(--display); text-transform: uppercase; font-size: 16px;
+    padding: 10px 14px; border-bottom: var(--rule);
+  }
+  .card .head small { display:block; font-family: var(--mono); font-weight: 400; text-transform: none; font-size: 12px; }
+  .card.red .head { background: var(--red); color: var(--paper); }
+  .card.blue .head { background: var(--blue); color: var(--paper); }
+  .card.yellow .head { background: var(--yellow); }
+  .card table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; }
+  .card td { padding: 8px 14px; border-bottom: 1px solid #d8d5c6; vertical-align: top; }
+  .card tr:last-child td { border-bottom: none; }
+  .card td.en { color: #6a685c; font-size: 13.5px; text-align: right; }
+  .card td.lbl { font-family: var(--body); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; background:#f1efe4; }
+  .speak {
+    border: 2px solid var(--ink); background: var(--paper); cursor: pointer;
+    font-size: 12px; font-family: var(--mono); padding: 1px 7px; margin-right: 8px;
+    border-radius: 0;
+  }
+  .speak:hover { background: var(--yellow); }
+  .speak:focus-visible { outline: 3px dashed var(--blue); }
+
+  .rules { border: var(--rule); background: #fff; margin-bottom: 40px; }
+  .rules .head { font-family: var(--display); text-transform: uppercase; font-size: 16px; padding: 10px 14px; border-bottom: var(--rule); background: var(--ink); color: var(--paper); }
+  .rules ol { padding: 16px 16px 16px 40px; }
+  .rules li { margin-bottom: 12px; }
+  .rules code { font-family: var(--mono); background: #f1efe4; padding: 1px 5px; font-size: 14.5px; }
+
+  /* ---- Flashcards ---- */
+  .flash-stage { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .flashcard {
+    width: min(460px, 100%); min-height: 240px; border: var(--rule); background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; text-align: center; padding: 24px;
+  }
+  .flashcard .side-label {
+    position: absolute; top: 10px; left: 12px; font-family: var(--mono);
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .flashcard .word { font-family: var(--display); font-size: 40px; }
+  .flashcard.back { background: var(--yellow); }
+  .flash-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    font-family: var(--display); text-transform: uppercase; font-size: 14px;
+    border: var(--rule); background: var(--paper); padding: 12px 20px; cursor: pointer;
+  }
+  .btn:hover { background: #efede2; }
+  .btn:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .btn.primary { background: var(--blue); color: var(--paper); }
+  .btn.primary:hover { background: #1b3a99; }
+  .btn.good { background: var(--yellow); }
+  .btn.bad { background: var(--red); color: var(--paper); }
+  .flash-progress { font-family: var(--mono); font-size: 14px; }
+
+  /* ---- Drills ---- */
+  .drill { max-width: 560px; }
+  .prompt-box { border: var(--rule); background: #fff; padding: 26px 24px; margin-bottom: 18px; }
+  .prompt-box .task { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; color: #6a685c; }
+  .prompt-box .big { font-family: var(--display); font-size: 32px; line-height: 1.1; }
+  .prompt-box .hint { font-family: var(--mono); font-size: 14px; margin-top: 8px; color: #6a685c; }
+  .answer-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  input[type=text] {
+    flex: 1; font-family: var(--mono); font-size: 20px; padding: 12px 14px;
+    border: var(--rule); background: #fff; min-width: 0;
+  }
+  input[type=text]:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
+  .feedback .ok { color: #1e7a1e; font-weight: 600; }
+  .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
+  .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
+  .scorebar b { font-size: 18px; }
+
+  @media (max-width: 640px) {
+    nav { grid-template-columns: repeat(5, 1fr); }
+    nav button { font-size: 10.5px; padding: 12px 2px; }
+    .flashcard .word { font-size: 30px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flashcard { transition: transform .12s ease; }
+    .flashcard:active { transform: scale(.985); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="eyebrow">Nederlands · Les 2 · 19-08-2026</div>
+    <h1>Hebben, zijn<br>&amp; de <span class="accent">tegenwoordige tijd</span></h1>
+    <p class="sub">Subject pronouns, the verbs <strong>hebben</strong> and <strong>zijn</strong>, the present tense, and the spelling rules for the verb base — with pronunciation by a Dutch voice.</p>
+  </header>
+
+  <nav role="tablist" aria-label="Practice sections">
+    <button role="tab" aria-selected="true" data-panel="learn">Leer</button>
+    <button role="tab" aria-selected="false" data-panel="flash">Woorden</button>
+    <button role="tab" aria-selected="false" data-panel="conj">Vervoegen</button>
+    <button role="tab" aria-selected="false" data-panel="base">De basis</button>
+    <button role="tab" aria-selected="false" data-panel="listen">Luisteren</button>
+  </nav>
+
+  <!-- ================= LEARN ================= -->
+  <section class="panel active" id="panel-learn">
+    <h2>Reference</h2>
+    <p class="note">Click ▶ to hear the Dutch pronunciation. <em>jij, zij, wij</em> are used for emphasis; in everyday speech use <em>je, ze, we</em>.</p>
+    <div class="cols" id="ref-cols"></div>
+
+    <div class="rules">
+      <div class="head">Rules — present tense</div>
+      <ol>
+        <li>Find the <strong>base</strong> of the verb: remove <code>-en</code> / <code>-n</code> from the infinitive.</li>
+        <li><strong>ik</strong> → base &nbsp;·&nbsp; <strong>jij/u/hij/zij/het</strong> → base + <code>t</code> &nbsp;·&nbsp; <strong>wij/jullie/zij</strong> → infinitive.</li>
+      </ol>
+    </div>
+
+    <div class="rules">
+      <div class="head">Spelling of the base</div>
+      <ol>
+        <li>One consonant before <code>-en</code>? Double the vowel: <code>wonen → woon</code>, <code>maken → maak</code>. <em>Exceptions:</em> <code>komen → kom</code>, <code>wandelen → wandel</code>, <code>luisteren → luister</code>, <code>winkelen → winkel</code>.</li>
+        <li>A Dutch word never ends in a double letter — drop one: <code>kennen → ken</code>, <code>spellen → spel</code>, <code>missen → mis</code>.</li>
+        <li>Base ends in <code>t</code>? The singular is the same for all persons: <code>zitten → zit</code> — ik zit, je zit, hij zit.</li>
+        <li>A verb can never end in <code>z</code> or <code>v</code>: <code>z → s</code>, <code>v → f</code>. <code>verhuizen → verhuis</code>, <code>geven → geef</code>, <code>leven → leef</code>.</li>
+        <li>With <code>oe, eu, ou, ie, ui, ei</code> rule 1 does not apply: <code>proeven → proef</code>, <code>houden → houd</code>, <code>zien → zie</code>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= FLASHCARDS ================= -->
+  <section class="panel" id="panel-flash">
+    <h2>Woorden — verb flashcards</h2>
+    <p class="note">Click the card (or press space) to flip. Mark whether you knew it; unknown cards come back until you know them all.</p>
+    <div class="flash-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <span class="side-label" id="flash-side">NL</span>
+        <div class="word" id="flash-word">—</div>
+      </div>
+      <div class="flash-controls">
+        <button class="btn" id="flash-audio">▶ Uitspraak</button>
+        <button class="btn" id="flash-slow">🐢 Langzaam</button>
+        <button class="btn bad" id="flash-no">✗ Nog niet</button>
+        <button class="btn good" id="flash-yes">✓ Ik weet het</button>
+      </div>
+      <div class="flash-progress" id="flash-progress"></div>
+    </div>
+  </section>
+
+  <!-- ================= CONJUGATION DRILL ================= -->
+  <section class="panel" id="panel-conj">
+    <h2>Vervoegen — conjugation drill</h2>
+    <p class="note">Type the correct present-tense form. Covers <strong>hebben</strong>, <strong>zijn</strong> and all the lesson's regular verbs. Press Enter to check, Enter again for the next one.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Conjugate</div>
+        <div class="big" id="conj-prompt">—</div>
+        <div class="hint" id="conj-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="conj-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jouw antwoord…" aria-label="Your answer">
+        <button class="btn primary" id="conj-check">Check</button>
+      </div>
+      <div class="feedback" id="conj-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="conj-right">0</b></span><span>Fout <b id="conj-wrong">0</b></span><span>Reeks <b id="conj-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= BASE DRILL ================= -->
+  <section class="panel" id="panel-base">
+    <h2>De basis — infinitive → base</h2>
+    <p class="note">The exercise from the lesson: type the base (stem) of the verb. The feedback tells you which spelling rule applies.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Find the base of</div>
+        <div class="big" id="base-prompt">—</div>
+        <div class="hint" id="base-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="base-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="de basis…" aria-label="Your answer">
+        <button class="btn primary" id="base-check">Check</button>
+      </div>
+      <div class="feedback" id="base-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="base-right">0</b></span><span>Fout <b id="base-wrong">0</b></span><span>Reeks <b id="base-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= LISTENING ================= -->
+  <section class="panel" id="panel-listen">
+    <h2>Luisteren — dictation</h2>
+    <p class="note">Play the audio and type exactly what you hear (a pronoun, a conjugated form of hebben/zijn, or a verb).</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Listen and type</div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn" id="listen-slow">🐢 Langzaam</button>
+        </div>
+        <div class="hint" id="listen-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="listen-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wat hoor je?" aria-label="Your answer">
+        <button class="btn primary" id="listen-check">Check</button>
+      </div>
+      <div class="feedback" id="listen-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const VERBS = [
+  { inf: "werken",    base: "werk",    en: "to work",      rule: 0 },
+  { inf: "studeren",  base: "studeer", en: "to study",     rule: 1 },
+  { inf: "leren",     base: "leer",    en: "to learn",     rule: 1 },
+  { inf: "eten",      base: "eet",     en: "to eat",       rule: 1 },
+  { inf: "drinken",   base: "drink",   en: "to drink",     rule: 0 },
+  { inf: "gaan",      base: "ga",      en: "to go",        rule: 0, tform: "gaat" },
+  { inf: "staan",     base: "sta",     en: "to stand",     rule: 0, tform: "staat" },
+  { inf: "zien",      base: "zie",     en: "to see",       rule: 5 },
+  { inf: "doen",      base: "doe",     en: "to do",        rule: 5 },
+  { inf: "wonen",     base: "woon",    en: "to live (somewhere)", rule: 1 },
+  { inf: "maken",     base: "maak",    en: "to make",      rule: 1 },
+  { inf: "komen",     base: "kom",     en: "to come",      rule: 6 },
+  { inf: "wandelen",  base: "wandel",  en: "to walk",      rule: 6 },
+  { inf: "luisteren", base: "luister", en: "to listen",    rule: 6 },
+  { inf: "winkelen",  base: "winkel",  en: "to shop",      rule: 6 },
+  { inf: "kennen",    base: "ken",     en: "to know",      rule: 2 },
+  { inf: "spellen",   base: "spel",    en: "to spell",     rule: 2 },
+  { inf: "missen",    base: "mis",     en: "to miss",      rule: 2 },
+  { inf: "zitten",    base: "zit",     en: "to sit",       rule: 3 },
+  { inf: "praten",    base: "praat",   en: "to talk",      rule: 3 },
+  { inf: "zetten",    base: "zet",     en: "to put down",  rule: 3 },
+  { inf: "verhuizen", base: "verhuis", en: "to move (house)", rule: 4 },
+  { inf: "blazen",    base: "blaas",   en: "to blow",      rule: 4 },
+  { inf: "geven",     base: "geef",    en: "to give",      rule: 4 },
+  { inf: "leven",     base: "leef",    en: "to live (be alive)", rule: 4 },
+  { inf: "proeven",   base: "proef",   en: "to try / taste", rule: 5 },
+  { inf: "houden",    base: "houd",    en: "to hold",      rule: 5 },
+  { inf: "beuken",    base: "beuk",    en: "to hit hard",  rule: 5 },
+  { inf: "pleiten",   base: "pleit",   en: "to plead",     rule: 5 },
+  { inf: "fietsen",   base: "fiets",   en: "to cycle",     rule: 0 },
+  { inf: "denken",    base: "denk",    en: "to think",     rule: 0 },
+  { inf: "betalen",   base: "betaal",  en: "to pay",       rule: 1 },
+  { inf: "kopen",     base: "koop",    en: "to buy",       rule: 1 },
+  { inf: "duren",     base: "duur",    en: "to last",      rule: 1 },
+  { inf: "horen",     base: "hoor",    en: "to hear",      rule: 1 },
+  { inf: "vergeten",  base: "vergeet", en: "to forget",    rule: 1 },
+  { inf: "heten",     base: "heet",    en: "to be called", rule: 1 },
+  { inf: "lezen",     base: "lees",    en: "to read",      rule: 4 },
+];
+
+const RULE_TEXT = [
+  "Just remove -en: the base needs no spelling change.",
+  "Rule 1 — one consonant before -en, so the vowel doubles.",
+  "Rule 2 — a word never ends in a double letter, drop one.",
+  "Rule 3 — the base ends in t: the singular is the same for all persons.",
+  "Rule 4 — never end in z or v: z→s, v→f.",
+  "Rule 5 — with oe/eu/ou/ie/ui/ei the vowel is not doubled.",
+  "Exception — remember this one (komen, wandelen, luisteren, winkelen).",
+];
+
+const PRONOUNS = [
+  { nl: "ik",     en: "I" },
+  { nl: "jij",    en: "you (emphasis)" },
+  { nl: "je",     en: "you (everyday)" },
+  { nl: "u",      en: "you (formal)" },
+  { nl: "hij",    en: "he" },
+  { nl: "zij",    en: "she / they" },
+  { nl: "ze",     en: "she / they (everyday)" },
+  { nl: "het",    en: "it" },
+  { nl: "wij",    en: "we (emphasis)" },
+  { nl: "we",     en: "we (everyday)" },
+  { nl: "jullie", en: "you (plural)" },
+];
+
+const HEBBEN = [
+  ["ik heb", "I have"], ["jij hebt", "you have"], ["u hebt", "you have (formal)"],
+  ["u heeft", "you have (formal)"], ["hij heeft", "he has"], ["zij heeft", "she has"],
+  ["het heeft", "it has"], ["wij hebben", "we have"], ["jullie hebben", "you have (pl.)"],
+  ["zij hebben", "they have"],
+];
+const ZIJN = [
+  ["ik ben", "I am"], ["jij bent", "you are"], ["u bent", "you are (formal)"],
+  ["hij is", "he is"], ["zij is", "she is"], ["het is", "it is"],
+  ["wij zijn", "we are"], ["jullie zijn", "you are (pl.)"], ["zij zijn", "they are"],
+];
+
+/* ================= AUDIO ================= */
+const slug = t => t.toLowerCase().replace(/ /g, "_");
+let currentAudio = null;
+let nlVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => v.lang.startsWith("nl"));
+  nlVoice = vs.find(v => v.lang === "nl-NL") || vs[0] || null;
+}
+if ("speechSynthesis" in window) {
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+// Play a pre-generated neural-voice file when we have one.
+// slow=true uses the natively slowed recording in audio/slow/;
+// fallback chain: slow file -> normal file at reduced playbackRate -> browser TTS.
+function speak(text, slow = false) {
+  const s = slug(text);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const a = new Audio((slow ? "audio/slow/" : "audio/") + s + ".mp3");
+  a.onerror = () => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false));
+  a.play().catch(() => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false)));
+  currentAudio = a;
+}
+function speakFallbackSlow(s, text) {
+  const a = new Audio("audio/" + s + ".mp3");
+  a.playbackRate = 0.65;
+  a.onerror = () => speakTTS(text, true);
+  a.play().catch(() => speakTTS(text, true));
+  currentAudio = a;
+}
+function speakTTS(text, slow = false) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (nlVoice) u.voice = nlVoice;
+  u.lang = "nl-NL";
+  u.rate = slow ? 0.55 : 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const norm = s => s.trim().toLowerCase().replace(/\s+/g, " ");
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function speakBtn(text) {
+  const t = text.replace(/'/g, "\\'");
+  return `<button class="speak" onclick="speak('${t}')" aria-label="Pronounce ${text}">▶</button>` +
+         `<button class="speak" onclick="speak('${t}', true)" aria-label="Pronounce ${text} slowly">🐢</button>`;
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", "false"));
+    btn.setAttribute("aria-selected", "true");
+    document.querySelectorAll("section.panel").forEach(p => p.classList.remove("active"));
+    $("panel-" + btn.dataset.panel).classList.add("active");
+  });
+});
+
+/* ================= LEARN PANEL ================= */
+function refCard(title, subtitle, rows, colorClass) {
+  const trs = rows.map(r => {
+    if (r.label) return `<tr><td class="lbl" colspan="2">${r.label}</td></tr>`;
+    return `<tr><td>${speakBtn(r[0])}${r[0]}</td><td class="en">${r[1]}</td></tr>`;
+  }).join("");
+  return `<div class="card ${colorClass}"><div class="head">${title}<small>${subtitle}</small></div><table>${trs}</table></div>`;
+}
+const pronounRows = [
+  { label: "singular" }, ...PRONOUNS.slice(0, 8).map(p => [p.nl, p.en]),
+  { label: "plural" }, ["wij", "we (emphasis)"], ["we", "we (everyday)"], ["jullie", "you (plural)"], ["zij", "they"], ["ze", "they (everyday)"],
+];
+const hebbenRows = [
+  { label: "singular" }, ...HEBBEN.slice(0, 7),
+  { label: "plural" }, ...HEBBEN.slice(7),
+];
+const zijnRows = [
+  { label: "singular" }, ...ZIJN.slice(0, 6),
+  { label: "plural" }, ...ZIJN.slice(6),
+];
+const verbRows = VERBS.map(v => [v.inf, v.en + " · base: " + v.base]);
+$("ref-cols").innerHTML =
+  refCard("Subject pronouns", "onderwerp", pronounRows, "yellow") +
+  refCard("Hebben", "to have", hebbenRows, "red") +
+  refCard("Zijn", "to be", zijnRows, "blue") +
+  refCard("Verbs of this lesson", "infinitief · basis", verbRows, "yellow");
+
+/* ================= FLASHCARDS ================= */
+let flashDeck = [], flashIdx = 0, flashFlipped = false, flashKnown = 0, flashTotal = 0;
+function flashInit() {
+  flashDeck = shuffle(VERBS);
+  flashIdx = 0; flashFlipped = false; flashKnown = 0; flashTotal = VERBS.length;
+  flashRender();
+}
+function flashCurrent() { return flashDeck[flashIdx]; }
+function flashRender() {
+  const card = $("flashcard");
+  if (!flashDeck.length) {
+    card.classList.remove("back");
+    $("flash-side").textContent = "✓";
+    $("flash-word").textContent = "Alles gekend! 🎉";
+    $("flash-progress").textContent = `${flashKnown}/${flashTotal} known — press "Nog niet" to restart`;
+    return;
+  }
+  const v = flashCurrent();
+  card.classList.toggle("back", flashFlipped);
+  $("flash-side").textContent = flashFlipped ? "EN" : "NL";
+  $("flash-word").textContent = flashFlipped ? v.en : v.inf;
+  $("flash-progress").textContent = `${flashKnown}/${flashTotal} known · ${flashDeck.length} to go`;
+}
+function flashFlip() { if (!flashDeck.length) return; flashFlipped = !flashFlipped; flashRender(); }
+function flashAnswer(knew) {
+  if (!flashDeck.length) { flashInit(); return; }
+  const v = flashDeck.splice(flashIdx, 1)[0];
+  if (knew) flashKnown++; else flashDeck.push(v);
+  if (flashIdx >= flashDeck.length) flashIdx = 0;
+  flashFlipped = false;
+  flashRender();
+}
+$("flashcard").addEventListener("click", flashFlip);
+$("flashcard").addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flashFlip(); } });
+$("flash-yes").addEventListener("click", () => flashAnswer(true));
+$("flash-no").addEventListener("click", () => flashAnswer(false));
+$("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().inf); });
+$("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().inf, true); });
+flashInit();
+
+/* ================= DRILL ENGINE ================= */
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+  const input = $(inputId), fb = $(feedbackId);
+  let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  function newQuestion() {
+    current = next();
+    answered = false;
+    fb.innerHTML = "";
+    input.value = "";
+    input.focus();
+  }
+  function doCheck() {
+    if (answered) { newQuestion(); return; }
+    if (!norm(input.value)) return;
+    const res = check(current, input.value);
+    answered = true;
+    if (res.ok) { right++; streak++; }
+    else { wrong++; streak = 0; }
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = res.ok
+      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
+      : `<span class="no">✗ ${res.correct}</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`;
+    if (res.say) {
+      speak(res.say);
+      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    }
+    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+  }
+  input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
+  $(checkId).addEventListener("click", doCheck);
+  return { newQuestion, get current() { return current; } };
+}
+
+/* ================= CONJUGATION DRILL ================= */
+const SUBJECTS = [
+  { p: "ik", form: v => v.base, heb: "heb", ben: "ben" },
+  { p: "jij", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "je", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "u", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "hij", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "zij (she)", pnl: "zij", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "het", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "wij", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "we", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "jullie", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "zij (they)", pnl: "zij", form: v => v.inf, heb: "hebben", ben: "zijn" },
+];
+function tForm(v) {
+  if (v.tform) return v.tform;
+  return v.base.endsWith("t") ? v.base : v.base + "t";
+}
+const conjDrill = makeDrill({
+  inputId: "conj-input", checkId: "conj-check", feedbackId: "conj-feedback",
+  rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak",
+  next() {
+    const subj = pick(SUBJECTS);
+    const r = Math.random();
+    let verb, answer, why;
+    if (r < 0.18) {
+      verb = { inf: "hebben", en: "to have" };
+      answer = subj.heb; why = "hebben is irregular — memorize it.";
+    } else if (r < 0.36) {
+      verb = { inf: "zijn", en: "to be" };
+      answer = subj.ben; why = "zijn is irregular — memorize it.";
+    } else {
+      verb = pick(VERBS);
+      answer = subj.form(verb);
+      why = `Base: ${verb.base}. ${RULE_TEXT[verb.rule]}`;
+    }
+    $("conj-prompt").innerHTML = `${subj.p} + <span style="color:var(--blue)">${verb.inf}</span>`;
+    $("conj-hint").textContent = verb.en;
+    const pnl = subj.pnl || subj.p;
+    return { answer, full: `${pnl} ${answer}`, why };
+  },
+  check(cur, given) {
+    const g = norm(given);
+    const ok = g === cur.answer || g === norm(cur.full);
+    return { ok, correct: cur.full, why: cur.why, say: cur.full };
+  },
+});
+
+/* ================= BASE DRILL ================= */
+const baseDrill = makeDrill({
+  inputId: "base-input", checkId: "base-check", feedbackId: "base-feedback",
+  rightId: "base-right", wrongId: "base-wrong", streakId: "base-streak",
+  next() {
+    const v = pick(VERBS);
+    $("base-prompt").textContent = v.inf;
+    $("base-hint").textContent = v.en;
+    return v;
+  },
+  check(v, given) {
+    return { ok: norm(given) === v.base, correct: v.base, why: RULE_TEXT[v.rule], say: v.base };
+  },
+});
+
+/* ================= LISTENING DRILL ================= */
+const LISTEN_ITEMS = [
+  ...PRONOUNS.map(p => p.nl),
+  ...HEBBEN.map(h => h[0]),
+  ...ZIJN.map(z => z[0]),
+  ...VERBS.map(v => v.inf),
+];
+let listenPlayed = false;
+const listenDrill = makeDrill({
+  inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  next() {
+    const text = pick(LISTEN_ITEMS);
+    listenPlayed = false;
+    $("listen-hint").textContent = "";
+    return { text };
+  },
+  check(cur, given) {
+    // ij/ei and z/s sound identical to beginners; still require exact spelling but say so
+    const ok = norm(given) === cur.text;
+    return { ok, correct: cur.text, say: cur.text };
+  },
+});
+$("listen-play").addEventListener("click", () => { speak(listenDrill.current.text); listenPlayed = true; });
+$("listen-slow").addEventListener("click", () => { speak(listenDrill.current.text, true); listenPlayed = true; });
+
+/* Start drills */
+conjDrill.newQuestion();
+baseDrill.newQuestion();
+listenDrill.newQuestion();
+</script>
+</body>
+</html>
