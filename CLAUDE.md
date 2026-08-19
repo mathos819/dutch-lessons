@@ -57,7 +57,10 @@ Live site: **https://mathos819.github.io/dutch-lessons/** (repo
 Git remote uses the SSH alias `github.com-personal`; plain `github.com`
 resolves to the work key, and `gh` normally sits on the work account
 (`mzely`) — switch with `gh auth switch --user mathos819` only if API
-calls are needed, then switch back.
+calls are needed, then **always switch back**: git's HTTPS credentials
+come from gh's active account (`gh auth setup-git`), so while switched,
+work repos fail with "repository not found". Never log in with
+`gh auth login` again for this — the account is already added.
 
 To deploy: commit and `git push` — Pages serves `main` at root, live in
 ~1 min. When adding a lesson, also add its card to the root `index.html`
