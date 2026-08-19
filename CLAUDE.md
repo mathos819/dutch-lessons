@@ -50,6 +50,19 @@ De Stijl / Mondrian: paper `#FAF9F4`, ink `#16150F`, red `#DE3B24`, blue
 Archivo (body), IBM Plex Mono (tables/drills) via Google Fonts with system
 fallbacks. Nav = Mondrian blocks. Header eyebrow: `Nederlands · Les N · date`.
 
+## Deploying (GitHub Pages)
+
+Live site: **https://mathos819.github.io/dutch-lessons/** (repo
+`mathos819/dutch-lessons`, personal account — NOT the zely account).
+Git remote uses the SSH alias `github.com-personal`; plain `github.com`
+resolves to the work key, and `gh` normally sits on the work account
+(`mzely`) — switch with `gh auth switch --user mathos819` only if API
+calls are needed, then switch back.
+
+To deploy: commit and `git push` — Pages serves `main` at root, live in
+~1 min. When adding a lesson, also add its card to the root `index.html`
+lesson list. After pushing, curl the new lesson URL (expect 200).
+
 ## Definition of done (verify before claiming complete)
 
 - Open the page in Chrome (chrome-devtools MCP) and check:
