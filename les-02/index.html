@@ -519,21 +519,37 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, n
 
 /* ================= CONJUGATION DRILL ================= */
 const SUBJECTS = [
-  { p: "ik", form: v => v.base, heb: "heb", ben: "ben" },
-  { p: "jij", form: v => tForm(v), heb: "hebt", ben: "bent" },
-  { p: "je", form: v => tForm(v), heb: "hebt", ben: "bent" },
-  { p: "u", form: v => tForm(v), heb: "hebt", ben: "bent" },
-  { p: "hij", form: v => tForm(v), heb: "heeft", ben: "is" },
-  { p: "zij (she)", pnl: "zij", form: v => tForm(v), heb: "heeft", ben: "is" },
-  { p: "het", form: v => tForm(v), heb: "heeft", ben: "is" },
-  { p: "wij", form: v => v.inf, heb: "hebben", ben: "zijn" },
-  { p: "we", form: v => v.inf, heb: "hebben", ben: "zijn" },
-  { p: "jullie", form: v => v.inf, heb: "hebben", ben: "zijn" },
-  { p: "zij (they)", pnl: "zij", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "ik", group: "ik", form: v => v.base, heb: "heb", ben: "ben" },
+  { p: "jij", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "je", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "u", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "hij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "zij (she)", pnl: "zij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "het", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "wij", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "we", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "jullie", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "zij (they)", pnl: "zij", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
 ];
 function tForm(v) {
   if (v.tform) return v.tform;
   return v.base.endsWith("t") ? v.base : v.base + "t";
+}
+// Explains the base -> conjugated-form step (jij/u/hij/zij/het/wij/we/jullie),
+// on top of RULE_TEXT which only covers infinitive -> base.
+function conjStepText(subj, verb) {
+  if (subj.group === "ik") return `ik uses the base as-is: ${verb.base}.`;
+  if (subj.group === "pl") return `wij/we/jullie/zij use the full infinitive: ${verb.inf}.`;
+  // singular non-ik: normally base + t
+  if (verb.base.endsWith("t")) {
+    return `jij/u/hij/zij/het add -t, but the base already ends in -t so nothing changes: ${verb.base}.`;
+  }
+  const regular = verb.base + "t";
+  const t = tForm(verb);
+  if (t !== regular) {
+    return `jij/u/hij/zij/het add -t to the base, but ${verb.base} + t would read with a short vowel, so the vowel doubles again to keep it long: ${verb.base} → ${t}.`;
+  }
+  return `jij/u/hij/zij/het add -t to the base: ${verb.base} → ${t}.`;
 }
 const conjDrill = makeDrill({
   inputId: "conj-input", checkId: "conj-check", feedbackId: "conj-feedback",
@@ -551,7 +567,7 @@ const conjDrill = makeDrill({
     } else {
       verb = pick(VERBS);
       answer = subj.form(verb);
-      why = `Base: ${verb.base}. ${RULE_TEXT[verb.rule]}`;
+      why = `Base: ${verb.base}. ${RULE_TEXT[verb.rule]} ${conjStepText(subj, verb)}`;
     }
     $("conj-prompt").innerHTML = `${subj.p} + <span style="color:var(--blue)">${verb.inf}</span>`;
     $("conj-hint").textContent = verb.en;
