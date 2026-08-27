@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 3 — Word Order, Inversie &amp; Vragen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #16150F;
+    --red: #DE3B24;
+    --blue: #2247B5;
+    --yellow: #F5C518;
+    --rule: 3px solid var(--ink);
+    --display: "Archivo Black", "Arial Black", sans-serif;
+    --body: "Archivo", "Helvetica Neue", sans-serif;
+    --mono: "IBM Plex Mono", "Menlo", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .frame { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---- Header: Mondrian composition ---- */
+  header { border-bottom: var(--rule); padding: 36px 0 24px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--display); font-size: clamp(30px, 5.5vw, 54px);
+    line-height: 1.02; text-transform: uppercase; letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--red); }
+  header p.sub { margin-top: 12px; max-width: 560px; color: #4a4940; }
+
+  /* ---- Nav as Mondrian blocks ---- */
+  nav {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border: var(--rule); border-top: none; background: var(--ink); gap: 3px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav button {
+    font-family: var(--display); font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.02em; border: none; padding: 16px 6px 14px;
+    cursor: pointer; background: var(--paper); color: var(--ink);
+  }
+  nav button:hover { background: #efede2; }
+  nav button:focus-visible { outline: 3px dashed var(--blue); outline-offset: -6px; }
+  nav button[aria-selected="true"]:nth-child(1) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(2) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(3) { background: var(--blue); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(4) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(5) { background: var(--blue); color: var(--paper); }
+
+  section.panel { display: none; padding-top: 34px; }
+  section.panel.active { display: block; }
+
+  h2 {
+    font-family: var(--display); font-size: 24px; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .note { color: #4a4940; margin-bottom: 22px; max-width: 660px; }
+
+  /* ---- Reference tables ---- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 26px; margin-bottom: 40px; align-items: start; }
+  .card { border: var(--rule); background: #fff; }
+  .card .head {
+    font-family: var(--display); text-transform: uppercase; font-size: 16px;
+    padding: 10px 14px; border-bottom: var(--rule);
+  }
+  .card .head small { display:block; font-family: var(--mono); font-weight: 400; text-transform: none; font-size: 12px; }
+  .card.red .head { background: var(--red); color: var(--paper); }
+  .card.blue .head { background: var(--blue); color: var(--paper); }
+  .card.yellow .head { background: var(--yellow); }
+  .card table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; }
+  .card td { padding: 8px 14px; border-bottom: 1px solid #d8d5c6; vertical-align: top; }
+  .card tr:last-child td { border-bottom: none; }
+  .card td.en { color: #6a685c; font-size: 13.5px; text-align: right; }
+  .card td.lbl { font-family: var(--body); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; background:#f1efe4; }
+  .speak {
+    border: 2px solid var(--ink); background: var(--paper); cursor: pointer;
+    font-size: 12px; font-family: var(--mono); padding: 1px 7px; margin-right: 8px;
+    border-radius: 0;
+  }
+  .speak:hover { background: var(--yellow); }
+  .speak:focus-visible { outline: 3px dashed var(--blue); }
+
+  .rules { border: var(--rule); background: #fff; margin-bottom: 40px; }
+  .rules .head { font-family: var(--display); text-transform: uppercase; font-size: 16px; padding: 10px 14px; border-bottom: var(--rule); background: var(--ink); color: var(--paper); }
+  .rules ol, .rules ul { padding: 16px 16px 16px 40px; }
+  .rules li { margin-bottom: 12px; }
+  .rules code { font-family: var(--mono); background: #f1efe4; padding: 1px 5px; font-size: 14.5px; }
+
+  /* ---- Word-order pattern strips ---- */
+  .pattern { font-family: var(--mono); font-size: 14px; letter-spacing: .02em; margin-bottom: 6px; }
+  .pattern span { padding: 2px 6px; border: 2px solid var(--ink); display: inline-block; margin: 2px 2px 2px 0; }
+  .pt-s { background: var(--blue); color: var(--paper); }
+  .pt-v { background: var(--yellow); }
+  .pt-r { background: #f1efe4; }
+  .pt-q { background: var(--red); color: var(--paper); }
+  .example { font-family: var(--mono); font-size: 15px; margin: 8px 0 2px; }
+  .example .tr { display: block; color: #6a685c; font-size: 13px; }
+  .blk { border: var(--rule); background: #fff; padding: 16px 18px; margin-bottom: 26px; }
+  .blk h3 { font-family: var(--display); font-size: 15px; text-transform: uppercase; margin-bottom: 10px; }
+  .blk .sep { border: none; border-top: 1px solid #d8d5c6; margin: 14px 0; }
+
+  /* ---- Flashcards ---- */
+  .flash-stage { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .flashcard {
+    width: min(460px, 100%); min-height: 240px; border: var(--rule); background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; text-align: center; padding: 24px;
+  }
+  .flashcard .side-label {
+    position: absolute; top: 10px; left: 12px; font-family: var(--mono);
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .flashcard .word { font-family: var(--display); font-size: 36px; }
+  .flashcard.back { background: var(--yellow); }
+  .flash-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    font-family: var(--display); text-transform: uppercase; font-size: 14px;
+    border: var(--rule); background: var(--paper); padding: 12px 20px; cursor: pointer;
+  }
+  .btn:hover { background: #efede2; }
+  .btn:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .btn.primary { background: var(--blue); color: var(--paper); }
+  .btn.primary:hover { background: #1b3a99; }
+  .btn.good { background: var(--yellow); }
+  .btn.bad { background: var(--red); color: var(--paper); }
+  .flash-progress { font-family: var(--mono); font-size: 14px; }
+
+  /* ---- Drills ---- */
+  .drill { max-width: 720px; }
+  .prompt-box { border: var(--rule); background: #fff; padding: 26px 24px; margin-bottom: 18px; }
+  .prompt-box .task { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; color: #6a685c; }
+  .prompt-box .big { font-family: var(--display); font-size: 22px; line-height: 1.25; }
+  .prompt-box .hint { font-family: var(--mono); font-size: 14px; margin-top: 10px; color: #6a685c; }
+  .prompt-box .parts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .prompt-box .parts span { font-family: var(--mono); font-size: 16px; border: 2px solid var(--ink); padding: 4px 9px; background: #f1efe4; }
+  .prompt-box .target { display: inline-block; background: var(--red); color: var(--paper); font-family: var(--mono); font-size: 15px; padding: 3px 9px; margin-top: 12px; }
+  .answer-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  input[type=text] {
+    flex: 1; font-family: var(--mono); font-size: 18px; padding: 12px 14px;
+    border: var(--rule); background: #fff; min-width: 0;
+  }
+  input[type=text]:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
+  .feedback .ok { color: #1e7a1e; font-weight: 600; }
+  .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
+  .feedback .why b { color: var(--ink); }
+  .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
+  .scorebar b { font-size: 18px; }
+
+  @media (max-width: 640px) {
+    nav { grid-template-columns: repeat(5, 1fr); }
+    nav button { font-size: 10.5px; padding: 12px 2px; }
+    .flashcard .word { font-size: 26px; }
+    .prompt-box .big { font-size: 18px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flashcard { transition: transform .12s ease; }
+    .flashcard:active { transform: scale(.985); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="eyebrow">Nederlands · Les 3 · 21-08-2026</div>
+    <h1>Word order,<br><span class="accent">inversie</span> &amp; vragen</h1>
+    <p class="sub">Hoofdzinnen with <strong>time – object – manner – place</strong>, inversion when the sentence starts with something else, and both kinds of question — closed and open — with the interrogative pronouns.</p>
+  </header>
+
+  <nav role="tablist" aria-label="Practice sections">
+    <button role="tab" aria-selected="true" data-panel="learn">Leer</button>
+    <button role="tab" aria-selected="false" data-panel="flash">Woorden</button>
+    <button role="tab" aria-selected="false" data-panel="order">Zinsbouw</button>
+    <button role="tab" aria-selected="false" data-panel="ask">Vragen</button>
+    <button role="tab" aria-selected="false" data-panel="listen">Luisteren</button>
+  </nav>
+
+  <!-- ================= LEARN ================= -->
+  <section class="panel active" id="panel-learn">
+    <h2>Reference — de woordvolgorde</h2>
+    <p class="note">Click ▶ to hear it at normal speed, 🐢 for the slow version. Every Dutch sentence on this page is spoken by a Dutch voice.</p>
+
+    <div class="blk">
+      <h3>1 · Hoofdzin — every sentence that starts with a subject</h3>
+      <div class="pattern"><span class="pt-s">subject</span><span class="pt-v">verb</span><span class="pt-r">rest = time – object – manner – place</span></div>
+      <div id="ex-hoofd"></div>
+      <hr class="sep">
+      <p style="font-size:15px;color:#4a4940">The <em>rest</em> always runs in the order <strong>time – object – manner – place</strong> (TOMP). <em>elke morgen</em> = time, <em>de kinderen</em> = object, <em>met de auto</em> = manner, <em>naar school</em> = place.</p>
+    </div>
+
+    <div class="blk">
+      <h3>2 · Hoofdzin met inversie — the verb jumps in front of the subject</h3>
+      <p style="font-size:15px;color:#4a4940;margin-bottom:12px">Inversie is when the subject and the verb switch places, so the verb comes <strong>before</strong> the subject. You get that whenever the sentence starts with something taken from the <em>rest</em>.</p>
+      <div id="ex-inv"></div>
+    </div>
+
+    <div class="blk">
+      <h3>3 · Gesloten vraag — answer is ja or nee</h3>
+      <div class="pattern"><span class="pt-v">verb</span><span class="pt-s">subject</span><span class="pt-r">rest (time – object – manner – place)</span></div>
+      <div id="ex-gesloten"></div>
+    </div>
+
+    <div class="blk">
+      <h3>4 · Open vraag — starts with a vraagwoord</h3>
+      <div class="pattern"><span class="pt-q">vraagwoord</span><span class="pt-v">verb</span><span class="pt-s">subject</span><span class="pt-r">rest (time – object – manner – place)</span></div>
+      <div id="ex-open"></div>
+    </div>
+
+    <div class="cols" id="ref-cols"></div>
+
+    <div class="rules">
+      <div class="head">Rules to remember</div>
+      <ol>
+        <li><strong>Hoofdzin</strong> = <code>subject – verb – rest</code>; the rest is always <code>time – object – manner – place</code>.</li>
+        <li><strong>Inversie</strong>: put anything from the rest in first position and the verb still stays in <em>second</em> position, so the subject slides behind it: <code>Elke morgen breng ik…</code>, not <em>Elke morgen ik breng…</em></li>
+        <li><strong>Gesloten vraag</strong> = <code>verb – subject – rest</code>. <strong>Open vraag</strong> = <code>vraagwoord – verb – subject – rest</code>.</li>
+        <li>When <strong>jij / je</strong> comes <em>after</em> the verb, the <code>-t</code> disappears: <code>jij drinkt</code> → <code>drink je?</code>, <code>jij doet</code> → <code>doe je?</code></li>
+        <li><strong>wie</strong> and <strong>wat</strong> as the subject of the question take the <em>hij/zij</em> form: <code>Wie brengt de kinderen naar school?</code></li>
+        <li><strong>hoe</strong> can be combined with an adjective: <code>hoe duur</code>, <code>hoe laat</code>, <code>hoeveel</code>.</li>
+        <li><strong>welk</strong> goes with <em>het</em>-words (<code>welk boek</code>), <strong>welke</strong> with <em>de</em>-words (<code>welke auto</code>).</li>
+        <li>the = <code>de</code> / <code>het</code> &nbsp;·&nbsp; a/an = <code>een</code>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= FLASHCARDS ================= -->
+  <section class="panel" id="panel-flash">
+    <h2>Woorden — vocabulary flashcards</h2>
+    <p class="note">Every word from Les 3 and from the huiswerk. Click the card (or press space) to flip. Unknown cards come back until you know them all.</p>
+    <div class="flash-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <span class="side-label" id="flash-side">NL</span>
+        <div class="word" id="flash-word">—</div>
+      </div>
+      <div class="flash-controls">
+        <button class="btn" id="flash-audio">▶ Uitspraak</button>
+        <button class="btn" id="flash-slow">🐢 Langzaam</button>
+        <button class="btn bad" id="flash-no">✗ Nog niet</button>
+        <button class="btn good" id="flash-yes">✓ Ik weet het</button>
+      </div>
+      <div class="flash-progress" id="flash-progress"></div>
+    </div>
+  </section>
+
+  <!-- ================= WORD ORDER DRILL ================= -->
+  <section class="panel" id="panel-order">
+    <h2>Zinsbouw — hoofdzin &amp; inversie</h2>
+    <p class="note">The exercise from the lesson and from the huiswerk: put the loose parts into a correct sentence. Sometimes a plain <strong>hoofdzin</strong> (TOMP), sometimes an <strong>inversie</strong> starting with the part shown in red. Punctuation and capitals are ignored. Press Enter to check, Enter again for the next one.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Maak een zin</div>
+        <div class="big"><div class="parts" id="order-parts"></div></div>
+        <div class="target" id="order-target"></div>
+        <div class="hint" id="order-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="order-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jouw zin…" aria-label="Your answer">
+        <button class="btn primary" id="order-check">Check</button>
+      </div>
+      <div class="feedback" id="order-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="order-right">0</b></span><span>Fout <b id="order-wrong">0</b></span><span>Reeks <b id="order-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= QUESTION DRILL ================= -->
+  <section class="panel" id="panel-ask">
+    <h2>Vragen — gesloten &amp; open vraag</h2>
+    <p class="note">The huiswerk: turn the sentence into a question. For an <strong>open vraag</strong> the vraagwoord you have to use is given in red. Punctuation and capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Van deze zin…</div>
+        <div class="big" id="ask-base">—</div>
+        <div class="target" id="ask-target"></div>
+        <div class="hint" id="ask-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="ask-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jouw vraag…" aria-label="Your answer">
+        <button class="btn primary" id="ask-check">Check</button>
+      </div>
+      <div class="feedback" id="ask-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="ask-right">0</b></span><span>Fout <b id="ask-wrong">0</b></span><span>Reeks <b id="ask-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= LISTENING ================= -->
+  <section class="panel" id="panel-listen">
+    <h2>Luisteren — dictation</h2>
+    <p class="note">Play the audio and type exactly what you hear — a word, a vraagwoord, or a whole sentence. Punctuation and capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Listen and type</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn" id="listen-slow">🐢 Langzaam</button>
+        </div>
+        <div class="hint" id="listen-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="listen-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wat hoor je?" aria-label="Your answer">
+        <button class="btn primary" id="listen-check">Check</button>
+      </div>
+      <div class="feedback" id="listen-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==== DATA START ==== */
+/* Vocabulary — the sidebar of the lesson PDF plus every word used in the exercises. */
+const WORDS = [
+  { nl: "brengen",  en: "to bring" },
+  { nl: "lopen",    en: "to walk" },
+  { nl: "mijn",     en: "my" },
+  { nl: "de ouders", en: "the parents" },
+  { nl: "met",      en: "with" },
+  { nl: "de lerares", en: "the teacher (female)" },
+  { nl: "de leraar", en: "the teacher (male)" },
+  { nl: "sturen",   en: "to send" },
+  { nl: "stelen",   en: "to steal" },
+  { nl: "uit",      en: "out of / from" },
+  { nl: "de tas",   en: "the bag" },
+  { nl: "iets",     en: "something" },
+  { nl: "de leerling", en: "the student" },
+  { nl: "horen",    en: "to hear" },
+  { nl: "de neef",  en: "the cousin (male)" },
+  { nl: "de bioscoop", en: "the cinema" },
+  { nl: "de tuin",  en: "the garden" },
+  { nl: "het lokaal", en: "the classroom" },
+  { nl: "slapen",   en: "to sleep" },
+  { nl: "spreken",  en: "to speak" },
+  { nl: "vragen",   en: "to ask" },
+  { nl: "huren",    en: "to rent" },
+  { nl: "de woning", en: "the home, the flat" },
+  { nl: "dragen",   en: "to wear, to carry" },
+  { nl: "de hoed",  en: "the hat" },
+  { nl: "de oefening", en: "the exercise" },
+  { nl: "kopen",    en: "to buy" },
+  { nl: "het kleinkind", en: "the grandchild" },
+  { nl: "de brief", en: "the letter" },
+  { nl: "de zus",   en: "the sister" },
+  { nl: "de oom",   en: "the uncle" },
+  { nl: "de tante", en: "the aunt" },
+  { nl: "de oma",   en: "the grandmother" },
+  { nl: "de opa",   en: "the grandfather" },
+  { nl: "koken",    en: "to cook" },
+  { nl: "bakken",   en: "to bake" },
+  { nl: "zetten",   en: "to put (upright)" },
+  { nl: "leggen",   en: "to lay (down)" },
+  { nl: "doen",     en: "to do, to put" },
+  { nl: "bewaren",  en: "to keep, to store" },
+  { nl: "snijden",  en: "to cut" },
+  { nl: "de oven",  en: "the oven" },
+  { nl: "de magnetron", en: "the microwave" },
+  { nl: "de koelkast", en: "the fridge" },
+  { nl: "de pan",   en: "the pan" },
+  { nl: "het mes",  en: "the knife" },
+  { nl: "het bestek", en: "the cutlery" },
+  { nl: "het bord", en: "the plate" },
+  { nl: "de tafel", en: "the table" },
+  { nl: "de trommel", en: "the tin" },
+  { nl: "het koekje", en: "the biscuit" },
+  { nl: "de maaltijd", en: "the meal" },
+  { nl: "het brood", en: "the bread" },
+  { nl: "de cake",  en: "the cake" },
+  { nl: "de fles",  en: "the bottle" },
+  { nl: "het water", en: "the water" },
+  { nl: "de tomaat", en: "the tomato" },
+  { nl: "peper en zout", en: "pepper and salt" },
+  { nl: "het koffiezetapparaat", en: "the coffee machine" },
+  { nl: "twee keer per week", en: "twice a week" },
+  { nl: "elke dag", en: "every day" },
+  { nl: "elke week", en: "every week" },
+  { nl: "op zaterdag", en: "on Saturday" },
+  { nl: "altijd",   en: "always" },
+  { nl: "naast",    en: "next to" },
+];
+
+/* Interrogative pronouns — the right-hand column of the lesson PDF. */
+const QWORDS = [
+  { nl: "wie",      en: "who" },
+  { nl: "wat",      en: "what" },
+  { nl: "waar",     en: "where" },
+  { nl: "wanneer",  en: "when" },
+  { nl: "waarom",   en: "why" },
+  { nl: "hoe",      en: "how" },
+  { nl: "hoe duur", en: "how expensive" },
+  { nl: "hoe laat", en: "at what time" },
+  { nl: "hoeveel",  en: "how much, how many" },
+  { nl: "welk",     en: "which (+ het-word)" },
+  { nl: "welke",    en: "which (+ de-word)" },
+];
+
+/* The worked examples printed in the lesson PDF. */
+const EX_HOOFD = [
+  ["Hij brengt elke morgen de kinderen met de auto naar school.", "He brings the kids to school by car every morning."],
+];
+const EX_INV = [
+  ["time - verb - subject - object - manner - place", "Elke morgen breng ik mijn kinderen met de auto naar school."],
+  ["object - verb - subject - time - manner - place", "Mijn kinderen breng ik elke morgen met de auto naar school."],
+  ["manner - verb - subject - time - object - place", "Met de auto breng ik elke morgen mijn kinderen naar school."],
+  ["place - verb - subject - time - object - manner", "Naar school breng ik elke morgen mijn kinderen met de auto."],
+];
+const EX_GESLOTEN = [
+  ["Brengt hij de kinderen naar school?", "Does he bring the kids to school?"],
+  ["Drink je koffie?", "Do you drink coffee?"],
+  ["Komen jullie morgen naar werk?", "Do you come to work tomorrow?"],
+  ["Is hij hier?", "Is he here?"],
+];
+const EX_OPEN = [
+  ["Wie brengt de kinderen naar school?", "Who brings the kids to school?"],
+  ["Wat drink je 's morgens?", "What do you drink in the morning?"],
+  ["Hoe laat komen jullie naar werk?", "At what time are you coming to work?"],
+  ["Waar werkt hij?", "Where does he work?"],
+  ["Hoe kom je naar werk?", "How do you come to work?"],
+  ["Hoe duur is de auto?", "How expensive is the car?"],
+  ["Welk boek lees je?", "Which book are you reading?"],
+  ["Welke auto heb je?", "Which car do you have?"],
+];
+
+/* The 12 sentences from the lesson + the 10 from the huiswerk.
+   hoofd/inv answers for the lesson set are the teacher's own answers. */
+const SENTENCES = [
+  { src: "les", parts: ["naar de bioscoop","mijn ouders","lopen","elke week"],
+    hoofd: "Mijn ouders lopen elke week naar de bioscoop.",
+    inv: [ { start: "elke week", s: "Elke week lopen mijn ouders naar de bioscoop." },
+           { start: "naar de bioscoop", s: "Naar de bioscoop lopen mijn ouders elke week." } ],
+    gesloten: "Lopen mijn ouders elke week naar de bioscoop?",
+    open: [ { q: "wie", s: "Wie loopt elke week naar de bioscoop?", note: "wie is the subject here, so the verb takes the hij/zij-form: loopt." },
+            { q: "wanneer", s: "Wanneer lopen mijn ouders naar de bioscoop?" } ] },
+
+  { src: "les", parts: ["in het huis van opa en oma","de kinderen","wonen"],
+    hoofd: "De kinderen wonen in het huis van opa en oma.",
+    inv: [ { start: "in het huis van opa en oma", s: "In het huis van opa en oma wonen de kinderen." } ],
+    gesloten: "Wonen de kinderen in het huis van opa en oma?",
+    open: [ { q: "wie", s: "Wie woont in het huis van opa en oma?", note: "wie takes the hij/zij-form: woont." },
+            { q: "waar", s: "Waar wonen de kinderen?" } ] },
+
+  { src: "les", parts: ["slapen","mijn zus","in de tuin"],
+    hoofd: "Mijn zus slaapt in de tuin.",
+    inv: [ { start: "in de tuin", s: "In de tuin slaapt mijn zus." } ],
+    gesloten: "Slaapt mijn zus in de tuin?",
+    open: [ { q: "wie", s: "Wie slaapt in de tuin?" },
+            { q: "waar", s: "Waar slaapt mijn zus?" } ],
+    note: "slapen &rarr; base slaap &rarr; hij/zij slaapt (not <em>slapen</em>)." },
+
+  { src: "les", parts: ["met de lerares","hij","in het lokaal","spreken"],
+    hoofd: "Hij spreekt met de lerares in het lokaal.",
+    inv: [ { start: "in het lokaal", s: "In het lokaal spreekt hij met de lerares." },
+           { start: "met de lerares", s: "Met de lerares spreekt hij in het lokaal." } ],
+    gesloten: "Spreekt hij met de lerares in het lokaal?",
+    open: [ { q: "wie", s: "Wie spreekt met de lerares in het lokaal?" },
+            { q: "waar", s: "Waar spreekt hij met de lerares?" } ],
+    note: "In the rest, manner (met de lerares) comes before place (in het lokaal)." },
+
+  { src: "les", parts: ["mijn vader","sturen","ik","een brief"],
+    hoofd: "Ik stuur mijn vader een brief.",
+    inv: [ { start: "een brief", s: "Een brief stuur ik mijn vader." } ],
+    gesloten: "Stuur ik mijn vader een brief?",
+    open: [ { q: "wat", s: "Wat stuur ik mijn vader?" },
+            { q: "wie", s: "Wie stuurt mijn vader een brief?", note: "wie takes the hij/zij-form: stuurt." } ] },
+
+  { src: "les", parts: ["iets","aan de leraar","de leerling","vragen"],
+    hoofd: "De leerling vraagt aan de leraar iets.",
+    hoofdAlt: ["De leerling vraagt iets aan de leraar."],
+    inv: [ { start: "iets", s: "Iets vraagt de leerling aan de leraar." } ],
+    gesloten: "Vraagt de leerling iets aan de leraar?",
+    open: [ { q: "wat", s: "Wat vraagt de leerling aan de leraar?" },
+            { q: "wie", s: "Wie vraagt iets aan de leraar?" } ] },
+
+  { src: "les", parts: ["stelen","het boek","zij","uit de tas"],
+    hoofd: "Zij steelt het boek uit de tas.",
+    inv: [ { start: "uit de tas", s: "Uit de tas steelt zij het boek." },
+           { start: "het boek", s: "Het boek steelt zij uit de tas." } ],
+    gesloten: "Steelt zij het boek uit de tas?",
+    open: [ { q: "wat", s: "Wat steelt zij uit de tas?" },
+            { q: "wie", s: "Wie steelt het boek uit de tas?" } ],
+    note: "stelen &rarr; base steel &rarr; zij steelt." },
+
+  { src: "les", parts: ["een kleine woning","huren","mijn oom en tante"],
+    hoofd: "Mijn oom en tante huren een kleine woning.",
+    inv: [ { start: "een kleine woning", s: "Een kleine woning huren mijn oom en tante." } ],
+    gesloten: "Huren mijn oom en tante een kleine woning?",
+    open: [ { q: "wat", s: "Wat huren mijn oom en tante?" },
+            { q: "wie", s: "Wie huurt een kleine woning?", note: "wie takes the hij/zij-form: huurt." } ] },
+
+  { src: "les", parts: ["niet goed","mijn oma","horen"],
+    hoofd: "Mijn oma hoort niet goed.",
+    inv: [ { start: "niet goed", s: "Niet goed hoort mijn oma." } ],
+    gesloten: "Hoort mijn oma niet goed?",
+    open: [ { q: "wie", s: "Wie hoort niet goed?" } ] },
+
+  { src: "les", parts: ["geen boeken","kopen","mijn kleinkinderen"],
+    hoofd: "Mijn kleinkinderen kopen geen boeken.",
+    inv: [ { start: "geen boeken", s: "Geen boeken kopen mijn kleinkinderen." } ],
+    gesloten: "Kopen mijn kleinkinderen geen boeken?",
+    open: [ { q: "wat", s: "Wat kopen mijn kleinkinderen?" },
+            { q: "wie", s: "Wie koopt geen boeken?", note: "wie takes the hij/zij-form: koopt." } ] },
+
+  { src: "les", parts: ["een mooie hoed","mijn moeder","dragen"],
+    hoofd: "Mijn moeder draagt een mooie hoed.",
+    inv: [ { start: "een mooie hoed", s: "Een mooie hoed draagt mijn moeder." } ],
+    gesloten: "Draagt mijn moeder een mooie hoed?",
+    open: [ { q: "wat", s: "Wat draagt mijn moeder?" },
+            { q: "wie", s: "Wie draagt een mooie hoed?" } ] },
+
+  { src: "les", parts: ["de oefening","niet goed","mijn neef","leren"],
+    hoofd: "Mijn neef leert de oefening niet goed.",
+    inv: [ { start: "de oefening", s: "De oefening leert mijn neef niet goed." } ],
+    gesloten: "Leert mijn neef de oefening niet goed?",
+    open: [ { q: "wat", s: "Wat leert mijn neef niet goed?" },
+            { q: "wie", s: "Wie leert de oefening niet goed?" } ] },
+
+  { src: "model", parts: ["de kinderen","brengen","elke morgen","hij","met de auto","naar school"],
+    hoofd: "Hij brengt elke morgen de kinderen met de auto naar school.",
+    inv: [ { start: "elke morgen", s: "Elke morgen brengt hij de kinderen met de auto naar school." },
+           { start: "de kinderen", s: "De kinderen brengt hij elke morgen met de auto naar school." },
+           { start: "met de auto", s: "Met de auto brengt hij elke morgen de kinderen naar school." },
+           { start: "naar school", s: "Naar school brengt hij elke morgen de kinderen met de auto." } ],
+    gesloten: "Brengt hij elke morgen de kinderen met de auto naar school?",
+    open: [ { q: "wie", s: "Wie brengt de kinderen naar school?" },
+            { q: "hoe", s: "Hoe brengt hij elke morgen de kinderen naar school?" },
+            { q: "waar", s: "Waar brengt hij elke morgen de kinderen naartoe?" } ],
+    note: "The model sentence of the lesson: time (elke morgen) &ndash; object (de kinderen) &ndash; manner (met de auto) &ndash; place (naar school)." },
+
+  { src: "huiswerk", parts: ["met tomaten","Alfred","koken","twee keer per week","spaghetti"],
+    hoofd: "Alfred kookt twee keer per week spaghetti met tomaten.",
+    inv: [ { start: "twee keer per week", s: "Twee keer per week kookt Alfred spaghetti met tomaten." },
+           { start: "met tomaten", s: "Met tomaten kookt Alfred twee keer per week spaghetti." },
+           { start: "spaghetti", s: "Spaghetti kookt Alfred twee keer per week met tomaten." } ],
+    gesloten: "Kookt Alfred twee keer per week spaghetti met tomaten?",
+    open: [ { q: "wat", s: "Wat kookt Alfred twee keer per week?" },
+            { q: "wie", s: "Wie kookt twee keer per week spaghetti met tomaten?" },
+            { q: "wanneer", s: "Wanneer kookt Alfred spaghetti met tomaten?" } ] },
+
+  { src: "huiswerk", parts: ["het bestek","leggen","op tafel","naast de borden","de kinderen"],
+    hoofd: "De kinderen leggen het bestek op tafel naast de borden.",
+    inv: [ { start: "op tafel naast de borden", s: "Op tafel naast de borden leggen de kinderen het bestek." },
+           { start: "het bestek", s: "Het bestek leggen de kinderen op tafel naast de borden." } ],
+    gesloten: "Leggen de kinderen het bestek op tafel naast de borden?",
+    open: [ { q: "wat", s: "Wat leggen de kinderen op tafel naast de borden?" },
+            { q: "waar", s: "Waar leggen de kinderen het bestek?" },
+            { q: "wie", s: "Wie legt het bestek op tafel naast de borden?", note: "wie takes the hij/zij-form: legt." } ] },
+
+  { src: "huiswerk", parts: ["in de oven","bakken","een lekkere cake","mijn moeder"],
+    hoofd: "Mijn moeder bakt een lekkere cake in de oven.",
+    inv: [ { start: "in de oven", s: "In de oven bakt mijn moeder een lekkere cake." },
+           { start: "een lekkere cake", s: "Een lekkere cake bakt mijn moeder in de oven." } ],
+    gesloten: "Bakt mijn moeder een lekkere cake in de oven?",
+    open: [ { q: "wat", s: "Wat bakt mijn moeder in de oven?" },
+            { q: "waar", s: "Waar bakt mijn moeder een lekkere cake?" },
+            { q: "wie", s: "Wie bakt een lekkere cake in de oven?" } ] },
+
+  { src: "huiswerk", parts: ["acht flessen water","kopen","Maria","op zaterdag","bij de HEMA"],
+    hoofd: "Maria koopt op zaterdag acht flessen water bij de HEMA.",
+    inv: [ { start: "op zaterdag", s: "Op zaterdag koopt Maria acht flessen water bij de HEMA." },
+           { start: "bij de HEMA", s: "Bij de HEMA koopt Maria op zaterdag acht flessen water." },
+           { start: "acht flessen water", s: "Acht flessen water koopt Maria op zaterdag bij de HEMA." } ],
+    gesloten: "Koopt Maria op zaterdag acht flessen water bij de HEMA?",
+    open: [ { q: "wat", s: "Wat koopt Maria op zaterdag bij de HEMA?" },
+            { q: "waar", s: "Waar koopt Maria op zaterdag acht flessen water?" },
+            { q: "hoeveel", s: "Hoeveel flessen water koopt Maria op zaterdag bij de HEMA?" },
+            { q: "wanneer", s: "Wanneer koopt Maria acht flessen water bij de HEMA?" } ] },
+
+  { src: "huiswerk", parts: ["Karel","de koekjes","in de trommel","doen"],
+    hoofd: "Karel doet de koekjes in de trommel.",
+    inv: [ { start: "in de trommel", s: "In de trommel doet Karel de koekjes." },
+           { start: "de koekjes", s: "De koekjes doet Karel in de trommel." } ],
+    gesloten: "Doet Karel de koekjes in de trommel?",
+    open: [ { q: "wat", s: "Wat doet Karel in de trommel?" },
+            { q: "waar", s: "Waar doet Karel de koekjes?" },
+            { q: "wie", s: "Wie doet de koekjes in de trommel?" } ] },
+
+  { src: "huiswerk", parts: ["hebben","een koffiezetapparaat","de leraar","op zijn tafel"],
+    hoofd: "De leraar heeft een koffiezetapparaat op zijn tafel.",
+    inv: [ { start: "op zijn tafel", s: "Op zijn tafel heeft de leraar een koffiezetapparaat." },
+           { start: "een koffiezetapparaat", s: "Een koffiezetapparaat heeft de leraar op zijn tafel." } ],
+    gesloten: "Heeft de leraar een koffiezetapparaat op zijn tafel?",
+    open: [ { q: "wat", s: "Wat heeft de leraar op zijn tafel?" },
+            { q: "wie", s: "Wie heeft een koffiezetapparaat op zijn tafel?" },
+            { q: "waar", s: "Waar heeft de leraar een koffiezetapparaat?" } ],
+    note: "hebben is irregular: hij/zij <em>heeft</em>." },
+
+  { src: "huiswerk", parts: ["John en Linda","een maaltijd","elke dag","in de magnetron","zetten"],
+    hoofd: "John en Linda zetten elke dag een maaltijd in de magnetron.",
+    inv: [ { start: "elke dag", s: "Elke dag zetten John en Linda een maaltijd in de magnetron." },
+           { start: "in de magnetron", s: "In de magnetron zetten John en Linda elke dag een maaltijd." },
+           { start: "een maaltijd", s: "Een maaltijd zetten John en Linda elke dag in de magnetron." } ],
+    gesloten: "Zetten John en Linda elke dag een maaltijd in de magnetron?",
+    open: [ { q: "wat", s: "Wat zetten John en Linda elke dag in de magnetron?" },
+            { q: "wanneer", s: "Wanneer zetten John en Linda een maaltijd in de magnetron?" },
+            { q: "waar", s: "Waar zetten John en Linda elke dag een maaltijd?" } ] },
+
+  { src: "huiswerk", parts: ["bewaren","het brood","altijd","mijn man","in de koelkast"],
+    hoofd: "Mijn man bewaart altijd het brood in de koelkast.",
+    hoofdAlt: ["Mijn man bewaart het brood altijd in de koelkast."],
+    inv: [ { start: "altijd", s: "Altijd bewaart mijn man het brood in de koelkast." },
+           { start: "in de koelkast", s: "In de koelkast bewaart mijn man altijd het brood." },
+           { start: "het brood", s: "Het brood bewaart mijn man altijd in de koelkast." } ],
+    gesloten: "Bewaart mijn man altijd het brood in de koelkast?",
+    open: [ { q: "wat", s: "Wat bewaart mijn man altijd in de koelkast?" },
+            { q: "waar", s: "Waar bewaart mijn man altijd het brood?" },
+            { q: "wie", s: "Wie bewaart altijd het brood in de koelkast?" } ],
+    note: "altijd is the <em>time</em> part, so in TOMP order it comes before the object het brood." },
+
+  { src: "huiswerk", parts: ["je","peper en zout","doen","in de pan"],
+    hoofd: "Je doet peper en zout in de pan.",
+    inv: [ { start: "in de pan", s: "In de pan doe je peper en zout." },
+           { start: "peper en zout", s: "Peper en zout doe je in de pan." } ],
+    gesloten: "Doe je peper en zout in de pan?",
+    open: [ { q: "wat", s: "Wat doe je in de pan?" },
+            { q: "waar", s: "Waar doe je peper en zout?" } ],
+    note: "When <b>je</b> comes after the verb, the -t disappears: je doet &rarr; doe je." },
+
+  { src: "huiswerk", parts: ["snijden","met een mes","de vrouw","de cake"],
+    hoofd: "De vrouw snijdt de cake met een mes.",
+    inv: [ { start: "met een mes", s: "Met een mes snijdt de vrouw de cake." },
+           { start: "de cake", s: "De cake snijdt de vrouw met een mes." } ],
+    gesloten: "Snijdt de vrouw de cake met een mes?",
+    open: [ { q: "wat", s: "Wat snijdt de vrouw met een mes?" },
+            { q: "hoe", s: "Hoe snijdt de vrouw de cake?" },
+            { q: "wie", s: "Wie snijdt de cake met een mes?" } ],
+    note: "snijden &rarr; base snijd &rarr; hij/zij snijdt (ij is not doubled)." },
+];
+/* ==== DATA END ==== */
+
+/* ================= AUDIO ================= */
+const slug = t => t.toLowerCase().replace(/[.?!,;:'"]/g, "").replace(/\s+/g, "_");
+let currentAudio = null;
+let nlVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => v.lang.startsWith("nl"));
+  nlVoice = vs.find(v => v.lang === "nl-NL") || vs[0] || null;
+}
+if ("speechSynthesis" in window) {
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+// Play a pre-generated neural-voice file when we have one.
+// slow=true uses the natively slowed recording in audio/slow/;
+// fallback chain: slow file -> normal file at reduced playbackRate -> browser TTS.
+function speak(text, slow = false) {
+  const s = slug(text);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const a = new Audio((slow ? "audio/slow/" : "audio/") + s + ".mp3");
+  a.onerror = () => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false));
+  a.play().catch(() => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false)));
+  currentAudio = a;
+}
+function speakFallbackSlow(s, text) {
+  const a = new Audio("audio/" + s + ".mp3");
+  a.playbackRate = 0.65;
+  a.onerror = () => speakTTS(text, true);
+  a.play().catch(() => speakTTS(text, true));
+  currentAudio = a;
+}
+function speakTTS(text, slow = false) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (nlVoice) u.voice = nlVoice;
+  u.lang = "nl-NL";
+  u.rate = slow ? 0.55 : 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+// Sentences are compared without punctuation or capitals.
+const norm = s => s.trim().toLowerCase().replace(/[.?!,;:]/g, "").replace(/\s+/g, " ");
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function speakBtn(text) {
+  const t = text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+  return `<button class="speak" onclick="speak('${t}')" aria-label="Pronounce">▶</button>` +
+         `<button class="speak" onclick="speak('${t}', true)" aria-label="Pronounce slowly">🐢</button>`;
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", "false"));
+    btn.setAttribute("aria-selected", "true");
+    document.querySelectorAll("section.panel").forEach(p => p.classList.remove("active"));
+    $("panel-" + btn.dataset.panel).classList.add("active");
+  });
+});
+
+/* ================= LEARN PANEL ================= */
+function exampleList(pairs) {
+  return pairs.map(([nl, tr]) =>
+    `<div class="example">${speakBtn(nl)}${esc(nl)}<span class="tr">${esc(tr)}</span></div>`).join("");
+}
+$("ex-hoofd").innerHTML = exampleList(EX_HOOFD);
+$("ex-gesloten").innerHTML = exampleList(EX_GESLOTEN);
+$("ex-open").innerHTML = exampleList(EX_OPEN);
+$("ex-inv").innerHTML = EX_INV.map(([pat, nl]) =>
+  `<div class="example" style="margin-bottom:14px">
+     <div class="pattern" style="margin-bottom:4px">${pat.split(" - ").map(p => {
+        const cls = p === "verb" ? "pt-v" : p === "subject" ? "pt-s" : "pt-r";
+        return `<span class="${cls}">${p}</span>`;
+     }).join("")}</div>
+     ${speakBtn(nl)}${esc(nl)}
+   </div>`).join("");
+
+function refCard(title, subtitle, rows, colorClass) {
+  const trs = rows.map(r => {
+    if (r.label) return `<tr><td class="lbl" colspan="2">${r.label}</td></tr>`;
+    return `<tr><td>${speakBtn(r[0])}${esc(r[0])}</td><td class="en">${esc(r[1])}</td></tr>`;
+  }).join("");
+  return `<div class="card ${colorClass}"><div class="head">${title}<small>${subtitle}</small></div><table>${trs}</table></div>`;
+}
+$("ref-cols").innerHTML =
+  refCard("Vraagwoorden", "interrogative pronouns", QWORDS.map(w => [w.nl, w.en]), "red") +
+  refCard("Woorden van deze les", "vocabulaire", WORDS.map(w => [w.nl, w.en]), "blue");
+
+/* ================= FLASHCARDS ================= */
+const DECK = [...WORDS, ...QWORDS];
+let flashDeck = [], flashIdx = 0, flashFlipped = false, flashKnown = 0, flashTotal = 0;
+function flashInit() {
+  flashDeck = shuffle(DECK);
+  flashIdx = 0; flashFlipped = false; flashKnown = 0; flashTotal = DECK.length;
+  flashRender();
+}
+function flashCurrent() { return flashDeck[flashIdx]; }
+function flashRender() {
+  const card = $("flashcard");
+  if (!flashDeck.length) {
+    card.classList.remove("back");
+    $("flash-side").textContent = "✓";
+    $("flash-word").textContent = "Alles gekend! 🎉";
+    $("flash-progress").textContent = `${flashKnown}/${flashTotal} known — press "Nog niet" to restart`;
+    return;
+  }
+  const v = flashCurrent();
+  card.classList.toggle("back", flashFlipped);
+  $("flash-side").textContent = flashFlipped ? "EN" : "NL";
+  $("flash-word").textContent = flashFlipped ? v.en : v.nl;
+  $("flash-progress").textContent = `${flashKnown}/${flashTotal} known · ${flashDeck.length} to go`;
+}
+function flashFlip() { if (!flashDeck.length) return; flashFlipped = !flashFlipped; flashRender(); }
+function flashAnswer(knew) {
+  if (!flashDeck.length) { flashInit(); return; }
+  const v = flashDeck.splice(flashIdx, 1)[0];
+  if (knew) flashKnown++; else flashDeck.push(v);
+  if (flashIdx >= flashDeck.length) flashIdx = 0;
+  flashFlipped = false;
+  flashRender();
+}
+$("flashcard").addEventListener("click", flashFlip);
+$("flashcard").addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flashFlip(); } });
+$("flash-yes").addEventListener("click", () => flashAnswer(true));
+$("flash-no").addEventListener("click", () => flashAnswer(false));
+$("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl); });
+$("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl, true); });
+flashInit();
+
+/* ================= DRILL ENGINE ================= */
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+  const input = $(inputId), fb = $(feedbackId);
+  let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  function newQuestion() {
+    current = next();
+    answered = false;
+    fb.innerHTML = "";
+    input.value = "";
+    input.focus();
+  }
+  function doCheck() {
+    if (answered) { newQuestion(); return; }
+    if (!norm(input.value)) return;
+    const res = check(current, input.value);
+    answered = true;
+    if (res.ok) { right++; streak++; }
+    else { wrong++; streak = 0; }
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = res.ok
+      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
+      : `<span class="no">✗ ${res.correct}</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`;
+    if (res.say) {
+      speak(res.say);
+      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    }
+    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+  }
+  input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
+  $(checkId).addEventListener("click", doCheck);
+  return { newQuestion, get current() { return current; } };
+}
+
+const SRC_LABEL = { les: "uit de les", huiswerk: "uit het huiswerk", model: "voorbeeldzin van de les" };
+function extraNote(sent, item) {
+  const bits = [];
+  if (item && item.note) bits.push(item.note);
+  if (sent.note) bits.push(sent.note);
+  return bits.length ? " " + bits.join(" ") : "";
+}
+
+/* ================= ZINSBOUW DRILL ================= */
+const orderDrill = makeDrill({
+  inputId: "order-input", checkId: "order-check", feedbackId: "order-feedback",
+  rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak",
+  next() {
+    const sent = pick(SENTENCES);
+    // Half the rounds ask for the plain hoofdzin, half for an inversie.
+    const wantInv = sent.inv.length && Math.random() < 0.5;
+    $("order-parts").innerHTML = shuffle(sent.parts).map(p => `<span>${esc(p)}</span>`).join("");
+    $("order-hint").textContent = SRC_LABEL[sent.src];
+    if (wantInv) {
+      const item = pick(sent.inv);
+      $("order-target").innerHTML = `Hoofdzin met inversie — begin met: „${esc(item.start)}”`;
+      return {
+        answers: [item.s],
+        say: item.s,
+        why: `<b>Inversie:</b> you start with „${esc(item.start)}”, which comes from the <em>rest</em>, so the verb keeps second place and the subject slides behind it — <b>${esc(item.start)} – verb – subject – rest</b>. The plain hoofdzin is: ${esc(sent.hoofd)}${extraNote(sent, item)}`,
+      };
+    }
+    $("order-target").innerHTML = `Hoofdzin`;
+    return {
+      answers: [sent.hoofd, ...(sent.hoofdAlt || [])],
+      say: sent.hoofd,
+      why: `<b>Hoofdzin:</b> subject – verb – rest, and the rest runs <b>time – object – manner – place</b>.${extraNote(sent, null)}`,
+    };
+  },
+  check(cur, given) {
+    const g = norm(given);
+    const ok = cur.answers.some(a => norm(a) === g);
+    return { ok, correct: cur.answers[0], why: cur.why, say: cur.say };
+  },
+});
+
+/* ================= VRAGEN DRILL ================= */
+const askDrill = makeDrill({
+  inputId: "ask-input", checkId: "ask-check", feedbackId: "ask-feedback",
+  rightId: "ask-right", wrongId: "ask-wrong", streakId: "ask-streak",
+  next() {
+    const sent = pick(SENTENCES);
+    const wantOpen = sent.open.length && Math.random() < 0.55;
+    $("ask-base").innerHTML = `${speakBtn(sent.hoofd)}${esc(sent.hoofd)}`;
+    $("ask-hint").textContent = SRC_LABEL[sent.src];
+    if (wantOpen) {
+      const item = pick(sent.open);
+      $("ask-target").innerHTML = `Open vraag met „${esc(item.q)}”`;
+      return {
+        answers: [item.s],
+        say: item.s,
+        why: `<b>Open vraag:</b> vraagwoord – verb – subject – rest. Here the vraagwoord is „${esc(item.q)}”.${extraNote(sent, item)}`,
+      };
+    }
+    $("ask-target").innerHTML = `Gesloten vraag`;
+    return {
+      answers: [sent.gesloten],
+      say: sent.gesloten,
+      why: `<b>Gesloten vraag:</b> verb – subject – rest. No vraagwoord, so the answer is ja or nee.${extraNote(sent, null)}`,
+    };
+  },
+  check(cur, given) {
+    const g = norm(given);
+    const ok = cur.answers.some(a => norm(a) === g);
+    return { ok, correct: cur.answers[0], why: cur.why, say: cur.say };
+  },
+});
+
+/* ================= LISTENING DRILL ================= */
+const LISTEN_ITEMS = [
+  ...WORDS.map(w => w.nl),
+  ...QWORDS.map(w => w.nl),
+  ...EX_GESLOTEN.map(e => e[0]),
+  ...EX_OPEN.map(e => e[0]),
+  ...SENTENCES.map(s => s.hoofd),
+  ...SENTENCES.map(s => s.gesloten),
+  ...SENTENCES.flatMap(s => s.inv.map(i => i.s)),
+  ...SENTENCES.flatMap(s => s.open.map(o => o.s)),
+];
+const listenDrill = makeDrill({
+  inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  next() {
+    const text = pick(LISTEN_ITEMS);
+    $("listen-hint").textContent = text.split(" ").length > 1 ? `${text.split(" ").length} woorden` : "1 woord";
+    return { text };
+  },
+  check(cur, given) {
+    const ok = norm(given) === norm(cur.text);
+    return { ok, correct: cur.text, say: cur.text };
+  },
+});
+$("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
+$("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
+
+/* Start drills */
+orderDrill.newQuestion();
+askDrill.newQuestion();
+listenDrill.newQuestion();
+</script>
+</body>
+</html>
