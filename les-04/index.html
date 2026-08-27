@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 4 — Persoonlijke voornaamwoorden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #16150F;
+    --red: #DE3B24;
+    --blue: #2247B5;
+    --yellow: #F5C518;
+    --rule: 3px solid var(--ink);
+    --display: "Archivo Black", "Arial Black", sans-serif;
+    --body: "Archivo", "Helvetica Neue", sans-serif;
+    --mono: "IBM Plex Mono", "Menlo", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .frame { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---- Header: Mondrian composition ---- */
+  header { border-bottom: var(--rule); padding: 36px 0 24px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--display); font-size: clamp(30px, 5.5vw, 54px);
+    line-height: 1.02; text-transform: uppercase; letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--red); }
+  header p.sub { margin-top: 12px; max-width: 620px; color: #4a4940; }
+
+  /* ---- Nav as Mondrian blocks ---- */
+  nav {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border: var(--rule); border-top: none; background: var(--ink); gap: 3px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav button {
+    font-family: var(--display); font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.02em; border: none; padding: 16px 6px 14px;
+    cursor: pointer; background: var(--paper); color: var(--ink);
+  }
+  nav button:hover { background: #efede2; }
+  nav button:focus-visible { outline: 3px dashed var(--blue); outline-offset: -6px; }
+  nav button[aria-selected="true"]:nth-child(1) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(2) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(3) { background: var(--blue); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(4) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(5) { background: var(--blue); color: var(--paper); }
+
+  section.panel { display: none; padding-top: 34px; }
+  section.panel.active { display: block; }
+
+  h2 {
+    font-family: var(--display); font-size: 24px; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .note { color: #4a4940; margin-bottom: 22px; max-width: 700px; }
+
+  /* ---- Reference tables ---- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 26px; margin-bottom: 40px; align-items: start; }
+  .card { border: var(--rule); background: #fff; }
+  .card .head {
+    font-family: var(--display); text-transform: uppercase; font-size: 16px;
+    padding: 10px 14px; border-bottom: var(--rule);
+  }
+  .card .head small { display:block; font-family: var(--mono); font-weight: 400; text-transform: none; font-size: 12px; }
+  .card.red .head { background: var(--red); color: var(--paper); }
+  .card.blue .head { background: var(--blue); color: var(--paper); }
+  .card.yellow .head { background: var(--yellow); }
+  .card table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; }
+  .card td { padding: 8px 14px; border-bottom: 1px solid #d8d5c6; vertical-align: top; }
+  .card tr:last-child td { border-bottom: none; }
+  .card td.en { color: #6a685c; font-size: 13.5px; text-align: right; }
+  .card td.lbl { font-family: var(--body); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; background:#f1efe4; }
+  .speak {
+    border: 2px solid var(--ink); background: var(--paper); cursor: pointer;
+    font-size: 12px; font-family: var(--mono); padding: 1px 7px; margin-right: 8px;
+    border-radius: 0;
+  }
+  .speak:hover { background: var(--yellow); }
+  .speak:focus-visible { outline: 3px dashed var(--blue); }
+
+  .rules { border: var(--rule); background: #fff; margin-bottom: 40px; }
+  .rules .head { font-family: var(--display); text-transform: uppercase; font-size: 16px; padding: 10px 14px; border-bottom: var(--rule); background: var(--ink); color: var(--paper); }
+  .rules ol, .rules ul { padding: 16px 16px 16px 40px; }
+  .rules li { margin-bottom: 12px; }
+  .rules code { font-family: var(--mono); background: #f1efe4; padding: 1px 5px; font-size: 14.5px; }
+
+  /* ---- Pattern strips / example blocks ---- */
+  .pattern { font-family: var(--mono); font-size: 14px; letter-spacing: .02em; margin-bottom: 6px; }
+  .pattern span { padding: 2px 6px; border: 2px solid var(--ink); display: inline-block; margin: 2px 2px 2px 0; }
+  .pt-s { background: var(--blue); color: var(--paper); }
+  .pt-p { background: var(--yellow); }
+  .pt-o { background: var(--red); color: var(--paper); }
+  .pt-r { background: #f1efe4; }
+  .example { font-family: var(--mono); font-size: 15px; margin: 8px 0 2px; }
+  .example .tr { display: block; color: #6a685c; font-size: 13px; }
+  .blk { border: var(--rule); background: #fff; padding: 16px 18px; margin-bottom: 26px; }
+  .blk h3 { font-family: var(--display); font-size: 15px; text-transform: uppercase; margin-bottom: 10px; }
+  .blk .sep { border: none; border-top: 1px solid #d8d5c6; margin: 14px 0; }
+
+  /* ---- Flashcards ---- */
+  .flash-stage { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .flashcard {
+    width: min(460px, 100%); min-height: 240px; border: var(--rule); background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; text-align: center; padding: 24px;
+  }
+  .flashcard .side-label {
+    position: absolute; top: 10px; left: 12px; font-family: var(--mono);
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .flashcard .word { font-family: var(--display); font-size: 36px; }
+  .flashcard.back { background: var(--yellow); }
+  .flash-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    font-family: var(--display); text-transform: uppercase; font-size: 14px;
+    border: var(--rule); background: var(--paper); padding: 12px 20px; cursor: pointer;
+  }
+  .btn:hover { background: #efede2; }
+  .btn:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .btn.primary { background: var(--blue); color: var(--paper); }
+  .btn.primary:hover { background: #1b3a99; }
+  .btn.good { background: var(--yellow); }
+  .btn.bad { background: var(--red); color: var(--paper); }
+  .flash-progress { font-family: var(--mono); font-size: 14px; }
+
+  /* ---- Drills ---- */
+  .drill { max-width: 720px; }
+  .prompt-box { border: var(--rule); background: #fff; padding: 26px 24px; margin-bottom: 18px; }
+  .prompt-box .task { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; color: #6a685c; }
+  .prompt-box .big { font-family: var(--display); font-size: 22px; line-height: 1.3; }
+  .prompt-box .ctx { font-family: var(--mono); font-size: 15px; color: #4a4940; margin-bottom: 8px; }
+  .prompt-box .hint { font-family: var(--mono); font-size: 14px; margin-top: 10px; color: #6a685c; }
+  .prompt-box .gap { color: var(--red); }
+  .prompt-box .parts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .prompt-box .parts span { font-family: var(--mono); font-size: 16px; border: 2px solid var(--ink); padding: 4px 9px; background: #f1efe4; }
+  .prompt-box .target { display: inline-block; background: var(--red); color: var(--paper); font-family: var(--mono); font-size: 15px; padding: 3px 9px; margin-top: 12px; }
+  .answer-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  input[type=text] {
+    flex: 1; font-family: var(--mono); font-size: 18px; padding: 12px 14px;
+    border: var(--rule); background: #fff; min-width: 0;
+  }
+  input[type=text]:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
+  .feedback .ok { color: #1e7a1e; font-weight: 600; }
+  .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
+  .feedback .why b { color: var(--ink); }
+  .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
+  .scorebar b { font-size: 18px; }
+
+  @media (max-width: 640px) {
+    nav { grid-template-columns: repeat(5, 1fr); }
+    nav button { font-size: 10.5px; padding: 12px 2px; }
+    .flashcard .word { font-size: 26px; }
+    .prompt-box .big { font-size: 18px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flashcard { transition: transform .12s ease; }
+    .flashcard:active { transform: scale(.985); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="eyebrow">Nederlands · Les 4 · 26-08-2026</div>
+    <h1>Personal<br><span class="accent">pronouns</span></h1>
+    <p class="sub">The three families: <strong>subject</strong> (ik, jij, hij…), <strong>possessive</strong> (mijn, jouw, zijn…) and <strong>object</strong> (mij, jou, hem…) — plus the two traps of this lesson: <em>ons</em> or <em>onze</em>, and <em>jullie</em> or <em>je</em>.</p>
+  </header>
+
+  <nav role="tablist" aria-label="Practice sections">
+    <button role="tab" aria-selected="true" data-panel="learn">Leer</button>
+    <button role="tab" aria-selected="false" data-panel="flash">Woorden</button>
+    <button role="tab" aria-selected="false" data-panel="gap">Invullen</button>
+    <button role="tab" aria-selected="false" data-panel="form">Vormen</button>
+    <button role="tab" aria-selected="false" data-panel="listen">Luisteren</button>
+  </nav>
+
+  <!-- ================= LEARN ================= -->
+  <section class="panel active" id="panel-learn">
+    <h2>Reference — de persoonlijke voornaamwoorden</h2>
+    <p class="note">Click ▶ to hear it at normal speed, 🐢 for the slow version. Every Dutch word and sentence on this page is spoken by a Dutch voice.</p>
+
+    <div class="blk">
+      <h3>The three families</h3>
+      <div class="pattern"><span class="pt-s">subject</span><span class="pt-r">does the verb — <em>ik</em> kom uit Italië</span></div>
+      <div class="pattern"><span class="pt-p">possessive</span><span class="pt-r">stands before a noun — <em>mijn</em> boek</span></div>
+      <div class="pattern"><span class="pt-o">object</span><span class="pt-r">receives the verb or follows a preposition — ik zie <em>hem</em>, met <em>hem</em></span></div>
+      <hr class="sep">
+      <p style="font-size:15px;color:#4a4940">The short forms (<em>je, ze, we, me</em>) are the everyday ones. The long forms (<em>jij, zij, wij, mij</em>) are the stressed ones — use them when you want to point out <em>who</em>.</p>
+    </div>
+
+    <div class="cols" id="ref-cols"></div>
+
+    <div class="blk">
+      <h3>Jij / je versus u — the same sentence, twice</h3>
+      <div id="ex-uvorm"></div>
+    </div>
+
+    <div class="blk">
+      <h3>Ons or onze?</h3>
+      <div class="pattern"><span class="pt-p">ons</span><span class="pt-r">+ het-word (het huis)</span></div>
+      <div class="pattern"><span class="pt-p">onze</span><span class="pt-r">+ de-word (de auto) — and every plural, because plurals are de-words</span></div>
+      <div id="ex-ons"></div>
+    </div>
+
+    <div class="blk">
+      <h3>Jullie or je?</h3>
+      <p style="font-size:15px;color:#4a4940;margin-bottom:12px">If the subject is already <strong>jullie</strong>, it is better to use <strong>je</strong> as the possessive. If the subject is <em>not</em> jullie, you have to use <strong>jullie</strong> as the possessive.</p>
+      <div id="ex-jullie"></div>
+    </div>
+
+    <div class="rules">
+      <div class="head">Rules to remember</div>
+      <ol>
+        <li><strong>Subject</strong> before the verb, <strong>possessive</strong> before a noun, <strong>object</strong> after the verb or after a preposition: <code>Hij</code> woont hier · <code>zijn</code> adres · ik bezoek <code>hem</code>.</li>
+        <li><code>u</code> is subject <em>and</em> object (Ik zie u · Hij praat met u); the possessive of u is <code>uw</code>.</li>
+        <li><code>ons</code> + het-word, <code>onze</code> + de-word and all plurals: <code>ons huis</code>, <code>onze auto</code>, <code>onze kinderen</code>.</li>
+        <li>Subject jullie → possessive <code>je</code>: <em>Jullie gaan naar je huis.</em> Other subject → possessive <code>jullie</code>: <em>Ik ga naar jullie huis.</em></li>
+        <li>After a preposition, use the full object form: <code>met haar</code>, <code>met hem</code>, <code>voor ze / hen</code> — not <em>met ze</em> for one person.</li>
+        <li><code>haar</code> is both possessive (<em>haar naam</em>) and object (<em>ik zie haar</em>) — the position in the sentence tells you which.</li>
+        <li><code>hun</code> is the possessive <em>their</em>; the object <em>them</em> is <code>ze</code> / <code>hen</code>.</li>
+        <li>the = <code>de</code> / <code>het</code> &nbsp;·&nbsp; a/an = <code>een</code>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= FLASHCARDS ================= -->
+  <section class="panel" id="panel-flash">
+    <h2>Woorden — vocabulary flashcards</h2>
+    <p class="note">The pronouns of this lesson plus every word used in the two grammatica exercises. Click the card (or press space) to flip. Unknown cards come back until you know them all.</p>
+    <div class="flash-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <span class="side-label" id="flash-side">NL</span>
+        <div class="word" id="flash-word">—</div>
+      </div>
+      <div class="flash-controls">
+        <button class="btn" id="flash-audio">▶ Uitspraak</button>
+        <button class="btn" id="flash-slow">🐢 Langzaam</button>
+        <button class="btn bad" id="flash-no">✗ Nog niet</button>
+        <button class="btn good" id="flash-yes">✓ Ik weet het</button>
+      </div>
+      <div class="flash-progress" id="flash-progress"></div>
+    </div>
+  </section>
+
+  <!-- ================= GAP DRILL ================= -->
+  <section class="panel" id="panel-gap">
+    <h2>Invullen — kies het goede pronomen</h2>
+    <p class="note">Grammatica <strong>4</strong> and grammatica <strong>14</strong> from the lesson: type the pronoun that belongs in the gap. The choices from the book are shown underneath. Capitals and punctuation are ignored. Press Enter to check, Enter again for the next one.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Kies het goede pronomen</div>
+        <div class="ctx" id="gap-ctx"></div>
+        <div class="big" id="gap-sentence">—</div>
+        <div class="parts" id="gap-opts"></div>
+        <div class="hint" id="gap-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="gap-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="het pronomen…" aria-label="Your answer">
+        <button class="btn primary" id="gap-check">Check</button>
+      </div>
+      <div class="feedback" id="gap-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="gap-right">0</b></span><span>Fout <b id="gap-wrong">0</b></span><span>Reeks <b id="gap-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= FORM DRILL ================= -->
+  <section class="panel" id="panel-form">
+    <h2>Vormen — subject, bezittelijk &amp; object</h2>
+    <p class="note">The table drill: you get an English pronoun and which family is asked, you type the Dutch form. Where Dutch has a long and a short form, either one is accepted. The <strong>ons/onze</strong> and <strong>jullie/je</strong> rounds give you a noun so you have to apply the rule.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Geef de Nederlandse vorm</div>
+        <div class="big" id="form-prompt">—</div>
+        <div class="target" id="form-target"></div>
+        <div class="hint" id="form-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="form-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jouw antwoord…" aria-label="Your answer">
+        <button class="btn primary" id="form-check">Check</button>
+      </div>
+      <div class="feedback" id="form-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="form-right">0</b></span><span>Fout <b id="form-wrong">0</b></span><span>Reeks <b id="form-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= LISTENING ================= -->
+  <section class="panel" id="panel-listen">
+    <h2>Luisteren — dictation</h2>
+    <p class="note">Play the audio and type exactly what you hear — a word, a pronoun, or a whole sentence from the exercises. Punctuation and capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Listen and type</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn" id="listen-slow">🐢 Langzaam</button>
+        </div>
+        <div class="hint" id="listen-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="listen-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wat hoor je?" aria-label="Your answer">
+        <button class="btn primary" id="listen-check">Check</button>
+      </div>
+      <div class="feedback" id="listen-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==== DATA START ==== */
+
+/* The three pronoun tables of the lesson PDF. */
+const SUBJECT = [
+  { label: "singular" },
+  { nl: "ik",     en: "I" },
+  { nl: "jij",    en: "you" },
+  { nl: "je",     en: "you (unstressed)" },
+  { nl: "u",      en: "you (formal)" },
+  { nl: "hij",    en: "he" },
+  { nl: "zij",    en: "she" },
+  { nl: "ze",     en: "she (unstressed)" },
+  { nl: "het",    en: "it" },
+  { label: "plural" },
+  { nl: "wij",    en: "we" },
+  { nl: "we",     en: "we (unstressed)" },
+  { nl: "jullie", en: "you (plural)" },
+  { nl: "zij",    en: "they" },
+  { nl: "ze",     en: "they (unstressed)" },
+];
+const POSSESSIVE = [
+  { label: "singular" },
+  { nl: "mijn",   en: "my" },
+  { nl: "jouw",   en: "your" },
+  { nl: "je",     en: "your (unstressed)" },
+  { nl: "uw",     en: "your (formal)" },
+  { nl: "zijn",   en: "his" },
+  { nl: "haar",   en: "her" },
+  { label: "plural" },
+  { nl: "ons",    en: "our (+ het-word)" },
+  { nl: "onze",   en: "our (+ de-word)" },
+  { nl: "jullie", en: "your (plural)" },
+  { nl: "hun",    en: "their" },
+];
+const OBJECT = [
+  { label: "singular" },
+  { nl: "mij",    en: "me" },
+  { nl: "me",     en: "me (unstressed)" },
+  { nl: "jou",    en: "you" },
+  { nl: "je",     en: "you (unstressed)" },
+  { nl: "u",      en: "you (formal)" },
+  { nl: "hem",    en: "him" },
+  { nl: "haar",   en: "her" },
+  { label: "plural" },
+  { nl: "ons",    en: "us" },
+  { nl: "jullie", en: "you (plural)" },
+  { nl: "ze",     en: "them (unstressed)" },
+  { nl: "hen",    en: "them" },
+  { nl: "hun",    en: "them (indirect object)" },
+];
+
+/* The worked examples printed in the right-hand column of the PDF. */
+const EX_UVORM = [
+  ["Jij komt uit Italië.", "You come from Italy. — subject"],
+  ["Je komt uit Italië.", "You come from Italy. — subject, unstressed"],
+  ["U komt uit Italië.", "You come from Italy. — formal subject"],
+  ["Ik heb jouw boek.", "I have your book. — possessive"],
+  ["Jouw huis is groot.", "Your house is big. — possessive"],
+  ["Ik heb uw boek.", "I have your book. — formal possessive"],
+  ["Uw huis is groot.", "Your house is big. — formal possessive"],
+  ["Ik zie jou.", "I see you. — object"],
+  ["Hij praat met jou.", "He talks with you. — object after a preposition"],
+  ["Jouw zus woont met jou.", "Your sister lives with you. — possessive + object"],
+  ["Ik zie u.", "I see you. — formal object"],
+  ["Hij praat met u.", "He talks with you. — formal object"],
+  ["Uw zus woont met u.", "Your sister lives with you. — formal"],
+];
+const EX_ONS = [
+  ["Ons huis is groot.", "Our house is big. — het huis, so ons"],
+  ["Onze auto is groot.", "Our car is big. — de auto, so onze"],
+];
+const EX_JULLIE = [
+  ["Jullie gaan naar je huis.", "You are going to your house. — subject is jullie, so je"],
+  ["Ik ga naar jullie huis.", "I am going to your house. — subject is ik, so jullie"],
+];
+
+/* Vocabulary — every word used in grammatica 4 and grammatica 14. */
+const WORDS = [
+  { nl: "het feest",        en: "the party" },
+  { nl: "geven",            en: "to give" },
+  { nl: "zondag",           en: "Sunday" },
+  { nl: "zaterdag",         en: "Saturday" },
+  { nl: "vandaan",          en: "from (waar kom je vandaan)" },
+  { nl: "het kind",         en: "the child" },
+  { nl: "de kinderen",      en: "the children" },
+  { nl: "de fiets",         en: "the bicycle" },
+  { nl: "het huis",         en: "the house" },
+  { nl: "de auto",          en: "the car" },
+  { nl: "leuk",             en: "nice" },
+  { nl: "het adres",        en: "the address" },
+  { nl: "de postcode",      en: "the postcode" },
+  { nl: "het formulier",    en: "the form" },
+  { nl: "invullen",         en: "to fill in" },
+  { nl: "de naam",          en: "the name" },
+  { nl: "moeten",           en: "must, to have to" },
+  { nl: "de vriendin",      en: "the girlfriend, the female friend" },
+  { nl: "trouwen",          en: "to marry" },
+  { nl: "het cadeau",       en: "the present" },
+  { nl: "mooi",             en: "beautiful" },
+  { nl: "kopen",            en: "to buy" },
+  { nl: "het neefje",       en: "the little nephew" },
+  { nl: "jarig zijn",       en: "to have a birthday" },
+  { nl: "feliciteren",      en: "to congratulate" },
+  { nl: "de verjaardag",    en: "the birthday" },
+  { nl: "zesde",            en: "sixth" },
+  { nl: "de familie",       en: "the family" },
+  { nl: "missen",           en: "to miss" },
+  { nl: "één keer per jaar", en: "once a year" },
+  { nl: "de zus",           en: "the sister" },
+  { nl: "de broer",         en: "the brother" },
+  { nl: "winkelen",         en: "to go shopping" },
+  { nl: "vanmiddag",        en: "this afternoon" },
+  { nl: "de schoenen",      en: "the shoes" },
+  { nl: "helpen",           en: "to help" },
+  { nl: "zoeken",           en: "to look for" },
+  { nl: "het station",      en: "the station" },
+  { nl: "de trein",         en: "the train" },
+  { nl: "zitten",           en: "to sit" },
+  { nl: "praten",           en: "to talk" },
+  { nl: "de studievriend",  en: "the study friend" },
+  { nl: "vieren",           en: "to celebrate" },
+  { nl: "kennen",           en: "to know (a person)" },
+  { nl: "de maand",         en: "the month" },
+  { nl: "Italiaans",        en: "Italian" },
+  { nl: "pardon",           en: "excuse me" },
+  { nl: "de meneer",        en: "the sir, the gentleman" },
+  { nl: "mogen",            en: "to be allowed to, may" },
+  { nl: "vragen",           en: "to ask" },
+  { nl: "iets",             en: "something" },
+  { nl: "de collega",       en: "the colleague" },
+  { nl: "de pauze",         en: "the break" },
+  { nl: "de koffie",        en: "the coffee" },
+  { nl: "drinken",          en: "to drink" },
+  { nl: "de opa",           en: "the grandfather" },
+  { nl: "bezoeken",         en: "to visit" },
+  { nl: "vaak",             en: "often" },
+  { nl: "de docent",        en: "the teacher" },
+  { nl: "de oefening",      en: "the exercise" },
+  { nl: "het boek",         en: "the book" },
+  { nl: "groot",            en: "big" },
+  { nl: "wonen",            en: "to live" },
+  { nl: "komen",            en: "to come" },
+  { nl: "zien",             en: "to see" },
+];
+
+/* ---- Grammatica 4: kies het goede pronomen (bezittelijk / subject) ----
+   ctx  = the sentence printed before the gap (spoken together with the answer)
+   s    = the sentence with the gap, ___ marks the hole
+   opts = the two or three choices printed in the book
+   a    = the correct answer, alts = other forms that are also right          */
+const GAPS = [
+  { set: 4, n: "voorbeeld", ctx: "Peter geeft een feest.", s: "___ feest is zondag.",
+    opts: ["Zijn", "Hun"], a: "zijn",
+    why: "Peter is <b>one</b> man, so the possessive is <b>zijn</b> (his). <b>hun</b> = their, for more than one owner." },
+
+  { set: 4, n: "1a", ctx: "", s: "Waar komt ___ vandaan?",
+    opts: ["u", "uw"], a: "u",
+    why: "This is the <b>subject</b> of komt, so you need <b>u</b>. <b>uw</b> is the possessive and only stands before a noun: <em>uw postcode</em>." },
+
+  { set: 4, n: "1b", ctx: "Waar komt u vandaan?", s: "___ kom uit Frankrijk.",
+    opts: ["Ik", "Wij"], a: "ik",
+    why: "The verb is <b>kom</b> — the ik-form without -t. With <b>wij</b> it would have to be <em>wij komen</em>." },
+
+  { set: 4, n: "2", ctx: "Wij hebben twee kinderen.", s: "___ kinderen zijn 3 en 5 jaar.",
+    opts: ["Ons", "Onze"], a: "onze",
+    why: "<b>ons</b> only goes with a het-word (<em>ons huis</em>). <em>kinderen</em> is a plural, and every plural is a de-word, so it is <b>onze</b>." },
+
+  { set: 4, n: "3a", ctx: "", s: "Petra, is dit ___ fiets?",
+    opts: ["jij", "jouw"], a: "jouw", alts: ["je"],
+    why: "Before a noun you need the <b>possessive</b>: <b>jouw</b> fiets (or the unstressed <em>je fiets</em>). <b>jij</b> is the subject form." },
+
+  { set: 4, n: "3b", ctx: "Petra, is dit jouw fiets?", s: "Ja, dit is ___ fiets.",
+    opts: ["mijn", "ons"], a: "mijn",
+    why: "Petra answers about herself alone, so <b>mijn</b> (my). <b>ons/onze</b> means <em>our</em>, more than one owner." },
+
+  { set: 4, n: "4", ctx: "Carla en Peter wonen in Utrecht.", s: "___ hebben een leuk huis.",
+    opts: ["Ze", "Hun"], a: "ze", alts: ["zij"],
+    why: "This is the <b>subject</b> of hebben: <b>ze</b> (zij). <b>hun</b> is the possessive <em>their</em> — <em>hun huis</em>." },
+
+  { set: 4, n: "5", ctx: "Marco woont in Tilburg.", s: "___ adres is Stationsweg 24.",
+    opts: ["Hij", "Zijn"], a: "zijn",
+    why: "<em>adres</em> is a noun, so you need the <b>possessive</b> <b>zijn</b> (his). <b>hij</b> is the subject." },
+
+  { set: 4, n: "6", ctx: "", s: "Wat is ___ postcode? Dat is 3513 ZK.",
+    opts: ["u", "uw"], a: "uw",
+    why: "Before the noun <em>postcode</em> the formal possessive is <b>uw</b>. <b>u</b> is the subject and the object form." },
+
+  { set: 4, n: "7", ctx: "", s: "Jullie moeten op dit formulier ___ naam en adres invullen.",
+    opts: ["jullie", "jouw"], a: "jullie", alts: ["je"],
+    why: "More than one owner, so <b>jullie</b> (jouw = your, one person). Because the subject is already <em>jullie</em>, the book's own rule also allows the shorter <b>je naam</b>." },
+
+  { set: 4, n: "8", ctx: "De vriendin van Willem komt uit Peru", s: "en ___ naam is Mila.",
+    opts: ["ze", "haar"], a: "haar",
+    why: "Before the noun <em>naam</em> you need the possessive <b>haar</b> (her). <b>ze</b> is the subject form." },
+
+  /* ---- Grammatica 14: kies het goede personaal pronomen (object) ---- */
+  { set: 14, n: "voorbeeld", ctx: "Karim en Astrid gaan zaterdag trouwen.", s: "Ik koop een mooi cadeau voor ___.",
+    opts: ["haar", "hem", "ze"], a: "ze", alts: ["hen"],
+    why: "Karim <em>and</em> Astrid = two people, so the object is <b>ze</b> (or <em>hen</em>). <b>haar</b> is one woman, <b>hem</b> one man." },
+
+  { set: 14, n: "1", ctx: "Mijn neefje is vandaag jarig.", s: "Ik feliciteer ___ met zijn zesde verjaardag.",
+    opts: ["hij", "hem", "zijn"], a: "hem",
+    why: "He <em>receives</em> the verb feliciteren, so it is the <b>object</b> form <b>hem</b>. <b>hij</b> is the subject, <b>zijn</b> the possessive." },
+
+  { set: 14, n: "2", ctx: "Mila ziet haar familie maar één keer per jaar.", s: "Ze mist ___.",
+    opts: ["jullie", "hen", "hem"], a: "hen", alts: ["ze"],
+    why: "<em>haar familie</em> is more than one person, so <b>hen</b> (or <em>ze</em>). <b>jullie</b> would mean the people she is talking to." },
+
+  { set: 14, n: "3", ctx: "Ik ga vaak met mijn zus winkelen.", s: "Vanmiddag ga ik met ___ schoenen kopen.",
+    opts: ["ze", "haar", "je"], a: "haar",
+    why: "One sister, and after the preposition <b>met</b> you use the full object form <b>haar</b> — not the unstressed <em>ze</em>." },
+
+  { set: 14, n: "4", ctx: "Johan is mijn broer.", s: "Ik ga met ___ naar het feest.",
+    opts: ["jou", "ze", "hem"], a: "hem",
+    why: "Johan = one man, and after <b>met</b> the object form is <b>hem</b>." },
+
+  { set: 14, n: "5", ctx: "", s: "Kunt u ___ helpen? We zoeken het station.",
+    opts: ["we", "ons", "je"], a: "ons",
+    why: "The object form of <b>wij/we</b> is <b>ons</b>. <b>we</b> can only be a subject." },
+
+  { set: 14, n: "6", ctx: "Anne zit in de trein.", s: "Mila praat met ___.",
+    opts: ["haar", "ze", "je"], a: "haar",
+    why: "Anne is one woman and <b>met</b> is a preposition, so use the full form <b>haar</b>." },
+
+  { set: 14, n: "7", ctx: "Ik heb een paar leuke studievrienden.", s: "Dit jaar vier ik Sinterklaas met ___.",
+    opts: ["ons", "jullie", "ze"], a: "ze", alts: ["hen"],
+    why: "The friends are <em>them</em>: <b>ze</b> (or <em>hen</em>). <b>ons</b> = us, <b>jullie</b> = you plural." },
+
+  { set: 14, n: "8", ctx: "Alexander heeft een Italiaanse vriendin.", s: "Hij kent ___ nu zes maanden.",
+    opts: ["ze", "je", "haar"], a: "haar",
+    why: "One woman as the object of kennen → <b>haar</b>. <b>ze</b> is the unstressed form and is not used here for a person you point out." },
+
+  { set: 14, n: "9", ctx: "", s: "Pardon meneer, mogen we ___ iets vragen?",
+    opts: ["je", "u", "me"], a: "u",
+    why: "You address a <em>meneer</em> politely, so the formal <b>u</b> — which is subject and object at the same time." },
+
+  { set: 14, n: "10", ctx: "Carlijn heeft leuke collega's.", s: "In de pauze drinkt ze koffie met ___.",
+    opts: ["hem", "haar", "ze"], a: "ze", alts: ["hen"],
+    why: "<em>collega's</em> is a plural, so <em>them</em>: <b>ze</b> (or <em>hen</em>)." },
+
+  { set: 14, n: "11", ctx: "Mijn opa woont in Breda.", s: "Ik bezoek ___ vaak.",
+    opts: ["hem", "u", "ze"], a: "hem",
+    why: "Opa = one man and he is the object of bezoeken → <b>hem</b>." },
+
+  { set: 14, n: "12", ctx: "Ik heb twee docenten.", s: "Ze helpen ___ met de oefening.",
+    opts: ["ik", "mijn", "me"], a: "me", alts: ["mij"],
+    why: "I <em>receive</em> the help, so the object form <b>me</b> (mij). <b>ik</b> is the subject, <b>mijn</b> the possessive." },
+];
+
+/* ---- Vormen drill: English prompt -> Dutch form ---- */
+const FORMS = [
+  { en: "I",              type: "subject",    a: ["ik"] },
+  { en: "you (singular)", type: "subject",    a: ["jij", "je"] },
+  { en: "you (formal)",   type: "subject",    a: ["u"] },
+  { en: "he",             type: "subject",    a: ["hij"] },
+  { en: "she",            type: "subject",    a: ["zij", "ze"] },
+  { en: "it",             type: "subject",    a: ["het"] },
+  { en: "we",             type: "subject",    a: ["wij", "we"] },
+  { en: "you (plural)",   type: "subject",    a: ["jullie"] },
+  { en: "they",           type: "subject",    a: ["zij", "ze"] },
+
+  { en: "my",             type: "possessive", a: ["mijn"] },
+  { en: "your (singular)", type: "possessive", a: ["jouw", "je"] },
+  { en: "your (formal)",  type: "possessive", a: ["uw"] },
+  { en: "his",            type: "possessive", a: ["zijn"] },
+  { en: "her",            type: "possessive", a: ["haar"] },
+  { en: "your (plural)",  type: "possessive", a: ["jullie", "je"] },
+  { en: "their",          type: "possessive", a: ["hun"] },
+
+  { en: "me",             type: "object",     a: ["mij", "me"] },
+  { en: "you (singular)", type: "object",     a: ["jou", "je"] },
+  { en: "you (formal)",   type: "object",     a: ["u"] },
+  { en: "him",            type: "object",     a: ["hem"] },
+  { en: "her",            type: "object",     a: ["haar"] },
+  { en: "us",             type: "object",     a: ["ons"] },
+  { en: "you (plural)",   type: "object",     a: ["jullie"] },
+  { en: "them",           type: "object",     a: ["ze", "hen", "hun"] },
+];
+
+/* ons / onze — the noun decides. */
+const ONS_ITEMS = [
+  { noun: "huis",     art: "het", a: "ons huis",     en: "our house" },
+  { noun: "boek",     art: "het", a: "ons boek",     en: "our book" },
+  { noun: "adres",    art: "het", a: "ons adres",    en: "our address" },
+  { noun: "feest",    art: "het", a: "ons feest",    en: "our party" },
+  { noun: "formulier", art: "het", a: "ons formulier", en: "our form" },
+  { noun: "station",  art: "het", a: "ons station",  en: "our station" },
+  { noun: "auto",     art: "de",  a: "onze auto",    en: "our car" },
+  { noun: "fiets",    art: "de",  a: "onze fiets",   en: "our bicycle" },
+  { noun: "zus",      art: "de",  a: "onze zus",     en: "our sister" },
+  { noun: "docent",   art: "de",  a: "onze docent",  en: "our teacher" },
+  { noun: "kinderen", art: "de",  a: "onze kinderen", en: "our children", plural: true },
+  { noun: "collega's", art: "de", a: "onze collega's", en: "our colleagues", plural: true },
+  { noun: "schoenen", art: "de",  a: "onze schoenen", en: "our shoes", plural: true },
+];
+
+/* jullie / je — the subject decides. */
+const JULLIE_ITEMS = [
+  { s: "Jullie gaan naar ___ huis.",        a: "je",     subj: "jullie", en: "You are going to your house." },
+  { s: "Ik ga naar ___ huis.",              a: "jullie", subj: "ik",     en: "I am going to your house." },
+  { s: "Jullie vullen ___ naam in.",        a: "je",     subj: "jullie", en: "You fill in your name." },
+  { s: "Ik ken ___ docent niet.",           a: "jullie", subj: "ik",     en: "I do not know your teacher." },
+  { s: "Jullie zoeken ___ schoenen.",       a: "je",     subj: "jullie", en: "You are looking for your shoes." },
+  { s: "Wij bezoeken ___ opa.",             a: "jullie", subj: "wij",    en: "We are visiting your grandfather." },
+];
+/* ==== DATA END ==== */
+
+/* ================= AUDIO ================= */
+const slug = t => t.toLowerCase().replace(/[.?!,;:'"„”]/g, "").replace(/\s+/g, "_");
+let currentAudio = null;
+let nlVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => v.lang.startsWith("nl"));
+  nlVoice = vs.find(v => v.lang === "nl-NL") || vs[0] || null;
+}
+if ("speechSynthesis" in window) {
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+// Play a pre-generated neural-voice file when we have one.
+// slow=true uses the natively slowed recording in audio/slow/;
+// fallback chain: slow file -> normal file at reduced playbackRate -> browser TTS.
+function speak(text, slow = false) {
+  const s = slug(text);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const a = new Audio((slow ? "audio/slow/" : "audio/") + s + ".mp3");
+  a.onerror = () => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false));
+  a.play().catch(() => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false)));
+  currentAudio = a;
+}
+function speakFallbackSlow(s, text) {
+  const a = new Audio("audio/" + s + ".mp3");
+  a.playbackRate = 0.65;
+  a.onerror = () => speakTTS(text, true);
+  a.play().catch(() => speakTTS(text, true));
+  currentAudio = a;
+}
+function speakTTS(text, slow = false) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (nlVoice) u.voice = nlVoice;
+  u.lang = "nl-NL";
+  u.rate = slow ? 0.55 : 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const norm = s => s.trim().toLowerCase().replace(/[.?!,;:]/g, "").replace(/\s+/g, " ");
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function speakBtn(text) {
+  const t = text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+  return `<button class="speak" onclick="speak('${t}')" aria-label="Pronounce">▶</button>` +
+         `<button class="speak" onclick="speak('${t}', true)" aria-label="Pronounce slowly">🐢</button>`;
+}
+// The full sentence of a gap item, with the gap filled in and the context in front.
+function gapFull(g, answer) {
+  let filled = g.s.replace("___", answer);
+  // The gap can sit at the start of its own sentence, so capitalise there too.
+  if (!/^[a-z]/.test(g.s) || g.s.indexOf("___") === 0) filled = filled.charAt(0).toUpperCase() + filled.slice(1);
+  const body = g.ctx ? g.ctx + " " + filled : filled;
+  return body.charAt(0).toUpperCase() + body.slice(1);
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", "false"));
+    btn.setAttribute("aria-selected", "true");
+    document.querySelectorAll("section.panel").forEach(p => p.classList.remove("active"));
+    $("panel-" + btn.dataset.panel).classList.add("active");
+  });
+});
+
+/* ================= LEARN PANEL ================= */
+function exampleList(pairs) {
+  return pairs.map(([nl, tr]) =>
+    `<div class="example">${speakBtn(nl)}${esc(nl)}<span class="tr">${esc(tr)}</span></div>`).join("");
+}
+$("ex-uvorm").innerHTML = exampleList(EX_UVORM);
+$("ex-ons").innerHTML = exampleList(EX_ONS);
+$("ex-jullie").innerHTML = exampleList(EX_JULLIE);
+
+function refCard(title, subtitle, rows, colorClass) {
+  const trs = rows.map(r => {
+    if (r.label) return `<tr><td class="lbl" colspan="2">${r.label}</td></tr>`;
+    return `<tr><td>${speakBtn(r.nl)}${esc(r.nl)}</td><td class="en">${esc(r.en)}</td></tr>`;
+  }).join("");
+  return `<div class="card ${colorClass}"><div class="head">${title}<small>${subtitle}</small></div><table>${trs}</table></div>`;
+}
+$("ref-cols").innerHTML =
+  refCard("Subject", "onderwerp — doet het werkwoord", SUBJECT, "blue") +
+  refCard("Bezittelijk", "possessive — staat voor een zelfstandig naamwoord", POSSESSIVE, "yellow") +
+  refCard("Object", "lijdend voorwerp — na het werkwoord of na een voorzetsel", OBJECT, "red") +
+  refCard("Woorden van deze les", "vocabulaire — deel 1", WORDS.slice(0, Math.ceil(WORDS.length / 2)), "blue") +
+  refCard("Woorden van deze les", "vocabulaire — deel 2", WORDS.slice(Math.ceil(WORDS.length / 2)), "yellow");
+
+/* ================= FLASHCARDS ================= */
+const uniqBy = (arr, key) => { const seen = new Set(); return arr.filter(x => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); };
+const PRONOUN_CARDS = uniqBy(
+  [...SUBJECT.filter(r => r.nl).map(r => ({ nl: r.nl, en: r.en + " — subject" })),
+   ...POSSESSIVE.filter(r => r.nl).map(r => ({ nl: r.nl, en: r.en + " — possessive" })),
+   ...OBJECT.filter(r => r.nl).map(r => ({ nl: r.nl, en: r.en + " — object" }))],
+  x => x.nl + "|" + x.en);
+const DECK = [...WORDS, ...PRONOUN_CARDS];
+let flashDeck = [], flashIdx = 0, flashFlipped = false, flashKnown = 0, flashTotal = 0;
+function flashInit() {
+  flashDeck = shuffle(DECK);
+  flashIdx = 0; flashFlipped = false; flashKnown = 0; flashTotal = DECK.length;
+  flashRender();
+}
+function flashCurrent() { return flashDeck[flashIdx]; }
+function flashRender() {
+  const card = $("flashcard");
+  if (!flashDeck.length) {
+    card.classList.remove("back");
+    $("flash-side").textContent = "✓";
+    $("flash-word").textContent = "Alles gekend! 🎉";
+    $("flash-progress").textContent = `${flashKnown}/${flashTotal} known — press "Nog niet" to restart`;
+    return;
+  }
+  const v = flashCurrent();
+  card.classList.toggle("back", flashFlipped);
+  $("flash-side").textContent = flashFlipped ? "EN" : "NL";
+  $("flash-word").textContent = flashFlipped ? v.en : v.nl;
+  $("flash-progress").textContent = `${flashKnown}/${flashTotal} known · ${flashDeck.length} to go`;
+}
+function flashFlip() { if (!flashDeck.length) return; flashFlipped = !flashFlipped; flashRender(); }
+function flashAnswer(knew) {
+  if (!flashDeck.length) { flashInit(); return; }
+  const v = flashDeck.splice(flashIdx, 1)[0];
+  if (knew) flashKnown++; else flashDeck.push(v);
+  if (flashIdx >= flashDeck.length) flashIdx = 0;
+  flashFlipped = false;
+  flashRender();
+}
+$("flashcard").addEventListener("click", flashFlip);
+$("flashcard").addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flashFlip(); } });
+$("flash-yes").addEventListener("click", () => flashAnswer(true));
+$("flash-no").addEventListener("click", () => flashAnswer(false));
+$("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl); });
+$("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl, true); });
+flashInit();
+
+/* ================= DRILL ENGINE ================= */
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+  const input = $(inputId), fb = $(feedbackId);
+  let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  function newQuestion() {
+    current = next();
+    answered = false;
+    fb.innerHTML = "";
+    input.value = "";
+    input.focus();
+  }
+  function doCheck() {
+    if (answered) { newQuestion(); return; }
+    if (!norm(input.value)) return;
+    const res = check(current, input.value);
+    answered = true;
+    if (res.ok) { right++; streak++; }
+    else { wrong++; streak = 0; }
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = res.ok
+      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
+      : `<span class="no">✗ ${res.correct}</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`;
+    if (res.say) {
+      speak(res.say);
+      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    }
+    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+  }
+  input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
+  $(checkId).addEventListener("click", doCheck);
+  return { newQuestion, get current() { return current; } };
+}
+
+/* ================= INVULLEN DRILL ================= */
+const gapDrill = makeDrill({
+  inputId: "gap-input", checkId: "gap-check", feedbackId: "gap-feedback",
+  rightId: "gap-right", wrongId: "gap-wrong", streakId: "gap-streak",
+  next() {
+    const g = pick(GAPS);
+    $("gap-ctx").innerHTML = g.ctx ? `${speakBtn(g.ctx)}${esc(g.ctx)}` : "";
+    $("gap-sentence").innerHTML = esc(g.s).replace("___", '<span class="gap">___</span>');
+    $("gap-opts").innerHTML = shuffle(g.opts).map(o => `<span>${esc(o)}</span>`).join("");
+    $("gap-hint").textContent = `grammatica ${g.set} · ${g.n}`;
+    const full = gapFull(g, g.a);
+    return { g, answers: [g.a, ...(g.alts || [])], say: full, full };
+  },
+  check(cur, given) {
+    const gv = norm(given);
+    const ok = cur.answers.some(a => norm(a) === gv);
+    const alt = cur.answers.length > 1
+      ? ` Also correct here: ${cur.answers.slice(1).join(", ")}.` : "";
+    return {
+      ok,
+      correct: cur.answers[0],
+      why: `${cur.g.why}${alt}<br>Hele zin: <b>${esc(cur.full)}</b>`,
+      say: cur.say,
+    };
+  },
+});
+
+/* ================= VORMEN DRILL ================= */
+const TYPE_NOTE = {
+  subject: "The <b>subject</b> does the verb and stands before it.",
+  possessive: "The <b>possessive</b> stands directly before a noun.",
+  object: "The <b>object</b> comes after the verb or after a preposition.",
+};
+const formDrill = makeDrill({
+  inputId: "form-input", checkId: "form-check", feedbackId: "form-feedback",
+  rightId: "form-right", wrongId: "form-wrong", streakId: "form-streak",
+  next() {
+    const r = Math.random();
+    // 20% ons/onze, 15% jullie/je, the rest the plain table.
+    if (r < 0.20) {
+      const it = pick(ONS_ITEMS);
+      $("form-prompt").innerHTML = `our + ${esc(it.art)} ${esc(it.noun)}`;
+      $("form-target").innerHTML = "ons of onze?";
+      $("form-hint").textContent = it.en;
+      const why = it.art === "het"
+        ? `<b>${esc(it.noun)}</b> is a <b>het</b>-word, and ons goes with het-words: <b>ons ${esc(it.noun)}</b>.`
+        : `<b>${esc(it.noun)}</b> is a <b>de</b>-word${it.plural ? " (a plural, and every plural is a de-word)" : ""}, and onze goes with de-words: <b>onze ${esc(it.noun)}</b>.`;
+      return { answers: [it.a], say: it.a, why };
+    }
+    if (r < 0.35) {
+      const it = pick(JULLIE_ITEMS);
+      $("form-prompt").innerHTML = esc(it.s).replace("___", '<span style="color:var(--red)">___</span>');
+      $("form-target").innerHTML = "jullie of je?";
+      $("form-hint").textContent = it.en;
+      const full = it.s.replace("___", it.a);
+      const why = it.subj === "jullie"
+        ? `The subject is already <b>jullie</b>, so the possessive is better as <b>je</b>.`
+        : `The subject is <b>${esc(it.subj)}</b>, not jullie, so the possessive has to be <b>jullie</b>.`;
+      return { answers: [it.a], say: full, why: `${why}<br>Hele zin: <b>${esc(full)}</b>` };
+    }
+    const f = pick(FORMS);
+    $("form-prompt").innerHTML = esc(f.en);
+    $("form-target").innerHTML = esc(f.type);
+    $("form-hint").textContent = f.a.length > 1 ? `${f.a.length} forms are possible — one is enough` : "";
+    return {
+      answers: f.a,
+      say: f.a[0],
+      why: `${TYPE_NOTE[f.type]} <b>${f.en}</b> (${f.type}) = <b>${f.a.join(" / ")}</b>.`,
+    };
+  },
+  check(cur, given) {
+    const gv = norm(given);
+    const ok = cur.answers.some(a => norm(a) === gv);
+    return { ok, correct: cur.answers.join(" / "), why: cur.why, say: cur.say };
+  },
+});
+
+/* ================= LISTENING DRILL ================= */
+const LISTEN_ITEMS = [...new Set([
+  ...WORDS.map(w => w.nl),
+  ...SUBJECT.filter(r => r.nl).map(r => r.nl),
+  ...POSSESSIVE.filter(r => r.nl).map(r => r.nl),
+  ...OBJECT.filter(r => r.nl).map(r => r.nl),
+  ...EX_UVORM.map(e => e[0]),
+  ...EX_ONS.map(e => e[0]),
+  ...EX_JULLIE.map(e => e[0]),
+  ...GAPS.map(g => gapFull(g, g.a)),
+  ...ONS_ITEMS.map(i => i.a),
+])];
+const listenDrill = makeDrill({
+  inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  next() {
+    const text = pick(LISTEN_ITEMS);
+    const n = text.split(" ").length;
+    $("listen-hint").textContent = n > 1 ? `${n} woorden` : "1 woord";
+    return { text };
+  },
+  check(cur, given) {
+    const ok = norm(given) === norm(cur.text);
+    return { ok, correct: cur.text, say: cur.text };
+  },
+});
+$("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
+$("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
+
+/* Start drills */
+gapDrill.newQuestion();
+formDrill.newQuestion();
+listenDrill.newQuestion();
+</script>
+</body>
+</html>
