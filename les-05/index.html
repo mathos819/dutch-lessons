@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 5 — Modale werkwoorden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #16150F;
+    --red: #DE3B24;
+    --blue: #2247B5;
+    --yellow: #F5C518;
+    --rule: 3px solid var(--ink);
+    --display: "Archivo Black", "Arial Black", sans-serif;
+    --body: "Archivo", "Helvetica Neue", sans-serif;
+    --mono: "IBM Plex Mono", "Menlo", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .frame { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---- Header: Mondrian composition ---- */
+  header { border-bottom: var(--rule); padding: 36px 0 24px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--display); font-size: clamp(30px, 5.5vw, 54px);
+    line-height: 1.02; text-transform: uppercase; letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--red); }
+  header p.sub { margin-top: 12px; max-width: 620px; color: #4a4940; }
+
+  /* ---- Nav as Mondrian blocks ---- */
+  nav {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border: var(--rule); border-top: none; background: var(--ink); gap: 3px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav button {
+    font-family: var(--display); font-size: 13px; text-transform: uppercase;
+    letter-spacing: 0.02em; border: none; padding: 16px 4px 14px;
+    cursor: pointer; background: var(--paper); color: var(--ink);
+  }
+  nav button:hover { background: #efede2; }
+  nav button:focus-visible { outline: 3px dashed var(--blue); outline-offset: -6px; }
+  nav button[aria-selected="true"]:nth-child(1) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(2) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(3) { background: var(--blue); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(4) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(5) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(6) { background: var(--blue); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(7) { background: var(--red); color: var(--paper); }
+
+  section.panel { display: none; padding-top: 34px; }
+  section.panel.active { display: block; }
+
+  h2 {
+    font-family: var(--display); font-size: 24px; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .note { color: #4a4940; margin-bottom: 22px; max-width: 700px; }
+
+  /* ---- Reference tables ---- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 26px; margin-bottom: 40px; align-items: start; }
+  .card { border: var(--rule); background: #fff; }
+  .card .head {
+    font-family: var(--display); text-transform: uppercase; font-size: 16px;
+    padding: 10px 14px; border-bottom: var(--rule);
+  }
+  .card .head small { display:block; font-family: var(--mono); font-weight: 400; text-transform: none; font-size: 12px; }
+  .card.red .head { background: var(--red); color: var(--paper); }
+  .card.blue .head { background: var(--blue); color: var(--paper); }
+  .card.yellow .head { background: var(--yellow); }
+  .card table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; }
+  .card td { padding: 8px 14px; border-bottom: 1px solid #d8d5c6; vertical-align: top; }
+  .card tr:last-child td { border-bottom: none; }
+  .card td.en { color: #6a685c; font-size: 13.5px; text-align: right; }
+  .card td.lbl { font-family: var(--body); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; background:#f1efe4; }
+  .speak {
+    border: 2px solid var(--ink); background: var(--paper); cursor: pointer;
+    font-size: 12px; font-family: var(--mono); padding: 1px 7px; margin-right: 8px;
+    border-radius: 0;
+  }
+  .speak:hover { background: var(--yellow); }
+  .speak:focus-visible { outline: 3px dashed var(--blue); }
+
+  /* ---- The modal verb table (5 verbs side by side) ---- */
+  .modal-wrap { border: var(--rule); background: #fff; margin-bottom: 26px; overflow-x: auto; }
+  table.modal { border-collapse: collapse; width: 100%; min-width: 720px; font-family: var(--mono); font-size: 15px; }
+  table.modal th, table.modal td { padding: 8px 10px; border-bottom: 1px solid #d8d5c6; border-right: 1px solid #d8d5c6; text-align: left; vertical-align: top; }
+  table.modal th { background: var(--ink); color: var(--paper); font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 15px; }
+  table.modal th small { display: block; font-family: var(--mono); text-transform: none; font-size: 11.5px; color: var(--yellow); }
+  table.modal th .speak { background: var(--paper); color: var(--ink); margin-top: 4px; }
+  table.modal td.subj { font-family: var(--body); font-weight: 700; background: #f1efe4; white-space: nowrap; }
+  table.modal td.subj small { display: block; font-weight: 400; font-size: 11.5px; color: #6a685c; }
+  table.modal tr.inv td { background: #fdf6d6; }
+  table.modal tr.inv td.subj { background: var(--yellow); }
+  table.modal tr.plural td { border-top: 3px solid var(--ink); }
+  table.modal .f { display: block; margin-bottom: 3px; }
+  table.modal .speak { font-size: 11px; padding: 0 5px; margin-right: 4px; }
+
+  .rules { border: var(--rule); background: #fff; margin-bottom: 40px; }
+  .rules .head { font-family: var(--display); text-transform: uppercase; font-size: 16px; padding: 10px 14px; border-bottom: var(--rule); background: var(--ink); color: var(--paper); }
+  .rules ol, .rules ul { padding: 16px 16px 16px 40px; }
+  .rules li { margin-bottom: 12px; }
+  .rules code { font-family: var(--mono); background: #f1efe4; padding: 1px 5px; font-size: 14.5px; }
+
+  /* ---- Pattern strips / example blocks ---- */
+  .pattern { font-family: var(--mono); font-size: 14px; letter-spacing: .02em; margin-bottom: 6px; }
+  .pattern span { padding: 2px 6px; border: 2px solid var(--ink); display: inline-block; margin: 2px 2px 2px 0; }
+  .pt-s { background: var(--blue); color: var(--paper); }
+  .pt-v { background: var(--yellow); }
+  .pt-i { background: var(--red); color: var(--paper); }
+  .pt-q { background: var(--ink); color: var(--paper); }
+  .pt-r { background: #f1efe4; }
+  .example { font-family: var(--mono); font-size: 15px; margin: 8px 0 2px; }
+  .example .tr { display: block; color: #6a685c; font-size: 13px; }
+  .blk { border: var(--rule); background: #fff; padding: 16px 18px; margin-bottom: 26px; }
+  .blk h3 { font-family: var(--display); font-size: 15px; text-transform: uppercase; margin-bottom: 10px; }
+  .blk .sep { border: none; border-top: 1px solid #d8d5c6; margin: 14px 0; }
+  .blk p.small { font-size: 15px; color: #4a4940; margin-bottom: 12px; }
+  .four { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 18px; }
+  .four .kind { font-family: var(--body); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: #6a685c; }
+  .four .example { margin-top: 2px; }
+  .mark { background: var(--yellow); padding: 0 2px; }
+
+  /* ---- Flashcards ---- */
+  .flash-stage { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .flashcard {
+    width: min(460px, 100%); min-height: 240px; border: var(--rule); background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; text-align: center; padding: 24px;
+  }
+  .flashcard .side-label {
+    position: absolute; top: 10px; left: 12px; font-family: var(--mono);
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .flashcard .word { font-family: var(--display); font-size: 36px; }
+  .flashcard.back { background: var(--yellow); }
+  .flash-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    font-family: var(--display); text-transform: uppercase; font-size: 14px;
+    border: var(--rule); background: var(--paper); padding: 12px 20px; cursor: pointer;
+  }
+  .btn:hover { background: #efede2; }
+  .btn:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .btn.primary { background: var(--blue); color: var(--paper); }
+  .btn.primary:hover { background: #1b3a99; }
+  .btn.good { background: var(--yellow); }
+  .btn.bad { background: var(--red); color: var(--paper); }
+  .flash-progress { font-family: var(--mono); font-size: 14px; }
+
+  /* ---- Drills ---- */
+  .drill { max-width: 720px; }
+  .prompt-box { border: var(--rule); background: #fff; padding: 26px 24px; margin-bottom: 18px; }
+  .prompt-box .task { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; color: #6a685c; }
+  .prompt-box .big { font-family: var(--display); font-size: 22px; line-height: 1.3; }
+  .prompt-box .ctx { font-family: var(--mono); font-size: 15px; color: #4a4940; margin-bottom: 8px; }
+  .prompt-box .hint { font-family: var(--mono); font-size: 14px; margin-top: 10px; color: #6a685c; }
+  .prompt-box .gap { color: var(--red); }
+  .prompt-box .inf { font-family: var(--mono); font-size: 16px; color: var(--blue); }
+  .prompt-box .parts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .prompt-box .parts span { font-family: var(--mono); font-size: 16px; border: 2px solid var(--ink); padding: 4px 9px; background: #f1efe4; }
+  .prompt-box .parts span.modal { background: var(--yellow); }
+  .prompt-box .target { display: inline-block; background: var(--red); color: var(--paper); font-family: var(--mono); font-size: 15px; padding: 3px 9px; margin-top: 12px; }
+  .answer-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  input[type=text] {
+    flex: 1; font-family: var(--mono); font-size: 18px; padding: 12px 14px;
+    border: var(--rule); background: #fff; min-width: 0;
+  }
+  input[type=text]:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
+  .feedback .ok { color: #1e7a1e; font-weight: 600; }
+  .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
+  .feedback .why b { color: var(--ink); }
+  .feedback .trap { display:block; font-size: 13.5px; margin-top: 6px; background: var(--yellow); color: var(--ink); padding: 4px 8px; border: 2px solid var(--ink); }
+  .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
+  .scorebar b { font-size: 18px; }
+
+  @media (max-width: 640px) {
+    nav { grid-template-columns: repeat(4, 1fr); }
+    nav button { font-size: 11px; padding: 12px 2px; }
+    .flashcard .word { font-size: 26px; }
+    .prompt-box .big { font-size: 18px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flashcard { transition: transform .12s ease; }
+    .flashcard:active { transform: scale(.985); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="eyebrow">Nederlands · Les 5 · 28-08-2026</div>
+    <h1>Modale<br><span class="accent">werkwoorden</span></h1>
+    <p class="sub">The five modal verbs: <strong>zullen</strong>, <strong>willen</strong>, <strong>kunnen</strong>, <strong>mogen</strong> and <strong>moeten</strong>. How to conjugate them (the -t traps), and the new word order: the modal in second place, the <strong>2nd verb at the end</strong> as an infinitive.</p>
+  </header>
+
+  <nav role="tablist" aria-label="Practice sections">
+    <button role="tab" aria-selected="true" data-panel="learn">Leer</button>
+    <button role="tab" aria-selected="false" data-panel="flash">Woorden</button>
+    <button role="tab" aria-selected="false" data-panel="conj">Vervoegen</button>
+    <button role="tab" aria-selected="false" data-panel="choose">Kiezen</button>
+    <button role="tab" aria-selected="false" data-panel="change">Omzetten</button>
+    <button role="tab" aria-selected="false" data-panel="order">Zinsbouw</button>
+    <button role="tab" aria-selected="false" data-panel="listen">Luisteren</button>
+  </nav>
+
+  <!-- ================= LEARN ================= -->
+  <section class="panel active" id="panel-learn">
+    <h2>Reference — de modale werkwoorden</h2>
+    <p class="note">Click ▶ to hear it at normal speed, 🐢 for the slow version. Every Dutch word and sentence on this page is spoken by a Dutch voice.</p>
+
+    <div class="modal-wrap"><table class="modal" id="modal-table"></table></div>
+
+    <div class="blk">
+      <h3>Two forms for je / u — the notes under the table</h3>
+      <div id="ex-twoforms"></div>
+      <hr class="sep">
+      <p class="small" style="margin-bottom:0"><strong>zult</strong>, <strong>wilt</strong> and <strong>kunt</strong> are the more formal forms. <strong>mogen</strong> and <strong>moeten</strong> have only one singular form: <em>mag</em>, <em>moet</em>.</p>
+    </div>
+
+    <div class="blk">
+      <h3>1 · No -t for hij / zij</h3>
+      <p class="small">We don't add <strong>-t</strong> for the 3rd person singular. Not <em>hij wilt</em> — it is <strong>hij wil</strong>.</p>
+      <div id="ex-nothird"></div>
+    </div>
+
+    <div class="blk">
+      <h3>2 · Je after the verb → the -t goes</h3>
+      <p class="small">If we make a question, or a hoofdzin met inversie, with the subject <strong>jij / je</strong>, we have to remove the <strong>-t</strong> if the verb is <strong>zult / wilt / kunt</strong>: <span class="mark">zul je</span>, <span class="mark">wil je</span>, <span class="mark">kun je</span>.</p>
+      <div id="ex-four"></div>
+    </div>
+
+    <div class="blk">
+      <h3>3 · Not allowed → mogen</h3>
+      <p class="small">If something is forbidden or not allowed, we use <strong>mogen</strong> (+ niet / geen).</p>
+      <div id="ex-mogen"></div>
+    </div>
+
+    <div class="blk">
+      <h3>Word order with a modal verb</h3>
+      <p class="small">★ The modal verb has to be in the correct form. &nbsp;★ The 2nd verb can never be at the beginning of the sentence. &nbsp;★ The 2nd verb is always the infinitive — and it goes to the end.</p>
+      <div class="pattern"><span class="pt-s">subject</span><span class="pt-v">modal verb</span><span class="pt-r">rest (time – object – manner – place)</span><span class="pt-i">2nd verb</span></div>
+      <div id="ex-order-hoofd"></div>
+      <hr class="sep">
+      <h3>Hoofdzin met inversie</h3>
+      <div id="ex-order-inv"></div>
+      <hr class="sep">
+      <h3>Open vraag</h3>
+      <div class="pattern"><span class="pt-q">vraagwoord</span><span class="pt-v">modal verb</span><span class="pt-s">subject</span><span class="pt-r">rest</span><span class="pt-i">2nd verb</span></div>
+      <div id="ex-order-open"></div>
+      <hr class="sep">
+      <h3>Gesloten vraag</h3>
+      <div class="pattern"><span class="pt-v">modal verb</span><span class="pt-s">subject</span><span class="pt-r">rest</span><span class="pt-i">2nd verb</span></div>
+      <div id="ex-order-gesloten"></div>
+    </div>
+
+    <div class="cols" id="ref-cols"></div>
+
+    <div class="rules">
+      <div class="head">Rules to remember</div>
+      <ol>
+        <li><strong>zullen</strong> = going to, shall, will · <strong>willen</strong> = want · <strong>kunnen</strong> = can, be able to · <strong>mogen</strong> = may, be allowed to · <strong>moeten</strong> = must, have to, need to.</li>
+        <li>Singular: <code>ik zal · wil · kan · mag · moet</code>. Plural = the infinitive: <code>we / jullie / ze zullen · willen · kunnen · mogen · moeten</code>.</li>
+        <li>No <strong>-t</strong> for hij / zij / het: <code>hij wil</code>, <code>zij kan</code>, <code>hij zal</code> — never <em>hij wilt</em>.</li>
+        <li>jij / je and u have two forms: <code>zal / zult</code>, <code>wil / wilt</code>, <code>kan / kunt</code> (the -t form is more formal).</li>
+        <li>When <strong>je / jij</strong> comes after the verb (vraag or inversie) the -t goes: <code>zul je</code>, <code>wil je</code>, <code>kun je</code> (<em>zal je</em>, <em>kan je</em> are fine too). With <strong>u</strong> the -t may stay: <code>kunt u</code>.</li>
+        <li>The modal takes the verb's place (2nd position; 1st in a gesloten vraag). The <strong>2nd verb goes to the end</strong>, always as <strong>infinitive</strong>: <code>Ik leer Nederlands → Ik moet Nederlands leren.</code></li>
+        <li>Forbidden / not allowed → <code>mogen + niet / geen</code>: <code>Je mag hier niet roken.</code></li>
+        <li><code>Zullen we …?</code> is a suggestion (shall we?). <code>Willen jullie …?</code> asks what you want. <code>Mag ik …?</code> asks permission.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= FLASHCARDS ================= -->
+  <section class="panel" id="panel-flash">
+    <h2>Woorden — vocabulary flashcards</h2>
+    <p class="note">The five modals plus every word used in the lesson and in grammatica 18 and 20. Click the card (or press space) to flip. Unknown cards come back until you know them all.</p>
+    <div class="flash-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <span class="side-label" id="flash-side">NL</span>
+        <div class="word" id="flash-word">—</div>
+      </div>
+      <div class="flash-controls">
+        <button class="btn" id="flash-audio">▶ Uitspraak</button>
+        <button class="btn" id="flash-slow">🐢 Langzaam</button>
+        <button class="btn bad" id="flash-no">✗ Nog niet</button>
+        <button class="btn good" id="flash-yes">✓ Ik weet het</button>
+      </div>
+      <div class="flash-progress" id="flash-progress"></div>
+    </div>
+  </section>
+
+  <!-- ================= CONJUGATION DRILL ================= -->
+  <section class="panel" id="panel-conj">
+    <h2>Vervoegen — de juiste vorm</h2>
+    <p class="note">Two kinds of rounds. <strong>Table:</strong> you get a subject and an infinitive, type the form (for a vraag/inversie round, type the verb + the pronoun, e.g. <em>kun je</em>). <strong>Zin:</strong> fill the gap with the right form of the verb in blue. Where two forms are right (zal/zult), either one is accepted. Press Enter to check, Enter again for the next one.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task" id="conj-task">Vervoeg</div>
+        <div class="big" id="conj-prompt">—</div>
+        <div class="target" id="conj-target"></div>
+        <div class="hint" id="conj-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="conj-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="de vorm…" aria-label="Your answer">
+        <button class="btn primary" id="conj-check">Check</button>
+      </div>
+      <div class="feedback" id="conj-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="conj-right">0</b></span><span>Fout <b id="conj-wrong">0</b></span><span>Reeks <b id="conj-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= CHOOSE DRILL (grammatica 18) ================= -->
+  <section class="panel" id="panel-choose">
+    <h2>Kiezen — kies het goede verbum</h2>
+    <p class="note">Grammatica <strong>18</strong> from the lesson: type the modal verb that belongs in the gap — pick from the two the book gives you. Think about the <em>meaning</em>: want, can, may, must or shall. Capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Kies het goede verbum</div>
+        <div class="big" id="choose-sentence">—</div>
+        <div class="parts" id="choose-opts"></div>
+        <div class="hint" id="choose-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="choose-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="het verbum…" aria-label="Your answer">
+        <button class="btn primary" id="choose-check">Check</button>
+      </div>
+      <div class="feedback" id="choose-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="choose-right">0</b></span><span>Fout <b id="choose-wrong">0</b></span><span>Reeks <b id="choose-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= CHANGE DRILL (grammatica 20) ================= -->
+  <section class="panel" id="panel-change">
+    <h2>Omzetten — maak een combinatie met een modaal verbum</h2>
+    <p class="note">Grammatica <strong>20</strong>: rewrite the sentence with a modal verb. The English line tells you which modal to use. The modal takes the verb's place; the old verb goes to the <strong>end</strong> as an infinitive. Rounds marked <em>extra</em> reuse sentences from Les 3. Punctuation and capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Verander de zin</div>
+        <div class="big" id="change-base">—</div>
+        <div class="target" id="change-target"></div>
+        <div class="hint" id="change-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="change-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jouw zin…" aria-label="Your answer">
+        <button class="btn primary" id="change-check">Check</button>
+      </div>
+      <div class="feedback" id="change-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="change-right">0</b></span><span>Fout <b id="change-wrong">0</b></span><span>Reeks <b id="change-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= WORD ORDER DRILL ================= -->
+  <section class="panel" id="panel-order">
+    <h2>Zinsbouw — woordvolgorde met een modaal verbum</h2>
+    <p class="note">Two kinds of rounds. <strong>Maak een zin:</strong> put the loose parts in order — the modal (yellow) is given as an infinitive, so conjugate it; the 2nd verb stays an infinitive at the end. Sometimes a hoofdzin, sometimes inversie starting with the part in red. <strong>Maak een vraag:</strong> turn the sentence into a gesloten or open vraag. Punctuation and capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task" id="order-task">Maak een zin</div>
+        <div class="big" id="order-prompt"></div>
+        <div class="target" id="order-target"></div>
+        <div class="hint" id="order-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="order-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="jouw zin…" aria-label="Your answer">
+        <button class="btn primary" id="order-check">Check</button>
+      </div>
+      <div class="feedback" id="order-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="order-right">0</b></span><span>Fout <b id="order-wrong">0</b></span><span>Reeks <b id="order-streak">0</b></span></div>
+    </div>
+  </section>
+
+  <!-- ================= LISTENING ================= -->
+  <section class="panel" id="panel-listen">
+    <h2>Luisteren — dictation</h2>
+    <p class="note">Play the audio and type exactly what you hear — a word, a modal form, or a whole sentence from the lesson. Punctuation and capitals are ignored.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Listen and type</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn" id="listen-slow">🐢 Langzaam</button>
+        </div>
+        <div class="hint" id="listen-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="listen-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wat hoor je?" aria-label="Your answer">
+        <button class="btn primary" id="listen-check">Check</button>
+      </div>
+      <div class="feedback" id="listen-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==== DATA START ==== */
+
+/* The five modals — the header row of the lesson table. */
+const MODALS = [
+  { nl: "zullen", en: "going to, shall, will" },
+  { nl: "willen", en: "to want" },
+  { nl: "kunnen", en: "can, to be able to" },
+  { nl: "mogen",  en: "may, to be allowed to" },
+  { nl: "moeten", en: "must, to have to, to need to" },
+];
+
+/* Conjugation. Where two forms are right, the first one is the one the
+   lesson's example sentences use (je zult, zul je, kun je).
+   jijInv = je/jij AFTER the verb (vraag / inversie): the -t drops.
+   uInv   = u after the verb: the -t may stay.                              */
+const CONJ = {
+  zullen: { ik: ["zal"],  jij: ["zult", "zal"], jijInv: ["zul", "zal"], u: ["zult", "zal"], uInv: ["zult", "zal"], hij: ["zal"],  pl: "zullen" },
+  willen: { ik: ["wil"],  jij: ["wilt", "wil"], jijInv: ["wil"],        u: ["wilt", "wil"], uInv: ["wilt", "wil"], hij: ["wil"],  pl: "willen" },
+  kunnen: { ik: ["kan"],  jij: ["kunt", "kan"], jijInv: ["kun", "kan"], u: ["kunt", "kan"], uInv: ["kunt", "kan"], hij: ["kan"],  pl: "kunnen" },
+  mogen:  { ik: ["mag"],  jij: ["mag"],         jijInv: ["mag"],        u: ["mag"],         uInv: ["mag"],         hij: ["mag"],  pl: "mogen" },
+  moeten: { ik: ["moet"], jij: ["moet"],        jijInv: ["moet"],       u: ["moet"],        uInv: ["moet"],        hij: ["moet"], pl: "moeten" },
+};
+
+/* Subjects used by the table drill. key = which CONJ row; say = the pronoun spoken. */
+const SUBJECTS = [
+  { key: "ik",     show: "ik",             say: "ik",     accept: ["ik"] },
+  { key: "jij",    show: "jij / je",       say: "je",     accept: ["jij", "je"] },
+  { key: "jijInv", show: "je — vraag / inversie", say: "je", accept: ["je", "jij"], inv: true },
+  { key: "u",      show: "u",              say: "u",      accept: ["u"] },
+  { key: "uInv",   show: "u — vraag",      say: "u",      accept: ["u"], inv: true },
+  { key: "hij",    show: "hij",            say: "hij",    accept: ["hij"] },
+  { key: "hij",    show: "zij (she)",      say: "zij",    accept: ["zij", "ze"] },
+  { key: "pl",     show: "we",             say: "we",     accept: ["we", "wij"] },
+  { key: "pl",     show: "jullie",         say: "jullie", accept: ["jullie"] },
+  { key: "pl",     show: "ze (they)",      say: "ze",     accept: ["ze", "zij"] },
+];
+
+/* Rows of the reference table, exactly as in the PDF (je/u share a row). */
+const TABLE_ROWS = [
+  { show: "ik",       key: "ik",     pron: "ik" },
+  { show: "je / u",   key: "jij",    pron: "je", sub: "two forms" },
+  { show: "je →",     key: "jijInv", pron: "je", sub: "vraag / inversie", inv: true },
+  { show: "hij / zij", key: "hij",   pron: "hij" },
+  { show: "we",       key: "pl",     pron: "we", plural: true },
+  { show: "jullie",   key: "pl",     pron: "jullie" },
+  { show: "ze",       key: "pl",     pron: "ze" },
+];
+
+/* The notes printed under the table. */
+const EX_TWOFORMS = [
+  ["je zal, je zult", "you will — u zal, u zult too; zult is more formal"],
+  ["je wil, je wilt", "you want — u wil, u wilt too; wilt is more formal"],
+  ["je kan, je kunt", "you can — u kan, u kunt too; kunt is more formal"],
+];
+const EX_NOTHIRD = [
+  ["Hij wil een nieuwe auto kopen.", "He wants to buy a new car. — wil, not wilt"],
+  ["Zij kan heel goed zwemmen.", "She can swim very well. — kan, not kunt"],
+  ["Hij zal morgen komen.", "He will come tomorrow. — zal, not zult"],
+];
+/* The four-column example block of page 1. */
+const EX_FOUR = [
+  { hoofd: "Je zult om 8 uur naar werk komen.", inv: "Om 8 uur zul je naar werk komen.", open: "Hoe laat zul je naar werk komen?", gesl: "Zul je om 8 uur naar werk komen?" },
+  { hoofd: "Je wilt op vakantie gaan.",          inv: "Op vakantie wil je gaan.",          open: "Wanneer wil je op vakantie gaan?", gesl: "Wil je op vakantie gaan?" },
+  { hoofd: "Je kunt heel goed zwemmen.",         inv: "Heel goed kun je zwemmen.",         open: "Hoe kun je zwemmen?",              gesl: "Kun je heel goed zwemmen?" },
+];
+const EX_MOGEN = [
+  ["Kan ik hier roken?", "Can I smoke here?"],
+  ["Je mag hier niet roken.", "You are not allowed to smoke here."],
+];
+/* Page 2: word order with a modal verb. */
+const EX_ORDER_HOOFD = [
+  ["Ik zal morgen de kinderen met de auto naar school brengen.", "I will bring the kids to school by car tomorrow. — subject – modal – time – object – manner – place – 2nd verb"],
+];
+const EX_ORDER_INV = [
+  ["Morgen zal ik de kinderen met de auto naar school brengen.", "time – modal – subject – object – manner – place – 2nd verb"],
+  ["De kinderen zal ik morgen met de auto naar school brengen.", "object – modal – subject – time – manner – place – 2nd verb"],
+  ["Met de auto zal ik morgen de kinderen naar school brengen.", "manner – modal – subject – time – object – place – 2nd verb"],
+  ["Naar school zal ik morgen de kinderen met de auto brengen.", "place – modal – subject – time – object – manner – 2nd verb"],
+];
+const EX_ORDER_OPEN = [
+  ["Wanneer zul je de kinderen naar school brengen?", "When are you going to bring the kids to school?"],
+  ["Hoe zul je de kinderen naar school brengen?", "How will you bring the kids to school?"],
+];
+const EX_ORDER_GESLOTEN = [
+  ["Zul je de kinderen naar school brengen?", "Are you going to bring the kids to school?"],
+];
+
+/* Vocabulary — every word of the lesson, grammatica 18 and grammatica 20. */
+const WORDS = [
+  { nl: "vanavond",        en: "tonight, this evening" },
+  { nl: "de bioscoop",     en: "the cinema" },
+  { nl: "gaan",            en: "to go" },
+  { nl: "het kopje",       en: "the (small) cup" },
+  { nl: "een kopje thee",  en: "a cup of tea" },
+  { nl: "drinken",         en: "to drink" },
+  { nl: "om half negen",   en: "at half past eight" },
+  { nl: "de school",       en: "the school" },
+  { nl: "beginnen",        en: "to begin" },
+  { nl: "de les",          en: "the lesson" },
+  { nl: "de tandarts",     en: "the dentist" },
+  { nl: "want",            en: "because" },
+  { nl: "de afspraak",     en: "the appointment" },
+  { nl: "even",            en: "for a moment, quickly" },
+  { nl: "de wc",           en: "the toilet" },
+  { nl: "zwemmen",         en: "to swim" },
+  { nl: "het zwemdiploma", en: "the swimming certificate" },
+  { nl: "de film",         en: "the film, the movie" },
+  { nl: "het boek",        en: "the book" },
+  { nl: "houden van",      en: "to like, to love" },
+  { nl: "lezen",           en: "to read" },
+  { nl: "tijdens",         en: "during" },
+  { nl: "het examen",      en: "the exam" },
+  { nl: "praten",          en: "to talk" },
+  { nl: "de deur",         en: "the door" },
+  { nl: "dichtdoen",       en: "to close" },
+  { nl: "alsjeblieft",     en: "please" },
+  { nl: "koud",            en: "cold" },
+  { nl: "de alcohol",      en: "the alcohol" },
+  { nl: "als",             en: "if" },
+  { nl: "nog geen 18 jaar", en: "not yet 18 years old" },
+  { nl: "het zwembad",     en: "the swimming pool" },
+  { nl: "helpen",          en: "to help" },
+  { nl: "roken",           en: "to smoke" },
+  { nl: "het café",        en: "the café, the pub" },
+  { nl: "het restaurant",  en: "the restaurant" },
+  { nl: "spreken",         en: "to speak" },
+  { nl: "Nederlands",      en: "Dutch" },
+  { nl: "Chinees",         en: "Chinese" },
+  { nl: "betalen",         en: "to pay" },
+  { nl: "de rekening",     en: "the bill" },
+  { nl: "op tijd",         en: "on time" },
+  { nl: "vragen",          en: "to ask" },
+  { nl: "iets",            en: "something" },
+  { nl: "maken",           en: "to make, to do" },
+  { nl: "het huiswerk",    en: "the homework" },
+  { nl: "elke dag",        en: "every day" },
+  { nl: "kopen",           en: "to buy" },
+  { nl: "nieuw",           en: "new" },
+  { nl: "de pauze",        en: "the break" },
+  { nl: "de kantine",      en: "the canteen" },
+  { nl: "leren",           en: "to learn" },
+  { nl: "naar werk komen", en: "to come to work" },
+  { nl: "om 8 uur",        en: "at 8 o'clock" },
+  { nl: "op vakantie gaan", en: "to go on holiday" },
+  { nl: "heel goed",       en: "very well" },
+  { nl: "hier",            en: "here" },
+  { nl: "morgen",          en: "tomorrow" },
+  { nl: "brengen",         en: "to bring" },
+  { nl: "met de auto",     en: "by car" },
+];
+
+/* ---- Grammatica 18: kies het goede verbum ----
+   opts = the two choices printed in the book, a = the answer key.          */
+const CHOOSE = [
+  { n: "voorbeeld", s: "___ we vanavond naar de bioscoop gaan?", opts: ["Willen", "Zullen"], a: "Zullen",
+    en: "Shall we go to the cinema tonight?",
+    why: "<b>Zullen we …?</b> is a suggestion: <em>shall we</em>. <b>Willen</b> would only ask what we want." },
+  { n: "1", s: "___ jullie een kopje thee drinken?", opts: ["Willen", "Zullen"], a: "Willen",
+    en: "Do you want to drink a cup of tea?",
+    why: "You offer tea and ask what they <em>want</em> → <b>willen</b>. Subject jullie → plural = infinitive: <b>willen</b>." },
+  { n: "2", s: "De kinderen ___ om half negen op school zijn. Dan begint de les.", opts: ["mogen", "moeten"], a: "moeten",
+    en: "The children have to be at school at half past eight. Then the lesson starts.",
+    why: "The lesson starts, so it is an obligation: they <em>have to</em> be there → <b>moeten</b>." },
+  { n: "3", s: "Ik ___ naar de tandarts gaan want ik heb een afspraak.", opts: ["moet", "zal"], a: "moet",
+    en: "I have to go to the dentist because I have an appointment.",
+    why: "I have an appointment, so I <em>have to</em> go → <b>moet</b>." },
+  { n: "4", s: "___ ik even naar de wc gaan?", opts: ["Mag", "Moet"], a: "Mag",
+    en: "May I go to the toilet for a moment?",
+    why: "You ask <em>permission</em> → <b>mogen</b>: <b>Mag ik …?</b>" },
+  { n: "5", s: "Ik ___ goed zwemmen, want ik heb drie zwemdiploma's.", opts: ["kan", "wil"], a: "kan",
+    en: "I can swim well, because I have three swimming certificates.",
+    why: "The diplomas prove an <em>ability</em> → <b>kunnen</b>: ik <b>kan</b>." },
+  { n: "6", s: "___ we naar de film gaan?", opts: ["Willen", "Zullen"], a: "Zullen",
+    en: "Shall we go to the movies?",
+    why: "A suggestion: <em>shall we / are we going to</em> → <b>Zullen we …?</b>" },
+  { n: "7", s: "Hij ___ geen boek kopen. Hij houdt niet van lezen.", opts: ["wil", "kan"], a: "wil",
+    en: "He doesn't want to buy a book. He doesn't like reading.",
+    why: "He doesn't like reading, so he doesn't <em>want</em> to → <b>willen</b>. And hij takes no -t: hij <b>wil</b>." },
+  { n: "8", s: "Je ___ tijdens het examen niet praten.", opts: ["mag", "moet"], a: "mag",
+    en: "You are not allowed to talk during the exam.",
+    why: "Something is <em>forbidden</em> → <b>mogen + niet</b>: je <b>mag</b> niet praten." },
+  { n: "9", s: "___ ik de deur dichtdoen, alsjeblieft? Het is koud.", opts: ["Mag", "Zal"], a: "Mag",
+    en: "May I close the door, please? It's cold.",
+    why: "With <em>alsjeblieft</em> you are asking <em>permission</em> → <b>Mag ik …?</b>" },
+  { n: "10", s: "Je ___ geen alcohol kopen als je nog geen 18 jaar bent.", opts: ["mag", "moet"], a: "mag",
+    en: "You are not allowed to buy alcohol if you're not 18 yet.",
+    why: "Not allowed → <b>mogen + geen</b>: je <b>mag</b> geen alcohol kopen." },
+];
+
+/* ---- Grammatica 20: verander de zin, maak een combinatie met een modaal verbum ----
+   base = the book's sentence, a = the teacher's answer, alts = also right,
+   verb = the old verb's form → infinitive that goes to the end.             */
+const CHANGE = [
+  { n: "voorbeeld", base: "Ik leer Nederlands.", a: "Ik moet Nederlands leren.", en: "I have to learn Dutch.",
+    verb: ["leer", "leren"] },
+  { n: "1", base: "Ik ga naar het zwembad.", a: "Ik wil naar het zwembad gaan.", en: "I want to go to the swimming pool.",
+    verb: ["ga", "gaan"] },
+  { n: "2", base: "Help ik je?", a: "Kan ik je helpen?", en: "Can I help you?",
+    verb: ["help", "helpen"], note: "A gesloten vraag: the modal takes first place." },
+  { n: "3", base: "Jullie roken niet in een café of restaurant.", a: "Jullie mogen niet in een café of restaurant roken.",
+    alts: ["Jullie mogen in een café of restaurant niet roken."],
+    en: "You are not allowed to smoke in a café or restaurant.",
+    verb: ["roken", "roken"], note: "Not allowed → mogen + niet. jullie → plural = infinitive: mogen." },
+  { n: "4", base: "Spreekt u goed Nederlands?", a: "Kunt u goed Nederlands spreken?", alts: ["Kan u goed Nederlands spreken?"],
+    en: "Can you speak Dutch well? (formal)",
+    verb: ["spreekt", "spreken"], note: "With u the -t can stay: kunt u (or kan u). The -t only has to go with je/jij." },
+  { n: "5", base: "Ik spreek geen Chinees.", a: "Ik kan geen Chinees spreken.", en: "I can't speak Chinese.",
+    verb: ["spreek", "spreken"] },
+  { n: "6", base: "Hij betaalt de rekening op tijd.", a: "Hij moet de rekening op tijd betalen.", en: "He has to pay the bill on time.",
+    verb: ["betaalt", "betalen"] },
+  { n: "7", base: "Vraag ik u iets?", a: "Mag ik u iets vragen?", en: "May I ask you something?",
+    verb: ["vraag", "vragen"], note: "Asking permission → mag ik." },
+  { n: "8", base: "Ik maak elke dag mijn huiswerk.", a: "Ik moet elke dag mijn huiswerk maken.", en: "I have to do my homework every day.",
+    verb: ["maak", "maken"] },
+  { n: "9", base: "Wij kopen een nieuwe auto.", a: "Wij willen een nieuwe auto kopen.", alts: ["We willen een nieuwe auto kopen."],
+    en: "We want to buy a new car.",
+    verb: ["kopen", "kopen"] },
+  { n: "10", base: "Gaan we in de pauze naar de kantine?", a: "Kunnen we in de pauze naar de kantine gaan?", en: "Can we go to the canteen during the break?",
+    verb: ["gaan", "gaan"] },
+
+  /* extra — sentences from Les 3, now with a modal */
+  { n: "extra", base: "Mijn zus slaapt in de tuin.", a: "Mijn zus mag in de tuin slapen.", en: "My sister is allowed to sleep in the garden.",
+    verb: ["slaapt", "slapen"], note: "mijn zus = zij → mag (no -t)." },
+  { n: "extra", base: "Ik stuur mijn vader een brief.", a: "Ik wil mijn vader een brief sturen.", en: "I want to send my father a letter.",
+    verb: ["stuur", "sturen"] },
+  { n: "extra", base: "Mijn oma hoort niet goed.", a: "Mijn oma kan niet goed horen.", en: "My grandmother can't hear well.",
+    verb: ["hoort", "horen"], note: "mijn oma = zij → kan, not kunt." },
+  { n: "extra", base: "Alfred kookt twee keer per week spaghetti met tomaten.", a: "Alfred zal twee keer per week spaghetti met tomaten koken.",
+    en: "Alfred will cook spaghetti with tomatoes twice a week.",
+    verb: ["kookt", "koken"], note: "Alfred = hij → zal, not zult." },
+  { n: "extra", base: "Drink je koffie?", a: "Wil je koffie drinken?", en: "Do you want to drink coffee?",
+    verb: ["drink", "drinken"], note: "je comes after the verb → no -t: wil je, not wilt je." },
+  { n: "extra", base: "Brengt hij de kinderen naar school?", a: "Moet hij de kinderen naar school brengen?", en: "Does he have to bring the kids to school?",
+    verb: ["brengt", "brengen"] },
+  { n: "extra", base: "Jij komt morgen naar werk.", a: "Jij kunt morgen naar werk komen.", alts: ["Jij kan morgen naar werk komen."],
+    en: "You can come to work tomorrow.",
+    verb: ["komt", "komen"], note: "jij before the verb → both kunt and kan are fine." },
+  { n: "extra", base: "Waar werkt hij?", a: "Waar wil hij werken?", en: "Where does he want to work?",
+    verb: ["werkt", "werken"], note: "Open vraag: vraagwoord – modal – subject – rest – 2nd verb." },
+];
+
+/* ---- Vervoegen, zin-rounds: fill in the modal in a real sentence ----
+   key = CONJ row for the subject; use = the form the lesson's sentence uses. */
+const CONJ_GAPS = [
+  { s: "Je ___ om 8 uur naar werk komen.",       v: "zullen", key: "jij" },
+  { s: "Om 8 uur ___ je naar werk komen.",       v: "zullen", key: "jijInv" },
+  { s: "Hoe laat ___ je naar werk komen?",       v: "zullen", key: "jijInv" },
+  { s: "___ je om 8 uur naar werk komen?",       v: "zullen", key: "jijInv" },
+  { s: "Je ___ op vakantie gaan.",               v: "willen", key: "jij" },
+  { s: "Op vakantie ___ je gaan.",               v: "willen", key: "jijInv" },
+  { s: "Wanneer ___ je op vakantie gaan?",       v: "willen", key: "jijInv" },
+  { s: "Je ___ heel goed zwemmen.",              v: "kunnen", key: "jij" },
+  { s: "Heel goed ___ je zwemmen.",              v: "kunnen", key: "jijInv" },
+  { s: "Hoe ___ je zwemmen?",                    v: "kunnen", key: "jijInv" },
+  { s: "___ ik hier roken?",                     v: "kunnen", key: "ik" },
+  { s: "Je ___ hier niet roken.",                v: "mogen",  key: "jij" },
+  { s: "Ik ___ morgen de kinderen met de auto naar school brengen.", v: "zullen", key: "ik" },
+  { s: "Morgen ___ ik de kinderen met de auto naar school brengen.", v: "zullen", key: "ik" },
+  { s: "Hij ___ geen boek kopen.",               v: "willen", key: "hij" },
+  { s: "Mijn oma ___ niet goed horen.",          v: "kunnen", key: "hij" },
+  { s: "Maria ___ op zaterdag acht flessen water kopen.", v: "moeten", key: "hij" },
+  { s: "Hij ___ de rekening op tijd betalen.",   v: "moeten", key: "hij" },
+  { s: "Alfred ___ spaghetti met tomaten koken.", v: "zullen", key: "hij" },
+  { s: "___ u goed Nederlands spreken?",         v: "kunnen", key: "uInv" },
+  { s: "___ u een kopje thee?",                  v: "willen", key: "uInv" },
+  { s: "De kinderen ___ om half negen op school zijn.", v: "moeten", key: "pl" },
+  { s: "Jullie ___ niet in een café roken.",     v: "mogen",  key: "pl" },
+  { s: "We ___ in de pauze naar de kantine gaan.", v: "kunnen", key: "pl" },
+  { s: "Mijn ouders ___ elke week naar de bioscoop lopen.", v: "willen", key: "pl" },
+  { s: "Wat ___ jij drinken?",                   v: "willen", key: "jijInv" },
+  { s: "___ jij de deur dichtdoen?",             v: "kunnen", key: "jijInv" },
+  { s: "___ ik even naar de wc gaan?",           v: "mogen",  key: "ik" },
+];
+
+/* ---- Zinsbouw: loose parts → hoofdzin / inversie ----
+   parts[] holds the modal as an infinitive (marked with modal:).           */
+const BUILD = [
+  { src: "les", modal: "zullen", parts: ["ik","morgen","de kinderen","met de auto","naar school","brengen"],
+    hoofd: "Ik zal morgen de kinderen met de auto naar school brengen.",
+    inv: [ { start: "morgen",      s: "Morgen zal ik de kinderen met de auto naar school brengen." },
+           { start: "de kinderen", s: "De kinderen zal ik morgen met de auto naar school brengen." },
+           { start: "met de auto", s: "Met de auto zal ik morgen de kinderen naar school brengen." },
+           { start: "naar school", s: "Naar school zal ik morgen de kinderen met de auto brengen." } ] },
+  { src: "les", modal: "zullen", parts: ["je","om 8 uur","naar werk","komen"],
+    hoofd: "Je zult om 8 uur naar werk komen.", hoofdAlt: ["Je zal om 8 uur naar werk komen."],
+    inv: [ { start: "om 8 uur", s: "Om 8 uur zul je naar werk komen.", alts: ["Om 8 uur zal je naar werk komen."],
+             note: "je comes after the verb, so zult loses its -t: <b>zul je</b>." } ] },
+  { src: "les", modal: "willen", parts: ["je","op vakantie","gaan"],
+    hoofd: "Je wilt op vakantie gaan.", hoofdAlt: ["Je wil op vakantie gaan."],
+    inv: [ { start: "op vakantie", s: "Op vakantie wil je gaan.", note: "je after the verb → <b>wil je</b>, not wilt je." } ] },
+  { src: "les", modal: "kunnen", parts: ["je","heel goed","zwemmen"],
+    hoofd: "Je kunt heel goed zwemmen.", hoofdAlt: ["Je kan heel goed zwemmen."],
+    inv: [ { start: "heel goed", s: "Heel goed kun je zwemmen.", alts: ["Heel goed kan je zwemmen."],
+             note: "je after the verb → <b>kun je</b>, not kunt je." } ] },
+  { src: "Les 3", modal: "willen", parts: ["mijn ouders","elke week","naar de bioscoop","lopen"],
+    hoofd: "Mijn ouders willen elke week naar de bioscoop lopen.",
+    inv: [ { start: "elke week", s: "Elke week willen mijn ouders naar de bioscoop lopen." },
+           { start: "naar de bioscoop", s: "Naar de bioscoop willen mijn ouders elke week lopen." } ] },
+  { src: "Les 3", modal: "mogen", parts: ["mijn zus","in de tuin","slapen"],
+    hoofd: "Mijn zus mag in de tuin slapen.",
+    inv: [ { start: "in de tuin", s: "In de tuin mag mijn zus slapen." } ] },
+  { src: "Les 3", modal: "moeten", parts: ["hij","met de lerares","in het lokaal","spreken"],
+    hoofd: "Hij moet met de lerares in het lokaal spreken.",
+    inv: [ { start: "in het lokaal", s: "In het lokaal moet hij met de lerares spreken." },
+           { start: "met de lerares", s: "Met de lerares moet hij in het lokaal spreken." } ],
+    note: "In the rest, manner (met de lerares) comes before place (in het lokaal)." },
+  { src: "Les 3", modal: "kunnen", parts: ["mijn oma","niet goed","horen"],
+    hoofd: "Mijn oma kan niet goed horen.", inv: [] },
+  { src: "Les 3", modal: "willen", parts: ["Alfred","twee keer per week","spaghetti met tomaten","koken"],
+    hoofd: "Alfred wil twee keer per week spaghetti met tomaten koken.",
+    inv: [ { start: "twee keer per week", s: "Twee keer per week wil Alfred spaghetti met tomaten koken." } ],
+    note: "Alfred = hij → wil, never wilt." },
+  { src: "Les 3", modal: "moeten", parts: ["Maria","op zaterdag","acht flessen water","bij de HEMA","kopen"],
+    hoofd: "Maria moet op zaterdag acht flessen water bij de HEMA kopen.",
+    inv: [ { start: "op zaterdag", s: "Op zaterdag moet Maria acht flessen water bij de HEMA kopen." },
+           { start: "bij de HEMA", s: "Bij de HEMA moet Maria op zaterdag acht flessen water kopen." } ] },
+  { src: "Les 3", modal: "zullen", parts: ["mijn moeder","een lekkere cake","in de oven","bakken"],
+    hoofd: "Mijn moeder zal een lekkere cake in de oven bakken.",
+    inv: [ { start: "in de oven", s: "In de oven zal mijn moeder een lekkere cake bakken." },
+           { start: "een lekkere cake", s: "Een lekkere cake zal mijn moeder in de oven bakken." } ] },
+  { src: "grammatica 18", modal: "moeten", parts: ["de kinderen","om half negen","op school","zijn"],
+    hoofd: "De kinderen moeten om half negen op school zijn.",
+    inv: [ { start: "om half negen", s: "Om half negen moeten de kinderen op school zijn." } ] },
+  { src: "grammatica 20", modal: "moeten", parts: ["ik","elke dag","mijn huiswerk","maken"],
+    hoofd: "Ik moet elke dag mijn huiswerk maken.",
+    inv: [ { start: "elke dag", s: "Elke dag moet ik mijn huiswerk maken." } ] },
+  { src: "grammatica 20", modal: "kunnen", parts: ["we","in de pauze","naar de kantine","gaan"],
+    hoofd: "We kunnen in de pauze naar de kantine gaan.", hoofdAlt: ["Wij kunnen in de pauze naar de kantine gaan."],
+    inv: [ { start: "in de pauze", s: "In de pauze kunnen we naar de kantine gaan.", alts: ["In de pauze kunnen wij naar de kantine gaan."] } ] },
+];
+
+/* ---- Zinsbouw: sentence → gesloten / open vraag ---- */
+const ASK = [
+  { base: "Je zult om 8 uur naar werk komen.",
+    gesloten: ["Zul je om 8 uur naar werk komen?", "Zal je om 8 uur naar werk komen?"],
+    open: [ { q: "hoe laat", s: ["Hoe laat zul je naar werk komen?", "Hoe laat zal je naar werk komen?"] } ],
+    note: "je after the verb → zult loses its -t: <b>zul je</b>." },
+  { base: "Je wilt op vakantie gaan.",
+    gesloten: ["Wil je op vakantie gaan?"],
+    open: [ { q: "wanneer", s: ["Wanneer wil je op vakantie gaan?"] } ],
+    note: "je after the verb → <b>wil je</b>, not wilt je." },
+  { base: "Je kunt heel goed zwemmen.",
+    gesloten: ["Kun je heel goed zwemmen?", "Kan je heel goed zwemmen?"],
+    open: [ { q: "hoe", s: ["Hoe kun je zwemmen?", "Hoe kan je zwemmen?"] } ],
+    note: "je after the verb → <b>kun je</b>, not kunt je." },
+  { base: "Je zult morgen de kinderen naar school brengen.",
+    gesloten: ["Zul je morgen de kinderen naar school brengen?", "Zal je morgen de kinderen naar school brengen?"],
+    open: [ { q: "wanneer", s: ["Wanneer zul je de kinderen naar school brengen?", "Wanneer zal je de kinderen naar school brengen?"] } ] },
+  { base: "Je zult de kinderen met de auto naar school brengen.",
+    gesloten: ["Zul je de kinderen met de auto naar school brengen?", "Zal je de kinderen met de auto naar school brengen?"],
+    open: [ { q: "hoe", s: ["Hoe zul je de kinderen naar school brengen?", "Hoe zal je de kinderen naar school brengen?"] } ] },
+  { base: "Jullie willen een kopje thee drinken.",
+    gesloten: ["Willen jullie een kopje thee drinken?"],
+    open: [ { q: "wat", s: ["Wat willen jullie drinken?"] } ] },
+  { base: "U kunt goed Nederlands spreken.",
+    gesloten: ["Kunt u goed Nederlands spreken?", "Kan u goed Nederlands spreken?"],
+    open: [ { q: "wat", s: ["Wat kunt u goed spreken?", "Wat kan u goed spreken?"] } ],
+    note: "With <b>u</b> the -t can stay: kunt u. Only je/jij loses it." },
+  { base: "Ik kan hier roken.",
+    gesloten: ["Kan ik hier roken?"],
+    open: [ { q: "waar", s: ["Waar kan ik roken?"] } ] },
+  { base: "Hij moet de rekening op tijd betalen.",
+    gesloten: ["Moet hij de rekening op tijd betalen?"],
+    open: [ { q: "wat", s: ["Wat moet hij op tijd betalen?"] } ] },
+  { base: "We zullen vanavond naar de bioscoop gaan.",
+    gesloten: ["Zullen we vanavond naar de bioscoop gaan?"],
+    open: [ { q: "wanneer", s: ["Wanneer zullen we naar de bioscoop gaan?"] } ] },
+  { base: "Mijn ouders willen elke week naar de bioscoop lopen.",
+    gesloten: ["Willen mijn ouders elke week naar de bioscoop lopen?"],
+    open: [ { q: "wie", s: ["Wie wil elke week naar de bioscoop lopen?"], note: "wie is the subject, so the modal takes the hij/zij-form: <b>wil</b> (Les 3 rule)." },
+            { q: "wanneer", s: ["Wanneer willen mijn ouders naar de bioscoop lopen?"] } ] },
+  { base: "Je moet elke dag je huiswerk maken.",
+    gesloten: ["Moet je elke dag je huiswerk maken?"],
+    open: [ { q: "wat", s: ["Wat moet je elke dag maken?"] } ] },
+];
+/* ==== DATA END ==== */
+
+/* ================= AUDIO ================= */
+const slug = t => t.toLowerCase().replace(/[.?!,;:'"„”]/g, "").replace(/\s+/g, "_");
+let currentAudio = null;
+let nlVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => v.lang.startsWith("nl"));
+  nlVoice = vs.find(v => v.lang === "nl-NL") || vs[0] || null;
+}
+if ("speechSynthesis" in window) {
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+// Play a pre-generated neural-voice file when we have one.
+// slow=true uses the natively slowed recording in audio/slow/;
+// fallback chain: slow file -> normal file at reduced playbackRate -> browser TTS.
+function speak(text, slow = false) {
+  const s = slug(text);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const a = new Audio((slow ? "audio/slow/" : "audio/") + s + ".mp3");
+  a.onerror = () => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false));
+  a.play().catch(() => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false)));
+  currentAudio = a;
+}
+function speakFallbackSlow(s, text) {
+  const a = new Audio("audio/" + s + ".mp3");
+  a.playbackRate = 0.65;
+  a.onerror = () => speakTTS(text, true);
+  a.play().catch(() => speakTTS(text, true));
+  currentAudio = a;
+}
+function speakTTS(text, slow = false) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (nlVoice) u.voice = nlVoice;
+  u.lang = "nl-NL";
+  u.rate = slow ? 0.55 : 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const norm = s => s.trim().toLowerCase().replace(/[.?!,;:]/g, "").replace(/\s+/g, " ");
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function speakBtn(text) {
+  const t = text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+  return `<button class="speak" onclick="speak('${t}')" aria-label="Pronounce">▶</button>` +
+         `<button class="speak" onclick="speak('${t}', true)" aria-label="Pronounce slowly">🐢</button>`;
+}
+// The spoken phrase for one cell of the modal table: pronoun + every accepted form.
+function cellPhrase(verb, key, pron) {
+  const forms = key === "pl" ? [CONJ[verb].pl] : CONJ[verb][key];
+  const inv = key === "jijInv" || key === "uInv";
+  return forms.map(f => inv ? `${f} ${pron}` : `${pron} ${f}`).join(", ");
+}
+// Fill a ___ sentence; capitalise when the gap opens the sentence.
+function fillGap(s, word) {
+  return s.indexOf("___") === 0 ? cap(word) + s.slice(3) : s.replace("___", word);
+}
+// Explains why a sentence with a modal is wrong when the 2nd verb is misplaced.
+function orderTrap(given, answer) {
+  const g = norm(given).split(" "), a = norm(answer).split(" ");
+  const inf = a[a.length - 1];
+  if (g[0] === inf) return `The 2nd verb (<b>${esc(inf)}</b>) can never be at the beginning of the sentence.`;
+  if (g.includes(inf) && g[g.length - 1] !== inf) return `The 2nd verb <b>${esc(inf)}</b> has to go to the <b>end</b> of the sentence.`;
+  return "";
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", "false"));
+    btn.setAttribute("aria-selected", "true");
+    document.querySelectorAll("section.panel").forEach(p => p.classList.remove("active"));
+    $("panel-" + btn.dataset.panel).classList.add("active");
+  });
+});
+
+/* ================= LEARN PANEL ================= */
+function exampleList(pairs) {
+  return pairs.map(([nl, tr]) =>
+    `<div class="example">${speakBtn(nl)}${esc(nl)}<span class="tr">${esc(tr)}</span></div>`).join("");
+}
+$("ex-twoforms").innerHTML = exampleList(EX_TWOFORMS);
+$("ex-nothird").innerHTML = exampleList(EX_NOTHIRD);
+$("ex-mogen").innerHTML = exampleList(EX_MOGEN);
+$("ex-order-hoofd").innerHTML = exampleList(EX_ORDER_HOOFD);
+$("ex-order-inv").innerHTML = exampleList(EX_ORDER_INV);
+$("ex-order-open").innerHTML = exampleList(EX_ORDER_OPEN);
+$("ex-order-gesloten").innerHTML = exampleList(EX_ORDER_GESLOTEN);
+$("ex-four").innerHTML = EX_FOUR.map(r => `<div class="four">${
+  [["Hoofdzin", r.hoofd], ["Hoofdzin met inversie", r.inv], ["Open vraag", r.open], ["Gesloten vraag", r.gesl]]
+    .map(([k, s]) => `<div><div class="kind">${k}</div><div class="example">${speakBtn(s)}${esc(s)}</div></div>`).join("")
+}</div>`).join('<hr class="sep">');
+
+$("modal-table").innerHTML =
+  `<tr><th></th>${MODALS.map(m => `<th>${m.nl}<small>${esc(m.en)}</small>${speakBtn(m.nl)}</th>`).join("")}</tr>` +
+  TABLE_ROWS.map(r => `<tr class="${r.inv ? "inv" : ""} ${r.plural ? "plural" : ""}">` +
+    `<td class="subj">${esc(r.show)}${r.sub ? `<small>${r.sub}</small>` : ""}</td>` +
+    MODALS.map(m => {
+      const forms = r.key === "pl" ? [CONJ[m.nl].pl] : CONJ[m.nl][r.key];
+      const shown = forms.map(f => r.inv ? `${f} ${r.pron}` : f).join(" / ");
+      return `<td><span class="f">${esc(shown)}</span>${speakBtn(cellPhrase(m.nl, r.key, r.pron))}</td>`;
+    }).join("") + `</tr>`).join("");
+
+function refCard(title, subtitle, rows, colorClass) {
+  const trs = rows.map(r => `<tr><td>${speakBtn(r.nl)}${esc(r.nl)}</td><td class="en">${esc(r.en)}</td></tr>`).join("");
+  return `<div class="card ${colorClass}"><div class="head">${title}<small>${subtitle}</small></div><table>${trs}</table></div>`;
+}
+$("ref-cols").innerHTML =
+  refCard("Woorden van deze les", "vocabulaire — deel 1", WORDS.slice(0, Math.ceil(WORDS.length / 2)), "blue") +
+  refCard("Woorden van deze les", "vocabulaire — deel 2", WORDS.slice(Math.ceil(WORDS.length / 2)), "yellow");
+
+/* ================= FLASHCARDS ================= */
+const DECK = [...MODALS, ...WORDS];
+let flashDeck = [], flashIdx = 0, flashFlipped = false, flashKnown = 0, flashTotal = 0;
+function flashInit() {
+  flashDeck = shuffle(DECK);
+  flashIdx = 0; flashFlipped = false; flashKnown = 0; flashTotal = DECK.length;
+  flashRender();
+}
+function flashCurrent() { return flashDeck[flashIdx]; }
+function flashRender() {
+  const card = $("flashcard");
+  if (!flashDeck.length) {
+    card.classList.remove("back");
+    $("flash-side").textContent = "✓";
+    $("flash-word").textContent = "Alles gekend! 🎉";
+    $("flash-progress").textContent = `${flashKnown}/${flashTotal} known — press "Nog niet" to restart`;
+    return;
+  }
+  const v = flashCurrent();
+  card.classList.toggle("back", flashFlipped);
+  $("flash-side").textContent = flashFlipped ? "EN" : "NL";
+  $("flash-word").textContent = flashFlipped ? v.en : v.nl;
+  $("flash-progress").textContent = `${flashKnown}/${flashTotal} known · ${flashDeck.length} to go`;
+}
+function flashFlip() { if (!flashDeck.length) return; flashFlipped = !flashFlipped; flashRender(); }
+function flashAnswer(knew) {
+  if (!flashDeck.length) { flashInit(); return; }
+  const v = flashDeck.splice(flashIdx, 1)[0];
+  if (knew) flashKnown++; else flashDeck.push(v);
+  if (flashIdx >= flashDeck.length) flashIdx = 0;
+  flashFlipped = false;
+  flashRender();
+}
+$("flashcard").addEventListener("click", flashFlip);
+$("flashcard").addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flashFlip(); } });
+$("flash-yes").addEventListener("click", () => flashAnswer(true));
+$("flash-no").addEventListener("click", () => flashAnswer(false));
+$("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl); });
+$("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl, true); });
+flashInit();
+
+/* ================= DRILL ENGINE ================= */
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+  const input = $(inputId), fb = $(feedbackId);
+  let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  function newQuestion() {
+    current = next();
+    answered = false;
+    fb.innerHTML = "";
+    input.value = "";
+    input.focus();
+  }
+  function doCheck() {
+    if (answered) { newQuestion(); return; }
+    if (!norm(input.value)) return;
+    const res = check(current, input.value);
+    answered = true;
+    if (res.ok) { right++; streak++; }
+    else { wrong++; streak = 0; }
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = res.ok
+      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
+      : `<span class="no">✗ ${res.correct}</span>${res.trap ? `<span class="trap">${res.trap}</span>` : ""}${res.why ? `<span class="why">${res.why}</span>` : ""}`;
+    if (res.say) {
+      speak(res.say);
+      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    }
+    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+  }
+  input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
+  $(checkId).addEventListener("click", doCheck);
+  return { newQuestion, get current() { return current; } };
+}
+
+/* ================= VERVOEGEN DRILL ================= */
+const T_FORMS = ["zult", "wilt", "kunt"];
+// The rule that decides the form for one subject row.
+function conjRule(verb, key) {
+  const c = CONJ[verb];
+  const oneForm = verb === "mogen" || verb === "moeten";
+  switch (key) {
+    case "ik": return `ik never gets a -t: ik <b>${c.ik[0]}</b>.`;
+    case "hij": return `No -t for the 3rd person singular (hij / zij / het): hij <b>${c.hij[0]}</b>.`;
+    case "pl": return `Plural (we / jullie / ze) = the infinitive: <b>${c.pl}</b>.`;
+    case "jij": return oneForm
+      ? `${verb} has one singular form: je <b>${c.jij[0]}</b>.`
+      : `je / jij has two forms: je <b>${c.jij.join("</b> or je <b>")}</b> — the -t form is more formal.`;
+    case "u": return oneForm
+      ? `${verb} has one singular form: u <b>${c.u[0]}</b>.`
+      : `u has two forms: u <b>${c.u.join("</b> or u <b>")}</b> — the -t form is more formal.`;
+    case "jijInv": return oneForm
+      ? `Vraag / inversie with je: <b>${c.jijInv[0]} je</b> (no -t to drop).`
+      : `je comes <em>after</em> the verb, so the -t has to go: <b>${c.jijInv.map(f => f + " je").join("</b> or <b>")}</b>.`;
+    case "uInv": return oneForm
+      ? `Vraag with u: <b>${c.uInv[0]} u</b>.`
+      : `With <b>u</b> after the verb the -t can stay: <b>${c.uInv.map(f => f + " u").join("</b> or <b>")}</b>. The -t only has to drop for je/jij.`;
+  }
+}
+// A targeted message for the classic mistakes.
+function conjTrap(verb, key, givenVerb) {
+  if (!givenVerb) return "";
+  const allForms = new Set(Object.values(CONJ[verb]).flat());
+  if ((key === "hij" || key === "ik") && T_FORMS.includes(givenVerb))
+    return `✗ <b>${key === "ik" ? "ik" : "hij/zij"} ${givenVerb}</b> — modals never add -t for ${key === "ik" ? "ik" : "the 3rd person singular"}.`;
+  if (key === "jijInv" && T_FORMS.includes(givenVerb))
+    return `✗ <b>${givenVerb} je</b> — when je comes after the verb, the -t is removed.`;
+  if ((key === "jij" || key === "u") && (givenVerb === "zul" || givenVerb === "kun"))
+    return `✗ <b>${givenVerb}</b> only exists with je <em>after</em> the verb (${givenVerb} je?). Before the verb: je ${CONJ[verb].jij.join(" / je ")}.`;
+  if (key === "uInv" && (givenVerb === "zul" || givenVerb === "kun"))
+    return `✗ The -t only drops for je/jij. With u: ${CONJ[verb].uInv.map(f => f + " u").join(" / ")}.`;
+  if (key === "pl" && givenVerb !== CONJ[verb].pl && allForms.has(givenVerb))
+    return `✗ <b>${givenVerb}</b> is singular — the subject is plural, so use the infinitive <b>${CONJ[verb].pl}</b>.`;
+  if (key !== "pl" && givenVerb === CONJ[verb].pl)
+    return `✗ <b>${givenVerb}</b> is the plural / infinitive — the subject here is singular.`;
+  if (!allForms.has(givenVerb)) {
+    const other = Object.keys(CONJ).find(v => Object.values(CONJ[v]).flat().includes(givenVerb));
+    if (other) return `✗ <b>${givenVerb}</b> is a form of <b>${other}</b> (${MODALS.find(m => m.nl === other).en}), not of <b>${verb}</b> (${MODALS.find(m => m.nl === verb).en}).`;
+  }
+  return "";
+}
+const PRONOUNS = new Set(["ik", "jij", "je", "u", "hij", "zij", "ze", "we", "wij", "jullie"]);
+const conjDrill = makeDrill({
+  inputId: "conj-input", checkId: "conj-check", feedbackId: "conj-feedback",
+  rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak",
+  next() {
+    if (Math.random() < 0.5) {
+      // Table round.
+      const m = pick(MODALS), sub = pick(SUBJECTS);
+      const forms = sub.key === "pl" ? [CONJ[m.nl].pl] : CONJ[m.nl][sub.key];
+      $("conj-task").textContent = "Vervoeg — tabel";
+      $("conj-prompt").innerHTML = `${esc(sub.show)} &nbsp;+&nbsp; <span class="inf">${m.nl}</span>`;
+      $("conj-target").textContent = sub.inv ? `typ: werkwoord + ${sub.say}` : "typ de vorm";
+      $("conj-hint").textContent = m.en;
+      const shown = forms.map(f => sub.inv ? `${f} ${sub.say}` : f);
+      const say = sub.inv ? forms.map(f => `${f} ${sub.say}`).join(", ") : forms.map(f => `${sub.say} ${f}`).join(", ");
+      return { verb: m.nl, key: sub.key, forms, correct: shown.join(" / "), say, full: null };
+    }
+    // Sentence round.
+    const g = pick(CONJ_GAPS);
+    const forms = g.key === "pl" ? [CONJ[g.v].pl] : CONJ[g.v][g.key];
+    const full = fillGap(g.s, forms[0]);
+    $("conj-task").textContent = "Vervoeg — zin";
+    $("conj-prompt").innerHTML = esc(g.s).replace("___", '<span class="gap">___</span>');
+    $("conj-target").innerHTML = g.v;
+    $("conj-hint").textContent = MODALS.find(m => m.nl === g.v).en;
+    return { verb: g.v, key: g.key, forms, correct: forms.join(" / "), say: full, full };
+  },
+  check(cur, given) {
+    // Ignore any pronoun the user typed along with the verb.
+    const words = norm(given).split(" ");
+    const verbWords = words.filter(w => !PRONOUNS.has(w));
+    const givenVerb = verbWords.join(" ");
+    const ok = verbWords.length === 1 && cur.forms.includes(givenVerb);
+    const alt = cur.forms.length > 1 ? " Both forms are right." : "";
+    let why = conjRule(cur.verb, cur.key) + alt;
+    if (cur.full) why += `<br>Hele zin: <b>${esc(cur.full)}</b>`;
+    return { ok, correct: cur.correct, why, trap: ok ? "" : conjTrap(cur.verb, cur.key, verbWords[0]), say: cur.say };
+  },
+});
+
+/* ================= KIEZEN DRILL (grammatica 18) ================= */
+const chooseDrill = makeDrill({
+  inputId: "choose-input", checkId: "choose-check", feedbackId: "choose-feedback",
+  rightId: "choose-right", wrongId: "choose-wrong", streakId: "choose-streak",
+  next() {
+    const c = pick(CHOOSE);
+    $("choose-sentence").innerHTML = esc(c.s).replace("___", '<span class="gap">___</span>');
+    $("choose-opts").innerHTML = c.opts.map(o => `<span>${esc(o)}</span>`).join("");
+    $("choose-hint").textContent = `grammatica 18 · ${c.n}`;
+    return { c, full: fillGap(c.s, c.a) };
+  },
+  check(cur, given) {
+    const ok = norm(given) === norm(cur.c.a);
+    const other = cur.c.opts.find(o => norm(o) !== norm(cur.c.a));
+    const trap = !ok && norm(given) === norm(other) ? `✗ <b>${esc(other)}</b> doesn't fit the meaning here.` : "";
+    return {
+      ok, correct: cur.c.a, trap,
+      why: `${cur.c.why}<br>Hele zin: <b>${esc(cur.full)}</b><br><em>${esc(cur.c.en)}</em>`,
+      say: cur.full,
+    };
+  },
+});
+
+/* ================= OMZETTEN DRILL (grammatica 20) ================= */
+const changeDrill = makeDrill({
+  inputId: "change-input", checkId: "change-check", feedbackId: "change-feedback",
+  rightId: "change-right", wrongId: "change-wrong", streakId: "change-streak",
+  next() {
+    const c = pick(CHANGE);
+    $("change-base").innerHTML = `${speakBtn(c.base)}${esc(c.base)}`;
+    $("change-target").textContent = c.en;
+    $("change-hint").textContent = c.n === "extra" ? "extra — zin uit Les 3" : `grammatica 20 · ${c.n}`;
+    return { c };
+  },
+  check(cur, given) {
+    const c = cur.c;
+    const answers = [c.a, ...(c.alts || [])];
+    const ok = answers.some(a => norm(a) === norm(given));
+    const [from, to] = c.verb;
+    const step = from === to
+      ? `<b>${esc(to)}</b> is already the infinitive, and moves to the end.`
+      : `<b>${esc(from)}</b> goes back to its infinitive <b>${esc(to)}</b> at the end.`;
+    const why = `The modal takes the verb's place in the right form; ${step}${c.note ? " " + c.note : ""}` +
+      (answers.length > 1 ? `<br>Also correct: ${answers.slice(1).map(esc).join(" · ")}` : "");
+    return { ok, correct: esc(c.a), why, trap: ok ? "" : orderTrap(given, c.a), say: c.a };
+  },
+});
+
+/* ================= ZINSBOUW DRILL ================= */
+const orderDrill = makeDrill({
+  inputId: "order-input", checkId: "order-check", feedbackId: "order-feedback",
+  rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak",
+  next() {
+    if (Math.random() < 0.6) {
+      const b = pick(BUILD);
+      const wantInv = b.inv.length && Math.random() < 0.5;
+      const parts = shuffle([...b.parts.map(p => `<span>${esc(p)}</span>`), `<span class="modal">${b.modal}</span>`]);
+      $("order-task").textContent = "Maak een zin";
+      $("order-prompt").innerHTML = `<div class="parts">${parts.join("")}</div>`;
+      $("order-hint").textContent = `uit ${b.src}`;
+      if (wantInv) {
+        const it = pick(b.inv);
+        $("order-target").textContent = `Hoofdzin met inversie — begin met: „${it.start}”`;
+        return {
+          answers: [it.s, ...(it.alts || [])], say: it.s,
+          why: `<b>Inversie:</b> „${esc(it.start)}” – modal – subject – rest – <b>2nd verb</b>. The modal keeps 2nd place, the subject slides behind it.` +
+               `${it.note ? " " + it.note : ""}${b.note ? " " + b.note : ""}<br>The plain hoofdzin: ${esc(b.hoofd)}`,
+        };
+      }
+      $("order-target").textContent = "Hoofdzin";
+      return {
+        answers: [b.hoofd, ...(b.hoofdAlt || [])], say: b.hoofd,
+        why: `<b>Hoofdzin:</b> subject – modal – rest (time – object – manner – place) – <b>2nd verb</b> at the end.${b.note ? " " + b.note : ""}`,
+      };
+    }
+    const q = pick(ASK);
+    const wantOpen = Math.random() < 0.5;
+    $("order-task").textContent = "Maak een vraag";
+    $("order-prompt").innerHTML = `${speakBtn(q.base)}${esc(q.base)}`;
+    $("order-hint").textContent = "";
+    if (wantOpen) {
+      const o = pick(q.open);
+      $("order-target").textContent = `Open vraag met „${o.q}”`;
+      return {
+        answers: o.s, say: o.s[0],
+        why: `<b>Open vraag:</b> vraagwoord – modal – subject – rest – <b>2nd verb</b>.${o.note ? " " + o.note : ""}${q.note ? " " + q.note : ""}`,
+      };
+    }
+    $("order-target").textContent = "Gesloten vraag";
+    return {
+      answers: q.gesloten, say: q.gesloten[0],
+      why: `<b>Gesloten vraag:</b> modal – subject – rest – <b>2nd verb</b>. The answer is ja or nee.${q.note ? " " + q.note : ""}`,
+    };
+  },
+  check(cur, given) {
+    const ok = cur.answers.some(a => norm(a) === norm(given));
+    const alt = cur.answers.length > 1 ? `<br>Also correct: ${cur.answers.slice(1).map(esc).join(" · ")}` : "";
+    return { ok, correct: esc(cur.answers[0]), why: cur.why + alt, trap: ok ? "" : orderTrap(given, cur.answers[0]), say: cur.say };
+  },
+});
+
+/* ================= LISTENING DRILL ================= */
+const LISTEN_ITEMS = [...new Set([
+  ...MODALS.map(m => m.nl),
+  ...WORDS.map(w => w.nl),
+  ...MODALS.flatMap(m => TABLE_ROWS.filter(r => !r.inv).map(r => `${r.pron} ${r.key === "pl" ? CONJ[m.nl].pl : CONJ[m.nl][r.key][0]}`)),
+  ...EX_NOTHIRD.map(e => e[0]),
+  ...EX_MOGEN.map(e => e[0]),
+  ...EX_FOUR.flatMap(r => [r.hoofd, r.inv, r.open, r.gesl]),
+  ...EX_ORDER_HOOFD.map(e => e[0]),
+  ...EX_ORDER_INV.map(e => e[0]),
+  ...EX_ORDER_OPEN.map(e => e[0]),
+  ...EX_ORDER_GESLOTEN.map(e => e[0]),
+  ...CHOOSE.map(c => fillGap(c.s, c.a)),
+  ...CHANGE.map(c => c.a),
+])];
+const listenDrill = makeDrill({
+  inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  next() {
+    const text = pick(LISTEN_ITEMS);
+    const n = text.split(" ").length;
+    $("listen-hint").textContent = n > 1 ? `${n} woorden` : "1 woord";
+    return { text };
+  },
+  check(cur, given) {
+    const ok = norm(given) === norm(cur.text);
+    return { ok, correct: esc(cur.text), say: cur.text };
+  },
+});
+$("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
+$("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
+
+/* Every phrase the page can speak — used to pre-generate the audio files. */
+function allSpeech() {
+  const out = new Set(LISTEN_ITEMS);
+  EX_TWOFORMS.forEach(e => out.add(e[0]));
+  MODALS.forEach(m => {
+    TABLE_ROWS.forEach(r => out.add(cellPhrase(m.nl, r.key, r.pron)));
+    SUBJECTS.forEach(s => out.add(cellPhrase(m.nl, s.key, s.say)));
+  });
+  CONJ_GAPS.forEach(g => out.add(fillGap(g.s, (g.key === "pl" ? [CONJ[g.v].pl] : CONJ[g.v][g.key])[0])));
+  CHANGE.forEach(c => out.add(c.base));
+  BUILD.forEach(b => { out.add(b.hoofd); b.inv.forEach(i => out.add(i.s)); });
+  ASK.forEach(q => { out.add(q.base); out.add(q.gesloten[0]); q.open.forEach(o => out.add(o.s[0])); });
+  return [...out];
+}
+
+/* Start drills */
+conjDrill.newQuestion();
+chooseDrill.newQuestion();
+changeDrill.newQuestion();
+orderDrill.newQuestion();
+listenDrill.newQuestion();
+</script>
+</body>
+</html>
