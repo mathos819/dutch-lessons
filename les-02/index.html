@@ -148,6 +148,22 @@
   .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
   .scorebar b { font-size: 18px; }
+  .feedback .mistake { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-top: 10px; font-family: var(--body); font-size: 15px; }
+  .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border: 2px solid var(--ink); white-space: nowrap; }
+  .tag.k-RULE { background: var(--blue); color: #fff; }
+  .tag.k-EXCEPTION, .tag.k-IRREGULAR { background: var(--red); color: #fff; }
+  .tag.k-SOUND { background: var(--yellow); color: var(--ink); }
+  .tag.k-TYPO { background: #fff; color: var(--ink); }
+  .feedback details, .tally details { margin-top: 10px; border-left: 3px solid var(--ink); padding-left: 12px; font-family: var(--body); font-size: 15px; }
+  .feedback summary, .tally summary { cursor: pointer; font-family: var(--mono); font-size: 14px; }
+  .feedback .steps ol { padding: 6px 0 2px 22px; }
+  .feedback .steps li { margin-bottom: 4px; }
+  .how-body { padding: 8px 0 4px; line-height: 1.5; }
+  .how-body .tag { margin-right: 4px; }
+  .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
+  .exw { white-space: nowrap; }
+  .tally { margin-top: 14px; }
+  .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
   @media (max-width: 640px) {
     nav { grid-template-columns: repeat(5, 1fr); }
@@ -237,6 +253,7 @@
       </div>
       <div class="feedback" id="conj-feedback"></div>
       <div class="scorebar"><span>Goed <b id="conj-right">0</b></span><span>Fout <b id="conj-wrong">0</b></span><span>Reeks <b id="conj-streak">0</b></span></div>
+      <div class="tally" id="conj-tally"></div>
     </div>
   </section>
 
@@ -256,6 +273,7 @@
       </div>
       <div class="feedback" id="base-feedback"></div>
       <div class="scorebar"><span>Goed <b id="base-right">0</b></span><span>Fout <b id="base-wrong">0</b></span><span>Reeks <b id="base-streak">0</b></span></div>
+      <div class="tally" id="base-tally"></div>
     </div>
   </section>
 
@@ -278,62 +296,123 @@
       </div>
       <div class="feedback" id="listen-feedback"></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+      <div class="tally" id="listen-tally"></div>
     </div>
   </section>
 </div>
 
 <script>
 /* ================= DATA ================= */
+// rules: the spelling rules used to get from the infinitive to the base, in order
+// (ids from RULES below). The base is re-derived from these at load as a self-check.
 const VERBS = [
-  { inf: "werken",    base: "werk",    en: "to work",      rule: 0 },
-  { inf: "studeren",  base: "studeer", en: "to study",     rule: 1 },
-  { inf: "leren",     base: "leer",    en: "to learn",     rule: 1 },
-  { inf: "eten",      base: "eet",     en: "to eat",       rule: 1 },
-  { inf: "drinken",   base: "drink",   en: "to drink",     rule: 0 },
-  { inf: "gaan",      base: "ga",      en: "to go",        rule: 0, tform: "gaat" },
-  { inf: "staan",     base: "sta",     en: "to stand",     rule: 0, tform: "staat" },
-  { inf: "zien",      base: "zie",     en: "to see",       rule: 5 },
-  { inf: "doen",      base: "doe",     en: "to do",        rule: 5 },
-  { inf: "wonen",     base: "woon",    en: "to live (somewhere)", rule: 1 },
-  { inf: "maken",     base: "maak",    en: "to make",      rule: 1 },
-  { inf: "komen",     base: "kom",     en: "to come",      rule: 6 },
-  { inf: "wandelen",  base: "wandel",  en: "to walk",      rule: 6 },
-  { inf: "luisteren", base: "luister", en: "to listen",    rule: 6 },
-  { inf: "winkelen",  base: "winkel",  en: "to shop",      rule: 6 },
-  { inf: "kennen",    base: "ken",     en: "to know",      rule: 2 },
-  { inf: "spellen",   base: "spel",    en: "to spell",     rule: 2 },
-  { inf: "missen",    base: "mis",     en: "to miss",      rule: 2 },
-  { inf: "zitten",    base: "zit",     en: "to sit",       rule: 3 },
-  { inf: "praten",    base: "praat",   en: "to talk",      rule: 3 },
-  { inf: "zetten",    base: "zet",     en: "to put down",  rule: 3 },
-  { inf: "verhuizen", base: "verhuis", en: "to move (house)", rule: 4 },
-  { inf: "blazen",    base: "blaas",   en: "to blow",      rule: 4 },
-  { inf: "geven",     base: "geef",    en: "to give",      rule: 4 },
-  { inf: "leven",     base: "leef",    en: "to live (be alive)", rule: 4 },
-  { inf: "proeven",   base: "proef",   en: "to try / taste", rule: 5 },
-  { inf: "houden",    base: "houd",    en: "to hold",      rule: 5 },
-  { inf: "beuken",    base: "beuk",    en: "to hit hard",  rule: 5 },
-  { inf: "pleiten",   base: "pleit",   en: "to plead",     rule: 5 },
-  { inf: "fietsen",   base: "fiets",   en: "to cycle",     rule: 0 },
-  { inf: "denken",    base: "denk",    en: "to think",     rule: 0 },
-  { inf: "betalen",   base: "betaal",  en: "to pay",       rule: 1 },
-  { inf: "kopen",     base: "koop",    en: "to buy",       rule: 1 },
-  { inf: "duren",     base: "duur",    en: "to last",      rule: 1 },
-  { inf: "horen",     base: "hoor",    en: "to hear",      rule: 1 },
-  { inf: "vergeten",  base: "vergeet", en: "to forget",    rule: 1 },
-  { inf: "heten",     base: "heet",    en: "to be called", rule: 1 },
-  { inf: "lezen",     base: "lees",    en: "to read",      rule: 4 },
+  { inf: "werken",    base: "werk",    en: "to work",      rules: [] },
+  { inf: "studeren",  base: "studeer", en: "to study",     rules: ["double"] },
+  { inf: "leren",     base: "leer",    en: "to learn",     rules: ["double"] },
+  { inf: "eten",      base: "eet",     en: "to eat",       rules: ["double", "endT"] },
+  { inf: "drinken",   base: "drink",   en: "to drink",     rules: [] },
+  { inf: "gaan",      base: "ga",      en: "to go",        rules: ["stripN", "longT"], tform: "gaat" },
+  { inf: "staan",     base: "sta",     en: "to stand",     rules: ["stripN", "longT"], tform: "staat" },
+  { inf: "zien",      base: "zie",     en: "to see",       rules: ["stripN", "digraph"] },
+  { inf: "doen",      base: "doe",     en: "to do",        rules: ["stripN", "digraph"] },
+  { inf: "wonen",     base: "woon",    en: "to live (somewhere)", rules: ["double"] },
+  { inf: "maken",     base: "maak",    en: "to make",      rules: ["double"] },
+  { inf: "komen",     base: "kom",     en: "to come",      rules: ["komen"] },
+  { inf: "wandelen",  base: "wandel",  en: "to walk",      rules: ["schwa"] },
+  { inf: "luisteren", base: "luister", en: "to listen",    rules: ["schwa"] },
+  { inf: "winkelen",  base: "winkel",  en: "to shop",      rules: ["schwa"] },
+  { inf: "kennen",    base: "ken",     en: "to know",      rules: ["single"] },
+  { inf: "spellen",   base: "spel",    en: "to spell",     rules: ["single"] },
+  { inf: "missen",    base: "mis",     en: "to miss",      rules: ["single"] },
+  { inf: "zitten",    base: "zit",     en: "to sit",       rules: ["single", "endT"] },
+  { inf: "praten",    base: "praat",   en: "to talk",      rules: ["double", "endT"] },
+  { inf: "zetten",    base: "zet",     en: "to put down",  rules: ["single", "endT"] },
+  { inf: "verhuizen", base: "verhuis", en: "to move (house)", rules: ["digraph", "zv"] },
+  { inf: "blazen",    base: "blaas",   en: "to blow",      rules: ["double", "zv"] },
+  { inf: "geven",     base: "geef",    en: "to give",      rules: ["double", "zv"] },
+  { inf: "leven",     base: "leef",    en: "to live (be alive)", rules: ["double", "zv"] },
+  { inf: "proeven",   base: "proef",   en: "to try / taste", rules: ["digraph", "zv"] },
+  { inf: "houden",    base: "houd",    en: "to hold",      rules: ["digraph", "dEnd"] },
+  { inf: "beuken",    base: "beuk",    en: "to hit hard",  rules: ["digraph"] },
+  { inf: "pleiten",   base: "pleit",   en: "to plead",     rules: ["digraph", "endT"] },
+  { inf: "fietsen",   base: "fiets",   en: "to cycle",     rules: [] },
+  { inf: "denken",    base: "denk",    en: "to think",     rules: [] },
+  { inf: "betalen",   base: "betaal",  en: "to pay",       rules: ["double"] },
+  { inf: "kopen",     base: "koop",    en: "to buy",       rules: ["double"] },
+  { inf: "duren",     base: "duur",    en: "to last",      rules: ["double"] },
+  { inf: "horen",     base: "hoor",    en: "to hear",      rules: ["double"] },
+  { inf: "vergeten",  base: "vergeet", en: "to forget",    rules: ["double", "endT"] },
+  { inf: "heten",     base: "heet",    en: "to be called", rules: ["double", "endT"] },
+  { inf: "lezen",     base: "lees",    en: "to read",      rules: ["double", "zv"] },
 ];
 
-const RULE_TEXT = [
-  "Just remove -en: the base needs no spelling change.",
-  "Rule 1 — one consonant before -en, so the vowel doubles.",
-  "Rule 2 — a word never ends in a double letter, drop one.",
-  "Rule 3 — the base ends in t: the singular is the same for all persons.",
-  "Rule 4 — never end in z or v: z→s, v→f.",
-  "Rule 5 — with oe/eu/ou/ie/ui/ei the vowel is not doubled.",
-  "Exception — remember this one (komen, wandelen, luisteren, winkelen).",
-];
+/* ================= RULES =================
+   One entry per thing that can explain a mistake.
+   kind: RULE = you can work it out · EXCEPTION / IRREGULAR = memorize ·
+         SOUND = you heard it right, the spelling differs · TYPO = one letter off.
+   ex: audio examples; a pair [a, b] renders as "a → b". */
+const RULES = {
+  strip: { kind: "RULE", name: "finding the base",
+    how: "Every infinitive ends in <b>-en</b> (werken, maken) or, for a few short verbs, just <b>-n</b> (gaan, zien, doen). Cut that ending off: what is left is the <b>base</b>. Then check the spelling rules (vowel doubling, no double letter, no z/v at the end).",
+    ex: [["werken", "werk"], ["gaan", "ga"]] },
+  stripN: { kind: "RULE", name: "short verbs ending in -n",
+    how: "A few short verbs end in just <b>-n</b>, not -en: gaan, staan, zien, doen. Remove only the <b>-n</b>. With gaan/staan that leaves <i>gaa</i>: but a vowel at the very end of a word is already long (open syllable), so one letter is enough → <b>ga</b>, <b>sta</b>.",
+    ex: [["gaan", "ga"], ["zien", "zie"], ["doen", "doe"]] },
+  persons: { kind: "RULE", name: "the person endings",
+    how: "<b>ik</b> → the base, nothing added (ik werk).<br><b>jij / je / u / hij / zij / het</b> → base + <b>t</b> (hij werkt).<br><b>wij / we / jullie / zij</b> (they) → the whole infinitive (wij werken).<br>So the -t belongs to exactly one group: the singular persons except ik.",
+    ex: ["ik werk", "hij werkt", "wij werken"] },
+  double: { kind: "RULE", name: "vowel doubling",
+    how: "Dutch shows a vowel's length by the syllable it sits in. In <b>ma-ken</b> the <i>a</i> ends its syllable (an <i>open</i> syllable), so it is long and one letter is enough. When you cut off -en, the <i>k</i> closes the syllable: <b>mak</b>. A single vowel in a <i>closed</i> syllable is always short — <i>mak</i> sounds like a different word. To keep the long sound you write the vowel twice: <b>maak</b>. This happens with a, e, o, u.",
+    ex: [["maken", "maak"], ["wonen", "woon"], ["studeren", "studeer"], ["horen", "hoor"]] },
+  single: { kind: "RULE", name: "no double letter at the end",
+    how: "In the middle of a word a double consonant is only a spelling signal that the vowel before it is <i>short</i>: <b>ken-nen</b> (without it, ke-nen would read with a long e). At the end of a word that signal is not needed — a single vowel before a final consonant is short anyway. So a Dutch word never ends in a double consonant: <i>kenn</i> → <b>ken</b>.",
+    ex: [["kennen", "ken"], ["missen", "mis"], ["zitten", "zit"]] },
+  zv: { kind: "RULE", name: "no z or v at the end",
+    how: "At the end of a word Dutch pronounces <b>z</b> as <b>s</b> and <b>v</b> as <b>f</b> (the sound loses its voice). The spelling follows the sound: <i>geev</i> → <b>geef</b>, <i>lees</i> not <i>leez</i>. In the plural the z/v comes back, because it is no longer at the end: wij <b>geven</b>, wij <b>lezen</b>.",
+    ex: [["geven", "geef"], ["lezen", "lees"], ["verhuizen", "verhuis"]] },
+  digraph: { kind: "RULE", name: "oe, ie, ui, eu, ou, ei never double",
+    how: "<b>oe, ie, ui, eu, ou, ei</b> are already written with two letters, and they sound the same in open and closed syllables. There is nothing to double: <b>proef</b> (not proeef), <b>zie</b>, <b>houd</b>, <b>pleit</b>. Vowel doubling is only for single a, e, o, u.",
+    ex: [["proeven", "proef"], ["houden", "houd"], ["zien", "zie"]] },
+  endT: { kind: "RULE", name: "base ending in -t",
+    how: "jij/u/hij/zij/het normally add <b>-t</b>. If the base already ends in t, you do <i>not</i> add a second one (a word never ends in tt). So the singular looks the same for every person: ik <b>zit</b>, jij <b>zit</b>, hij <b>zit</b>.",
+    ex: ["ik zit", "hij zit", "ik praat", "hij praat"] },
+  longT: { kind: "RULE", name: "gaan / staan + t",
+    how: "The base <b>ga</b> is an open syllable, so its a is long. Adding -t closes the syllable — <i>gat</i> would have a short a (and means 'hole'). So, exactly like vowel doubling, you write two a's: hij <b>gaat</b>, hij <b>staat</b>.",
+    ex: ["ik ga", "hij gaat", "ik sta", "hij staat"] },
+  dEnd: { kind: "RULE", name: "base ending in -d (+t = dt)",
+    how: "<b>houden</b> → base <b>houd</b>. jij/u/hij add -t as usual: houd + t = <b>houdt</b>. At the end of a word d sounds like t, so you only <i>hear</i> a t — but you write both: the <b>d</b> belongs to the base, the <b>t</b> is the ending. ik houd (no t), hij houdt.",
+    ex: ["ik houd", "hij houdt"] },
+  schwa: { kind: "RULE", name: "unstressed -el / -er",
+    how: "Your book lists <i>wandelen, luisteren, winkelen</i> as exceptions to vowel doubling, but there is a pattern. The stress is on the first syllable (<b>WAN</b>-de-len), so the <i>e</i> in -el/-er is the weak 'uh' sound, not a long ee. Only long vowels get doubled → <b>wandel</b>, <b>luister</b>, <b>winkel</b>. Compare <b>studeren</b>: stu-<b>DE</b>-ren, stressed long ee → studeer.",
+    ex: [["wandelen", "wandel"], ["luisteren", "luister"], ["studeren", "studeer"]] },
+  komen: { kind: "EXCEPTION", name: "komen → kom",
+    how: "By vowel doubling you would expect <i>koom</i>, but the base of <b>komen</b> is <b>kom</b>: ik kom, hij komt, wij komen. There is no rule behind it — it is a real exception to memorize.",
+    ex: [["komen", "kom"], "hij komt"] },
+  hebben: { kind: "IRREGULAR", name: "hebben",
+    how: "hebben does not follow the base rules — learn its four forms:<br>ik <b>heb</b> · jij/u <b>hebt</b> · u/hij/zij/het <b>heeft</b> · wij/jullie/zij <b>hebben</b>.<br>(For <b>u</b>, both <i>u hebt</i> and <i>u heeft</i> are correct.)",
+    ex: ["ik heb", "jij hebt", "hij heeft", "wij hebben"] },
+  zijn: { kind: "IRREGULAR", name: "zijn",
+    how: "zijn does not follow the base rules — learn its four forms:<br>ik <b>ben</b> · jij/u <b>bent</b> · hij/zij/het <b>is</b> · wij/jullie/zij <b>zijn</b>.",
+    ex: ["ik ben", "jij bent", "hij is", "wij zijn"] },
+  eij: { kind: "SOUND", name: "ei and ij sound the same",
+    how: "<b>ei</b> and <b>ij</b> are pronounced exactly the same. You cannot hear the difference — learn the spelling together with the word: zij, wij, zijn with <b>ij</b>; pleiten with <b>ei</b>.",
+    ex: ["zij", "wij", "pleiten"] },
+  zs: { kind: "SOUND", name: "z or s",
+    how: "<b>z</b> is voiced (a buzz, like English 'zoo'); <b>s</b> is sharp. At the start of a word the difference is small, so play it slowly 🐢 and listen for the buzz. At the end of a word it is always written s (see 'no z or v at the end').",
+    ex: ["zij", "zitten", "spellen"] },
+  vf: { kind: "SOUND", name: "v or f",
+    how: "<b>v</b> is softer and voiced, <b>f</b> sharp. Many Dutch speakers make them sound almost the same, so learn the spelling with the word. At the end of a word it is always written f.",
+    ex: ["verhuizen", "fietsen"] },
+  gch: { kind: "SOUND", name: "g or ch",
+    how: "In Dutch <b>g</b> and <b>ch</b> are the same throaty sound. Learn the spelling with the word.",
+    ex: ["gaan", "geven"] },
+  vowelLen: { kind: "SOUND", name: "long or short vowel",
+    how: "Listen to the vowel's length. A long vowel in a closed syllable is written twice (<b>maak</b>, <b>heet</b>); in an open syllable once (<b>ma</b>-ken). A short vowel is written once (<b>werk</b>, <b>heb</b>). See 'vowel doubling'.",
+    ex: [["maken", "maak"], "ik heb", "hij heeft"] },
+  consLen: { kind: "SOUND", name: "single or double consonant",
+    how: "You cannot hear a double consonant. In the middle of a word it is written double when the vowel before it is <i>short</i>: <b>ken-nen</b>, <b>heb-ben</b>; single when the vowel is long: <b>ma-ken</b>, <b>ho-ren</b>. So listen for the vowel, not the consonant.",
+    ex: ["kennen", "maken", "hebben"] },
+};
 
 const PRONOUNS = [
   { nl: "ik",     en: "I" },
@@ -489,10 +568,151 @@ $("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(f
 $("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().inf, true); });
 flashInit();
 
+/* ================= DERIVATION =================
+   Rebuilds the base from the infinitive, rule by rule, recording each step.
+   skip: rule ids to leave out — used to predict the wrong answers a learner
+   gets by forgetting a rule. */
+const isVowel = c => "aeiou".includes(c);
+function doubleLastVowel(w) {
+  for (let i = w.length - 1; i >= 0; i--) if (isVowel(w[i])) return w.slice(0, i + 1) + w.slice(i);
+  return w;
+}
+const DIGRAPHS = ["oe", "ie", "ui", "eu", "ou", "ei"];
+function derive(v, skip = []) {
+  const has = r => v.rules.includes(r) && !skip.includes(r);
+  const steps = [];
+  const ending = v.rules.includes("stripN") ? "n" : "en";
+  let w = v.inf.slice(0, -ending.length);
+  steps.push(`${v.inf} → remove <b>-${ending}</b> → <b>${w}</b>`);
+  if (isVowel(w.slice(-1)) && w.slice(-1) === w.slice(-2, -1)) {
+    const prev = w; w = w.slice(0, -1);
+    steps.push(`${prev}: a vowel at the end of a word is already long (open syllable) → one letter is enough → <b>${w}</b>`);
+  }
+  if (has("single")) {
+    const prev = w; w = w.slice(0, -1);
+    steps.push(`${prev} ends in a double letter → drop one → <b>${w}</b>`);
+  }
+  if (has("double")) {
+    const prev = w; w = doubleLastVowel(w);
+    steps.push(`${prev}: one consonant closes the syllable, which would make the vowel short → write it twice to keep it long → <b>${w}</b>`);
+  }
+  if (has("zv")) {
+    const last = w.slice(-1), repl = { z: "s", v: "f" }[last];
+    if (repl) { w = w.slice(0, -1) + repl; steps.push(`a word can't end in ${last} → ${last} becomes ${repl} → <b>${w}</b>`); }
+  }
+  if (has("digraph")) {
+    const dg = DIGRAPHS.find(d => w.includes(d));
+    steps.push(`<b>${dg}</b> is already a two-letter sound — never doubled → <b>${w}</b>`);
+  }
+  if (has("schwa")) steps.push(`the -${w.slice(-2)} is unstressed ('uh'), not a long ee — no doubling → <b>${w}</b>`);
+  if (has("komen")) steps.push(`exception: vowel doubling would give <i>koom</i>, but the base is <b>${w}</b>`);
+  if (has("endT")) steps.push(`the base ends in t — jij/hij will add no extra t later (hij ${w})`);
+  return { base: w, steps };
+}
+// Self-check: every derivation must reproduce the stored base.
+VERBS.forEach(v => { const d = derive(v).base; if (d !== v.base) console.error(`derive(${v.inf}) = ${d}, expected ${v.base}`); });
+
+// The wrong bases a learner produces by forgetting a rule, or applying vowel
+// doubling where it doesn't belong. → [{ form, ids: [mistake ids] }]
+const SKIPPABLE = ["single", "double", "zv"];
+function wrongBases(v) {
+  const out = [];
+  const sk = v.rules.filter(r => SKIPPABLE.includes(r));
+  for (let mask = 1; mask < (1 << sk.length); mask++) {
+    const skip = sk.filter((_, i) => mask & (1 << i));
+    const form = derive(v, skip).base;
+    if (form !== v.base) out.push({ form, ids: skip.map(r => "skip-" + r) });
+  }
+  for (const r of ["digraph", "schwa", "komen"]) {
+    if (v.rules.includes(r)) out.push({ form: r === "komen" ? "koom" : doubleLastVowel(v.base), ids: ["over-" + r] });
+  }
+  return out;
+}
+
+/* ================= MISTAKES =================
+   id → the rule it violates + a sentence about what the learner typed.
+   c = { g: typed, v: verb, subj, answer } */
+const MISTAKES = {
+  "kept-en":      { rule: "strip",   text: c => `You kept the ending. Remove -${c.v.rules.includes("stripN") ? "n" : "en"} from <b>${c.v.inf}</b> to get the base.` },
+  "skip-double":  { rule: "double",  text: c => `You didn't double the vowel. With one letter, the vowel in a closed syllable sounds short — the long sound of <b>${c.v.inf}</b> needs two.` },
+  "skip-single":  { rule: "single",  text: c => `Your answer ends in a double consonant. A Dutch word never ends in a double letter — drop one.` },
+  "skip-zv":      { rule: "zv",      text: c => { const l = c.v.inf.slice(-3, -2); return `Your answer ends in ${l}. At the end of a word that becomes ${l === "v" ? "f" : "s"}.`; } },
+  "skip-endvowel": { rule: "stripN", text: c => `A vowel at the very end of a word is already long, so one letter is enough: <b>${c.v.base}</b>, not ${esc(c.g)}.` },
+  "over-digraph": { rule: "digraph", text: c => `You doubled a vowel in <b>${DIGRAPHS.find(d => c.v.base.includes(d))}</b>. That is already a two-letter sound — it never doubles.` },
+  "over-schwa":   { rule: "schwa",   text: c => `You doubled the e in -${c.v.base.slice(-2)}. That e is unstressed ('uh'), not a long ee, so it doesn't double.` },
+  "over-komen":   { rule: "komen",   text: c => `Vowel doubling would give <i>koom</i>, but komen is an exception: <b>kom</b>.` },
+  "ik-t":         { rule: "persons", text: c => `<b>ik</b> never takes -t: ik uses the bare base (<b>ik ${c.v.base}</b>).` },
+  "missing-t":    { rule: "persons", text: c => `<b>${c.subj.pnl || c.subj.p}</b> is singular (not ik), so it needs base + <b>t</b>.` },
+  "missing-dt":   { rule: "dEnd",    text: c => `<b>${c.subj.pnl || c.subj.p}</b> needs base + t. The base already ends in d, but the -t ending is still added: ${c.v.base} + t = <b>${c.answer}</b>.` },
+  "dt-lost-d":    { rule: "dEnd",    text: c => `You wrote what you hear, but the <b>d</b> of the base must stay: ${c.v.base} + t = <b>${c.answer}</b>.` },
+  "inf-singular": { rule: "persons", text: c => `The infinitive (${c.v.inf}) is only for wij / we / jullie / zij (they). <b>${c.subj.pnl || c.subj.p}</b> is singular → ${c.subj.group === "ik" ? "the base" : "base + t"}.` },
+  "pl-short":     { rule: "persons", text: c => `<b>${c.subj.pnl || c.subj.p}</b> is plural — plural persons use the whole infinitive: <b>${c.v.inf}</b>.` },
+  "double-t":     { rule: "endT",    text: c => `The base <b>${c.v.base}</b> already ends in t — don't add a second one.` },
+  "short-t":      { rule: "longT",   text: c => `${c.v.base} + t → <i>${c.g}</i> would have a short a. Double it to keep it long: <b>${c.answer}</b>.` },
+  "irr-other":    { rule: null,      text: c => `<b>${c.g}</b> is the form for ${c.who}. With <b>${c.subj.pnl || c.subj.p}</b> it is <b>${c.answer}</b>.` },
+  "irr":          { rule: null,      text: c => `${c.v.inf} is irregular — its forms don't come from a rule; memorize them.` },
+  "snd":          { rule: null,      text: c => c.sndText },
+  "typo":         { rule: null,      text: c => `One letter off — probably a typo. Compare: you typed <b>${esc(c.g)}</b>, correct is <b>${c.answer}</b>.` },
+};
+const KIND_LABEL = {
+  RULE: "Rule · you can work this out",
+  EXCEPTION: "Exception · memorize it",
+  IRREGULAR: "Irregular · memorize the whole verb",
+  SOUND: "Sound · you heard it right, the spelling differs",
+  TYPO: "Typo",
+};
+// mk(id, ctx, rule?) → a mistake record the feedback renderer understands
+function mk(id, c, rule) {
+  const r = rule || MISTAKES[id].rule;
+  return { id, rule: r, kind: id === "typo" ? "TYPO" : RULES[r] ? RULES[r].kind : "RULE", text: MISTAKES[id].text(c) };
+}
+
+function editDistance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+
+/* ================= FEEDBACK RENDERING ================= */
+function exampleHtml(ex) {
+  const word = t => `<span class="exw">${speakBtn(t)}${t}</span>`;
+  return `<div class="ex">${ex.map(e => Array.isArray(e) ? `<span class="exw">${word(e[0])} → ${word(e[1])}</span>` : word(e)).join("")}</div>`;
+}
+function ruleHow(id) {
+  const r = RULES[id];
+  return `<details class="how"><summary>How does <b>${r.name}</b> work?</summary><div class="how-body"><span class="tag k-${r.kind}">${r.kind}</span> ${r.how}${exampleHtml(r.ex)}</div></details>`;
+}
+// res: { ok, correct, say, mistakes: [mk()], rules: [ids], steps: [html] }
+function renderFeedback(res) {
+  let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
+  if (res.say) h += ` ${speakBtn(res.say)}`;
+  if (!res.ok) {
+    if (res.mistakes.length) {
+      h += res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("");
+    } else {
+      h += `<div class="mistake"><span class="what"><b>Your mistake:</b> not one of the usual patterns — compare your answer with the steps below.</span></div>`;
+    }
+  }
+  if (res.steps && res.steps.length) {
+    h += `<details class="steps"${res.ok ? "" : " open"}><summary>${res.ok ? "Why is this right?" : "How we get there"}</summary><ol>${res.steps.map(s => `<li>${s}</li>`).join("")}</ol></details>`;
+  }
+  // Explain the rules behind the mistakes first; on a right answer, the rules used.
+  const ids = [...new Set([...res.mistakes.map(m => m.rule), ...(res.ok || !res.mistakes.length ? res.rules : [])].filter(r => RULES[r]))];
+  h += ids.map(ruleHow).join("");
+  h += `<span class="why">Press Enter for the next one.</span>`;
+  return h;
+}
+
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  const tally = {}; // rule id → times missed this session
   function newQuestion() {
     current = next();
     answered = false;
@@ -500,25 +720,34 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, n
     input.value = "";
     input.focus();
   }
+  function renderTally() {
+    const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
+    $(tallyId).innerHTML = ids.length
+      ? `<div class="tally-head">Your mistakes this session — tap to review the rule</div>` +
+        ids.map(id => ruleHow(id).replace(`How does <b>${RULES[id].name}</b> work?`, `<b>${RULES[id].name}</b> ×${tally[id]}`)).join("")
+      : "";
+  }
   function doCheck() {
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
+    res.mistakes = res.mistakes || []; res.rules = res.rules || [];
     answered = true;
     if (res.ok) { right++; streak++; }
-    else { wrong++; streak = 0; }
-    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
-    fb.innerHTML = res.ok
-      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
-      : `<span class="no">✗ ${res.correct}</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`;
-    if (res.say) {
-      speak(res.say);
-      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    else {
+      wrong++; streak = 0;
+      const missed = res.mistakes.map(m => m.rule).filter(r => RULES[r]);
+      [...new Set(missed.length ? missed : res.rules.slice(-1))].forEach(r => { tally[r] = (tally[r] || 0) + 1; });
+      renderTally();
     }
-    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = renderFeedback(res);
+    if (res.say) speak(res.say);
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
   $(checkId).addEventListener("click", doCheck);
+  // Tapping a ▶ or opening an explanation must not steal Enter from the answer box.
+  fb.addEventListener("click", e => { if (e.target.closest("button, summary")) setTimeout(() => input.focus({ preventScroll: true }), 0); });
   return { newQuestion, get current() { return current; } };
 }
 
@@ -527,7 +756,7 @@ const SUBJECTS = [
   { p: "ik", group: "ik", form: v => v.base, heb: "heb", ben: "ben" },
   { p: "jij", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
   { p: "je", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
-  { p: "u", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "u", group: "sing", form: v => tForm(v), heb: "hebt", hebAlt: "heeft", ben: "bent" },
   { p: "hij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
   { p: "zij (she)", pnl: "zij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
   { p: "het", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
@@ -540,56 +769,103 @@ function tForm(v) {
   if (v.tform) return v.tform;
   return v.base.endsWith("t") ? v.base : v.base + "t";
 }
-// Explains the base -> conjugated-form step (jij/u/hij/zij/het/wij/we/jullie),
-// on top of RULE_TEXT which only covers infinitive -> base.
+// The base -> conjugated-form step (on top of derive(), which covers infinitive -> base).
 function conjStepText(subj, verb) {
-  if (subj.group === "ik") return `ik uses the base as-is: ${verb.base}.`;
-  if (subj.group === "pl") return `wij/we/jullie/zij use the full infinitive: ${verb.inf}.`;
-  // singular non-ik: normally base + t
-  if (verb.base.endsWith("t")) {
-    return `jij/u/hij/zij/het add -t, but the base already ends in -t so nothing changes: ${verb.base}.`;
-  }
-  const regular = verb.base + "t";
+  if (subj.group === "ik") return `<b>ik</b> uses the base as-is → <b>ik ${verb.base}</b>`;
+  if (subj.group === "pl") return `<b>wij/we/jullie/zij</b> (plural) use the whole infinitive → <b>${verb.inf}</b>`;
+  if (verb.base.endsWith("t")) return `jij/u/hij/zij/het add -t, but the base already ends in t → nothing changes: <b>${verb.base}</b>`;
   const t = tForm(verb);
-  if (t !== regular) {
-    return `jij/u/hij/zij/het add -t to the base, but ${verb.base} + t would read with a short vowel, so the vowel doubles again to keep it long: ${verb.base} → ${t}.`;
-  }
-  return `jij/u/hij/zij/het add -t to the base: ${verb.base} → ${t}.`;
+  if (t !== verb.base + "t") return `jij/u/hij/zij/het add -t: ${verb.base} + t would make the vowel short (${verb.base}t), so double it again → <b>${t}</b>`;
+  if (verb.base.endsWith("d")) return `jij/u/hij/zij/het add -t: ${verb.base} + t → <b>${t}</b> (sounds like t, but the d of the base stays)`;
+  return `jij/u/hij/zij/het add -t → ${verb.base} + t → <b>${t}</b>`;
 }
+// Singular form a learner would build from a (possibly wrong) base.
+const formFromBase = (subj, b) => subj.group === "ik" ? b : b.endsWith("t") ? b : b + "t";
+function diagnoseRegular(c) {
+  const { g, v, subj } = c, base = v.base, t = tForm(v), who = subj.group;
+  if (who === "ik" && g === t && t !== base) return [mk("ik-t", c)];
+  if (who === "sing" && g === base && base.endsWith("d")) return [mk("missing-dt", c)];
+  if (who === "sing" && g === base && t !== base) return [mk("missing-t", c)];
+  if (who === "sing" && base.endsWith("d") && g === base.slice(0, -1) + "t") return [mk("dt-lost-d", c)];
+  if (who !== "pl" && g === v.inf) return [mk("inf-singular", c)];
+  if (who === "pl" && (g === base || g === t)) return [mk("pl-short", c)];
+  if (base.endsWith("t") && g === base + "t") return [mk("double-t", c)];
+  if (v.tform && g === base + "t") return [mk("short-t", c)];
+  if (g.endsWith("en") && g !== v.inf && who !== "pl") return [mk("inf-singular", c)];
+  // A base-spelling mistake carried into the conjugated form (hij makt, ik geev).
+  if (who !== "pl") {
+    for (const wb of wrongBases(v)) {
+      if (g === formFromBase(subj, wb.form)) return wb.ids.map(id => mk(id, c));
+      // right base mistake but also the wrong person ending
+      if (who === "ik" && g === wb.form + "t") return [mk("ik-t", c), ...wb.ids.map(id => mk(id, c))];
+      if (who === "sing" && g === wb.form) return [mk("missing-t", c), ...wb.ids.map(id => mk(id, c))];
+    }
+  }
+  return [];
+}
+const IRR_FORMS = {
+  hebben: { heb: "ik", hebt: "jij / u", heeft: "u / hij / zij / het", hebben: "wij / jullie / zij (they)" },
+  zijn:   { ben: "ik", bent: "jij / u", is: "hij / zij / het", zijn: "wij / jullie / zij (they)" },
+};
 const conjDrill = makeDrill({
   inputId: "conj-input", checkId: "conj-check", feedbackId: "conj-feedback",
-  rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak",
+  rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak", tallyId: "conj-tally",
   next() {
     const subj = pick(SUBJECTS);
     const r = Math.random();
-    let verb, answer, why;
+    let verb, answers, steps, rules;
     if (r < 0.18) {
-      verb = { inf: "hebben", en: "to have" };
-      answer = subj.heb; why = "hebben is irregular — memorize it.";
+      verb = { inf: "hebben", en: "to have", irr: true };
+      answers = [subj.heb, subj.hebAlt].filter(Boolean);
+      rules = ["hebben"];
+      steps = [`hebben is irregular — no base rule applies`, `<b>${subj.pnl || subj.p}</b> → <b>${answers.join("</b> or <b>")}</b>`];
     } else if (r < 0.36) {
-      verb = { inf: "zijn", en: "to be" };
-      answer = subj.ben; why = "zijn is irregular — memorize it.";
+      verb = { inf: "zijn", en: "to be", irr: true };
+      answers = [subj.ben];
+      rules = ["zijn"];
+      steps = [`zijn is irregular — no base rule applies`, `<b>${subj.pnl || subj.p}</b> → <b>${subj.ben}</b>`];
     } else {
       verb = pick(VERBS);
-      answer = subj.form(verb);
-      why = `Base: ${verb.base}. ${RULE_TEXT[verb.rule]} ${conjStepText(subj, verb)}`;
+      answers = [subj.form(verb)];
+      steps = subj.group === "pl" ? [] : derive(verb).steps;
+      steps.push(conjStepText(subj, verb));
+      rules = ["persons", ...(subj.group === "pl" ? [] : verb.rules.filter(r => r !== "stripN"))];
     }
     $("conj-prompt").innerHTML = `${subj.p} + <span style="color:var(--blue)">${verb.inf}</span>`;
     $("conj-hint").textContent = verb.en;
     const pnl = subj.pnl || subj.p;
-    return { answer, full: `${pnl} ${answer}`, why };
+    return { subj, verb, answers, pnl, steps, rules };
   },
   check(cur, given) {
-    const g = norm(given);
-    const ok = g === cur.answer || g === norm(cur.full);
-    return { ok, correct: cur.full, why: cur.why, say: cur.full };
+    let g = norm(given);
+    // Accept the answer with or without the pronoun.
+    if (g.startsWith(cur.pnl + " ")) g = g.slice(cur.pnl.length + 1);
+    const answer = cur.answers[0], full = `${cur.pnl} ${answer}`;
+    const res = { ok: cur.answers.includes(g), correct: full, say: full, steps: cur.steps, rules: cur.rules, mistakes: [] };
+    if (res.ok) { res.say = `${cur.pnl} ${g}`; return res; }
+    const c = { g, v: cur.verb, subj: cur.subj, answer };
+    if (cur.verb.irr) {
+      const who = IRR_FORMS[cur.verb.inf][g];
+      res.mistakes = [who ? mk("irr-other", { ...c, who }, cur.verb.inf) : mk("irr", c, cur.verb.inf)];
+    } else {
+      res.mistakes = diagnoseRegular(c);
+    }
+    if (!res.mistakes.length && editDistance(g, answer) === 1) res.mistakes = [mk("typo", c)];
+    return res;
   },
 });
 
 /* ================= BASE DRILL ================= */
+function diagnoseBase(c) {
+  const { g, v } = c;
+  if (g === v.inf || g.endsWith("en")) return [mk("kept-en", c)];
+  if (v.rules.includes("stripN") && g === v.inf.slice(0, -1) && g !== v.base) return [mk("skip-endvowel", c)];
+  for (const wb of wrongBases(v)) if (g === wb.form) return wb.ids.map(id => mk(id, c));
+  return [];
+}
 const baseDrill = makeDrill({
   inputId: "base-input", checkId: "base-check", feedbackId: "base-feedback",
-  rightId: "base-right", wrongId: "base-wrong", streakId: "base-streak",
+  rightId: "base-right", wrongId: "base-wrong", streakId: "base-streak", tallyId: "base-tally",
   next() {
     const v = pick(VERBS);
     $("base-prompt").textContent = v.inf;
@@ -597,7 +873,14 @@ const baseDrill = makeDrill({
     return v;
   },
   check(v, given) {
-    return { ok: norm(given) === v.base, correct: v.base, why: RULE_TEXT[v.rule], say: v.base };
+    const g = norm(given);
+    const res = { ok: g === v.base, correct: v.base, say: v.base, steps: derive(v).steps,
+                  rules: ["strip", ...v.rules.filter(r => !["longT", "dEnd"].includes(r))], mistakes: [] };
+    if (res.ok) return res;
+    const c = { g, v, answer: v.base };
+    res.mistakes = diagnoseBase(c);
+    if (!res.mistakes.length && editDistance(g, v.base) === 1) res.mistakes = [mk("typo", c)];
+    return res;
   },
 });
 
@@ -608,10 +891,50 @@ const LISTEN_ITEMS = [
   ...ZIJN.map(z => z[0]),
   ...VERBS.map(v => v.inf),
 ];
+// [what the answer has, what the learner may write instead, rule, explanation]
+const SOUND_SWAPS = [
+  ["ij", "ei", "eij", (a, g) => `<b>ij</b> and <b>ei</b> sound exactly the same — this word is spelled with <b>ij</b>.`],
+  ["ei", "ij", "eij", (a, g) => `<b>ei</b> and <b>ij</b> sound exactly the same — this word is spelled with <b>ei</b>.`],
+  ["z", "s", "zs", () => `You wrote s, but it's a voiced <b>z</b> (a buzz). Play it slowly and listen for it.`],
+  ["s", "z", "zs", () => `You wrote z, but it's a sharp <b>s</b> — no buzz.`],
+  ["v", "f", "vf", () => `You wrote f, but this word is spelled with <b>v</b>.`],
+  ["f", "v", "vf", () => `You wrote v, but this word is spelled with <b>f</b>.`],
+  ["g", "ch", "gch", () => `g and ch sound the same — this word is spelled with <b>g</b>.`],
+  ["aa", "a", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>aa</b>.`],
+  ["ee", "e", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>ee</b>.`],
+  ["oo", "o", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>oo</b>.`],
+  ["uu", "u", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>uu</b>.`],
+];
+function diagnoseListen(c) {
+  const { g, answer: a } = c;
+  for (const [from, to, rule, why] of SOUND_SWAPS) {
+    for (let i = a.indexOf(from); i !== -1; i = a.indexOf(from, i + 1)) {
+      if (a.slice(0, i) + to + a.slice(i + from.length) === g) return [mk("snd", { ...c, sndText: why(a, g) }, rule)];
+    }
+  }
+  // Long vowel written double where it should be single (open syllable): maaken for maken
+  for (let i = 0; i < a.length; i++) {
+    if ("aeou".includes(a[i]) && a[i + 1] !== a[i] && a[i - 1] !== a[i] && a.slice(0, i + 1) + a.slice(i) === g)
+      return [mk("snd", { ...c, sndText: `The vowel ends its syllable here (open syllable), so one letter is already long — no doubling.` }, "vowelLen")];
+  }
+  // Single vs double consonant (kenen / kennen, hebben / heben)
+  for (let i = 0; i < a.length; i++) {
+    const ch = a[i];
+    if (isVowel(ch) || ch === " ") continue;
+    if (a[i + 1] === ch && a.slice(0, i) + a.slice(i + 1) === g)
+      return [mk("snd", { ...c, sndText: `You can't hear a double consonant. It's written <b>${ch}${ch}</b> because the vowel before it is short.` }, "consLen")];
+    if (a[i + 1] !== ch && a[i - 1] !== ch && a.slice(0, i + 1) + a.slice(i) === g) {
+      if (a[i + 1] === undefined || a[i + 1] === " ")
+        return [mk("snd", { ...c, sndText: `A Dutch word never ends in a double consonant — just one <b>${ch}</b>.` }, "single")];
+      return [mk("snd", { ...c, sndText: `Only one <b>${ch}</b> here. A consonant is doubled only between two vowels, right after a <i>short</i> vowel (ken-nen).` }, "consLen")];
+    }
+  }
+  return [];
+}
 let listenPlayed = false;
 const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
-  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
     const text = pick(LISTEN_ITEMS);
     listenPlayed = false;
@@ -619,9 +942,13 @@ const listenDrill = makeDrill({
     return { text };
   },
   check(cur, given) {
-    // ij/ei and z/s sound identical to beginners; still require exact spelling but say so
-    const ok = norm(given) === cur.text;
-    return { ok, correct: cur.text, say: cur.text };
+    const g = norm(given), a = cur.text;
+    const res = { ok: g === a, correct: a, say: a, mistakes: [] };
+    if (res.ok) return res;
+    const c = { g, answer: a };
+    res.mistakes = diagnoseListen(c);
+    if (!res.mistakes.length && editDistance(g, a) === 1) res.mistakes = [mk("typo", c)];
+    return res;
   },
 });
 $("listen-play").addEventListener("click", () => { speak(listenDrill.current.text); listenPlayed = true; });

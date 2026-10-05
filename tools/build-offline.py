@@ -8,7 +8,7 @@ The home page compares each file's hash with what it cached and re-downloads onl
 import hashlib, json, os, unicodedata
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKIP_DIRS = {".git", ".claude", "tools"}
+SKIP_DIRS = {".git", ".claude", "tools", "docs"}
 SKIP_FILES = {"CLAUDE.md", "offline-files.json", "sw.js", ".DS_Store"}
 
 files = {}

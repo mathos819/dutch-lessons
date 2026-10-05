@@ -21,8 +21,19 @@ les-NN/
 2. Standard sections (adapt names/content to the lesson): reference tables with
    audio (Leer), flashcards (Woorden), one or more typed drills with
    rule-explaining feedback, listening dictation (Luisteren).
-3. Drill feedback must teach: wrong answers show the correct form + which rule
-   applies, pronounce the answer, and offer ▶/🐢 replay buttons.
+3. Drill feedback must teach — Matheus must always know *why* he was wrong.
+   les-02 is the reference (spec: `docs/superpowers/specs/2026-10-05-mistake-feedback-design.md`):
+   - **diagnose the typed answer**, not just show the right one: each drill has
+     detectors that name the specific mistake ("ik never takes -t", "vowel not
+     doubled", "ei/ij sound the same");
+   - **tag the kind**: RULE (work it out) / EXCEPTION / IRREGULAR (memorize) /
+     SOUND / TYPO — never present an exception as if it were a rule, and give
+     the reason behind an exception when there is one;
+   - **show the steps** (e.g. infinitive → base → form) and a collapsible
+     "How does X work?" with the mechanism behind the rule + ▶/🐢 examples,
+     all from one shared `RULES` dictionary;
+   - per-drill "mistakes this session" tally grouped by rule;
+   - pronounce the answer with ▶/🐢 replay buttons.
 4. Reuse the drill engine, tab system, flashcard logic, and `speak()` audio
    fallback chain from `les-02/index.html` — copy, don't reinvent.
 5. New grammar builds on old: include vocabulary/verbs from earlier lessons in
