@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nederlandse Lessen</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nederlands">
+<meta name="theme-color" content="#FAF9F4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -32,6 +37,13 @@
   a.lesson .num { font-family: "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #6a685c; }
   a.lesson .title { font-family: "Archivo Black", sans-serif; font-size: 22px; text-transform: uppercase; }
   a.lesson .topics { font-size: 14.5px; color: #4a4940; margin-top: 4px; }
+  .offline { border: var(--rule); background: #fff; padding: 14px 16px; margin-bottom: 28px; font-family: "IBM Plex Mono", monospace; font-size: 13.5px; }
+  .offline-bar { height: 10px; border: 2px solid var(--ink); margin-top: 10px; background: var(--paper); }
+  .offline-bar span { display: block; height: 100%; width: 0; background: var(--blue); transition: width .2s; }
+  .offline[data-state="ready"] .offline-bar span { background: var(--yellow); }
+  .offline[data-state="error"] .offline-bar span { background: var(--red); }
+  .offline button { margin-top: 10px; font: inherit; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; background: var(--ink); color: var(--paper); border: 0; padding: 8px 14px; cursor: pointer; }
+  .offline-hint { margin-top: 10px; color: #4a4940; font-family: "Archivo", sans-serif; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -39,6 +51,12 @@
   <div class="eyebrow">Matheus · Nederlands oefenen</div>
   <h1>Nederlandse <span>lessen</span></h1>
   <p class="sub">Interactive practice pages, one per lesson — with pronunciation audio at normal and slow speed.</p>
+  <div class="offline" id="offline" hidden>
+    <div class="offline-status">Checking offline copy…</div>
+    <div class="offline-bar"><span></span></div>
+    <button type="button" hidden>Download for offline</button>
+    <div class="offline-hint" hidden>iPhone: tap <b>Share → Add to Home Screen</b>, then open the app from your Home Screen and let it download there — Safari and the Home Screen app keep separate offline copies.</div>
+  </div>
   <div class="lessons">
     <a class="lesson" href="les-02/">
       <div class="num">Les 2 · 19-08-2026</div>
@@ -62,5 +80,6 @@
     </a>
   </div>
 </div>
+<script src="offline.js"></script>
 </body>
 </html>

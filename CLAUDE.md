@@ -50,6 +50,23 @@ De Stijl / Mondrian: paper `#FAF9F4`, ink `#16150F`, red `#DE3B24`, blue
 Archivo (body), IBM Plex Mono (tables/drills) via Google Fonts with system
 fallbacks. Nav = Mondrian blocks. Header eyebrow: `Nederlands · Les N · date`.
 
+## Offline (iPhone Home Screen app)
+
+The site is an installable PWA that works in airplane mode: `sw.js` serves pages
+and audio from the cache (answering Safari's audio Range requests with 206s),
+and `offline.js` — the download panel on the home page — fills that cache from
+`offline-files.json` (path → content hash; only changed files are re-fetched).
+
+Every lesson page must, like les-02:
+- in `<head>`: link `../manifest.json` + `../icons/apple-touch-icon.png` and the
+  `apple-mobile-web-app-*` metas;
+- make the eyebrow's "Nederlands" an `<a class="home" href="../">← Nederlands</a>`
+  link (the Home Screen app has no back button);
+- load `<script src="../offline.js"></script>` before `</body>`.
+
+**Before every commit that adds or changes lesson files, run
+`python3 tools/build-offline.py`** — otherwise the phone never downloads them.
+
 ## Deploying (GitHub Pages)
 
 Live site: **https://mathos819.github.io/dutch-lessons/** (repo
