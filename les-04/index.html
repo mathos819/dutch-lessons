@@ -167,6 +167,22 @@
   .feedback .why b { color: var(--ink); }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
   .scorebar b { font-size: 18px; }
+  .feedback .mistake { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-top: 10px; font-family: var(--body); font-size: 15px; }
+  .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border: 2px solid var(--ink); white-space: nowrap; }
+  .tag.k-RULE { background: var(--blue); color: #fff; }
+  .tag.k-EXCEPTION, .tag.k-IRREGULAR { background: var(--red); color: #fff; }
+  .tag.k-SOUND { background: var(--yellow); color: var(--ink); }
+  .tag.k-TYPO { background: #fff; color: var(--ink); }
+  .feedback details, .tally details { margin-top: 10px; border-left: 3px solid var(--ink); padding-left: 12px; font-family: var(--body); font-size: 15px; }
+  .feedback summary, .tally summary { cursor: pointer; font-family: var(--mono); font-size: 14px; }
+  .feedback .steps ol { padding: 6px 0 2px 22px; }
+  .feedback .steps li { margin-bottom: 4px; }
+  .how-body { padding: 8px 0 4px; line-height: 1.5; }
+  .how-body .tag { margin-right: 4px; }
+  .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
+  .exw { white-space: nowrap; }
+  .tally { margin-top: 14px; }
+  .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
   @media (max-width: 640px) {
     nav { grid-template-columns: repeat(5, 1fr); }
@@ -282,6 +298,7 @@
       </div>
       <div class="feedback" id="gap-feedback"></div>
       <div class="scorebar"><span>Goed <b id="gap-right">0</b></span><span>Fout <b id="gap-wrong">0</b></span><span>Reeks <b id="gap-streak">0</b></span></div>
+      <div class="tally" id="gap-tally"></div>
     </div>
   </section>
 
@@ -302,6 +319,7 @@
       </div>
       <div class="feedback" id="form-feedback"></div>
       <div class="scorebar"><span>Goed <b id="form-right">0</b></span><span>Fout <b id="form-wrong">0</b></span><span>Reeks <b id="form-streak">0</b></span></div>
+      <div class="tally" id="form-tally"></div>
     </div>
   </section>
 
@@ -324,6 +342,7 @@
       </div>
       <div class="feedback" id="listen-feedback"></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+      <div class="tally" id="listen-tally"></div>
     </div>
   </section>
 </div>
@@ -776,10 +795,222 @@ $("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(f
 $("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl, true); });
 flashInit();
 
+/* ================= PRONOUN TABLE (for diagnosis) =================
+   per = who is meant; for every person the subject / possessive / object forms. */
+const PERSONS = {
+  "1sg": { label: "I",                subject: ["ik"],         possessive: ["mijn"],          object: ["mij", "me"] },
+  "2sg": { label: "you (one person)", subject: ["jij", "je"],  possessive: ["jouw", "je"],    object: ["jou", "je"] },
+  "2f":  { label: "you (formal)",     subject: ["u"],          possessive: ["uw"],            object: ["u"] },
+  "3m":  { label: "he",               subject: ["hij"],        possessive: ["zijn"],          object: ["hem"] },
+  "3f":  { label: "she",              subject: ["zij", "ze"],  possessive: ["haar"],          object: ["haar"] },
+  "3n":  { label: "it",               subject: ["het"],        possessive: [],                object: [] },
+  "1pl": { label: "we",               subject: ["wij", "we"],  possessive: ["ons", "onze"],   object: ["ons"] },
+  "2pl": { label: "you (plural)",     subject: ["jullie"],     possessive: ["jullie", "je"],  object: ["jullie"] },
+  "3pl": { label: "they",             subject: ["zij", "ze"],  possessive: ["hun"],           object: ["ze", "hen", "hun"] },
+};
+const CATS = ["subject", "possessive", "object"];
+// form → every { cat, per } it can be
+const FORM_INFO = {};
+for (const [per, p] of Object.entries(PERSONS))
+  for (const cat of CATS) for (const f of p[cat]) (FORM_INFO[f] = FORM_INFO[f] || []).push({ cat, per });
+const roleText = r => `${r.cat} of <i>${PERSONS[r.per].label}</i>`;
+const rolesText = g => (FORM_INFO[g] || []).map(roleText).join(", or ");
+
+/* What each gap of grammatica 4 / 14 needs, and why.
+   slot = what the gap does in the sentence (decides the family),
+   who  = who is meant (decides the person). */
+const GAP_NEED = {
+  "4-voorbeeld": { cat: "possessive", per: "3m",  slot: "stands right before the noun <b>feest</b>", who: "Peter — one man → <i>his</i>" },
+  "4-1a":  { cat: "subject",    per: "2f",  slot: "does the verb <b>komt</b>", who: "a polite question to one person → formal <i>you</i>" },
+  "4-1b":  { cat: "subject",    per: "1sg", slot: "does the verb <b>kom</b>", who: "the speaker answers about themselves, and <b>kom</b> (no -t) is the ik-form → <i>I</i>" },
+  "4-2":   { cat: "possessive", per: "1pl", slot: "stands right before the noun <b>kinderen</b>", who: "wij — the speakers → <i>our</i>", art: "de", noun: "kinderen", plural: true },
+  "4-3a":  { cat: "possessive", per: "2sg", slot: "stands right before the noun <b>fiets</b>", who: "Petra, the one person you talk to → <i>your</i>" },
+  "4-3b":  { cat: "possessive", per: "1sg", slot: "stands right before the noun <b>fiets</b>", who: "Petra answers about herself → <i>my</i>" },
+  "4-4":   { cat: "subject",    per: "3pl", slot: "does the verb <b>hebben</b>", who: "Carla en Peter — two people → <i>they</i>" },
+  "4-5":   { cat: "possessive", per: "3m",  slot: "stands right before the noun <b>adres</b>", who: "Marco — one man → <i>his</i>" },
+  "4-6":   { cat: "possessive", per: "2f",  slot: "stands right before the noun <b>postcode</b>", who: "a polite question → formal <i>your</i>" },
+  "4-7":   { cat: "possessive", per: "2pl", slot: "stands right before the noun <b>naam</b>", who: "jullie — more than one person → <i>your</i> (plural)", subj: "jullie" },
+  "4-8":   { cat: "possessive", per: "3f",  slot: "stands right before the noun <b>naam</b>", who: "Mila — one woman → <i>her</i>" },
+  "14-voorbeeld": { cat: "object", per: "3pl", slot: "comes after the preposition <b>voor</b>", who: "Karim en Astrid — two people → <i>them</i>", prep: "voor" },
+  "14-1":  { cat: "object", per: "3m",  slot: "receives the verb <b>feliciteer</b>", who: "mijn neefje — one boy → <i>him</i>" },
+  "14-2":  { cat: "object", per: "3pl", slot: "receives the verb <b>mist</b>", who: "haar familie — a group of people → <i>them</i>" },
+  "14-3":  { cat: "object", per: "3f",  slot: "comes after the preposition <b>met</b>", who: "mijn zus — one woman → <i>her</i>", prep: "met" },
+  "14-4":  { cat: "object", per: "3m",  slot: "comes after the preposition <b>met</b>", who: "Johan — one man → <i>him</i>", prep: "met" },
+  "14-5":  { cat: "object", per: "1pl", slot: "receives the verb <b>helpen</b>", who: "we, the speakers → <i>us</i>" },
+  "14-6":  { cat: "object", per: "3f",  slot: "comes after the preposition <b>met</b>", who: "Anne — one woman → <i>her</i>", prep: "met" },
+  "14-7":  { cat: "object", per: "3pl", slot: "comes after the preposition <b>met</b>", who: "my studievrienden — a group → <i>them</i>", prep: "met" },
+  "14-8":  { cat: "object", per: "3f",  slot: "receives the verb <b>kent</b>", who: "his vriendin — one woman → <i>her</i>" },
+  "14-9":  { cat: "object", per: "2f",  slot: "receives the verb <b>vragen</b>", who: "a meneer you address politely → formal <i>you</i>" },
+  "14-10": { cat: "object", per: "3pl", slot: "comes after the preposition <b>met</b>", who: "her collega's — a group → <i>them</i>", prep: "met" },
+  "14-11": { cat: "object", per: "3m",  slot: "receives the verb <b>bezoek</b>", who: "mijn opa — one man → <i>him</i>" },
+  "14-12": { cat: "object", per: "1sg", slot: "receives the verb <b>helpen</b>", who: "the speaker → <i>me</i>" },
+};
+// Vormen drill: English prompt → person
+const EN_PER = { "I": "1sg", "my": "1sg", "me": "1sg", "you (singular)": "2sg", "your (singular)": "2sg",
+  "you (formal)": "2f", "your (formal)": "2f", "he": "3m", "his": "3m", "him": "3m", "she": "3f", "her": "3f",
+  "it": "3n", "we": "1pl", "us": "1pl", "you (plural)": "2pl", "your (plural)": "2pl", "they": "3pl", "their": "3pl", "them": "3pl" };
+
+/* ================= RULES =================
+   kind: RULE = you can work it out · IRREGULAR = memorize (the table) ·
+         SOUND = you heard it right, the spelling differs.
+   ex: audio examples; a pair [a, b] renders as "a → b". */
+const RULES = {
+  cat: { kind: "RULE", name: "subject, possessive or object",
+    how: "Look at what the pronoun <b>does</b> in the sentence, not at its meaning. It <b>does the verb</b> → subject (<i>Jij</i> komt uit Italië). It stands <b>right before a noun</b> and says whose it is → possessive (<i>Jouw</i> huis is groot). It <b>receives</b> the verb, or comes <b>after a preposition</b> (met, voor, naar…) → object (Ik zie <i>jou</i> · met <i>jou</i>). English works the same way — he / his / him — Dutch just has a few more forms.",
+    ex: ["Jij komt uit Italië.", "Jouw huis is groot.", "Ik zie jou.", "Hij praat met jou."] },
+  person: { kind: "RULE", name: "who is meant",
+    how: "After the family, pick the person: look back at <b>who</b> the pronoun points to. One man → hij / zijn / hem. One woman → zij / haar / haar. Two or more people → zij / hun / ze (hen). You + others → wij / ons(onze) / ons. The name or noun in the sentence before usually tells you: <i>Peter</i> → zijn, <i>Karim en Astrid</i> → ze, <i>haar familie</i> → hen.",
+    ex: ["Peter geeft een feest. Zijn feest is zondag.", "Karim en Astrid gaan zaterdag trouwen. Ik koop een mooi cadeau voor ze."] },
+  table: { kind: "IRREGULAR", name: "the pronoun table",
+    how: "Which form belongs to which person cannot be worked out — it is a table to memorize. Learn it per family:<br><b>subject</b> ik · jij/je · u · hij · zij/ze · het · wij/we · jullie · zij/ze<br><b>possessive</b> mijn · jouw/je · uw · zijn · haar · ons/onze · jullie/je · hun<br><b>object</b> mij/me · jou/je · u · hem · haar · ons · jullie · ze/hen",
+    ex: ["mijn", "jouw", "zijn", "haar", "hun", "hem", "hen"] },
+  onsOnze: { kind: "RULE", name: "ons or onze",
+    how: "<i>our</i> gets an extra <b>-e</b> before a <b>de</b>-word: onze auto, onze fiets. Before a <b>het</b>-word it stays <b>ons</b>: ons huis. Every plural is a de-word (de kinderen), so a plural always gets <b>onze</b>. So: check the article of the noun. (As an object, <i>us</i>, it is always <b>ons</b>.)",
+    ex: ["ons huis", "onze auto", "onze kinderen"] },
+  jullieJe: { kind: "RULE", name: "jullie or je",
+    how: "If the subject is already <b>jullie</b>, the possessive is better as <b>je</b> — saying jullie twice sounds heavy: <i>Jullie gaan naar je huis.</i> If the subject is anything else, <i>je</i> would sound like 'your' to one person, so you must say <b>jullie</b>: <i>Ik ga naar jullie huis.</i>",
+    ex: ["Jullie gaan naar je huis.", "Ik ga naar jullie huis."] },
+  prepFull: { kind: "RULE", name: "after a preposition: the full form",
+    how: "After a preposition (met, voor, naar, bij…) a pronoun for a person is an object, and you use the <b>full</b> object form: met <b>haar</b>, met <b>hem</b>, met <b>jou</b>. The short <i>ze</i> after a preposition can only mean <i>them</i> (met ze / met hen) — never one woman.",
+    ex: ["Hij praat met jou.", "Anne zit in de trein. Mila praat met haar."] },
+  zeObject: { kind: "RULE", name: "ze: she (subject) or them (object)",
+    how: "<b>ze</b> is the short form of <i>zij</i>, but only as a <b>subject</b> can it mean <i>she</i> (Ze komt). As an <b>object</b>, ze only means <i>them</i>. For one woman as an object, use <b>haar</b>: Ik ken haar · met haar.",
+    ex: ["Alexander heeft een Italiaanse vriendin. Hij kent haar nu zes maanden."] },
+  uForm: { kind: "RULE", name: "u and uw",
+    how: "<b>u</b> (formal you) is the subject <i>and</i> the object: U komt uit Italië · Ik zie u · Hij praat met u. Its possessive is <b>uw</b>, which only stands before a noun: uw boek, uw postcode.",
+    ex: ["U komt uit Italië.", "Ik zie u.", "Ik heb uw boek."] },
+  hunObject: { kind: "RULE", name: "hun = their",
+    how: "<b>hun</b> is the possessive <i>their</i>: hun huis. For <i>them</i> as the object of a verb or after a preposition, use <b>ze</b> or <b>hen</b>: Ze mist hen · voor ze. (hun as 'them' only appears as an indirect object, 'to them' — you'll meet that later.)",
+    ex: ["hun", "hen", "ze"] },
+  // ---- listening ----
+  eij: { kind: "SOUND", name: "ei and ij sound the same",
+    how: "<b>ei</b> and <b>ij</b> are pronounced exactly the same. You cannot hear the difference — learn the spelling with the word: zij, wij, mij, jij with <b>ij</b>.",
+    ex: ["zij", "wij", "mij"] },
+  stress: { kind: "SOUND", name: "long and short pronouns",
+    how: "Many pronouns have a stressed long form and an unstressed short form: <b>zij/ze, wij/we, mij/me, jij/je</b>. The long ones end in the <i>ij</i> sound (like English 'eye'); the short ones end in a weak 'uh'. Listen to the end of the word.",
+    ex: ["zij", "ze", "wij", "we", "mij", "me"] },
+  dt: { kind: "SOUND", name: "d at the end sounds like t",
+    how: "At the end of a word Dutch pronounces <b>d</b> as <b>t</b>: kind, studievriend. You cannot hear it — the spelling comes from the plural, where the d is heard: kin<b>d</b>eren, vrien<b>d</b>en.",
+    ex: ["het kind", "de kinderen", "de studievriend"] },
+  zs: { kind: "SOUND", name: "z or s",
+    how: "<b>z</b> is voiced (a buzz, like English 'zoo'); <b>s</b> is sharp. Play it slowly 🐢 and listen for the buzz.",
+    ex: ["zien", "de zus", "het station"] },
+  vf: { kind: "SOUND", name: "v or f",
+    how: "<b>v</b> is softer and voiced, <b>f</b> sharp. Many Dutch speakers make them sound almost the same, so learn the spelling with the word.",
+    ex: ["vaak", "de fiets"] },
+  gch: { kind: "SOUND", name: "g or ch",
+    how: "In Dutch <b>g</b> and <b>ch</b> are the same throaty sound. Learn the spelling with the word.",
+    ex: ["groot", "geven"] },
+  vowelLen: { kind: "SOUND", name: "long or short vowel",
+    how: "Listen to the vowel's length. A long vowel at the end of a syllable is written once (<b>ma</b>-gen → mogen, <b>vra</b>-gen); in a closed syllable twice (<b>maand</b>, <b>vaak</b>, <b>groot</b>). A short vowel is always written once (<b>zus</b>, <b>hem</b>).",
+    ex: ["vaak", "vragen", "groot", "de zus"] },
+  consLen: { kind: "SOUND", name: "single or double consonant",
+    how: "You cannot hear a double consonant. In the middle of a word it is written double when the vowel before it is <i>short</i>: <b>mis-sen</b>, <b>ken-nen</b>; single when the vowel is long: <b>vra-gen</b>, <b>wo-nen</b>. At the end of a word it is always single.",
+    ex: ["missen", "kennen", "vragen"] },
+  accents: { kind: "SOUND", name: "accents and the trema",
+    how: "Two marks you can hear but easily forget to write. The <b>trema</b> (two dots) shows that a vowel starts a new syllable: Itali-<b>ë</b>. The accents in <b>één</b> (one) separate it from <b>een</b> (a): you hear the difference — één is stressed and long, een is a weak 'un'.",
+    ex: ["Jij komt uit Italië.", "één keer per jaar"] },
+};
+
+/* ================= MISTAKES =================
+   id → the rule it violates + a sentence about what the learner typed.
+   c = { g: typed, need: { cat, per, … }, answer, mode: "gap" | "table" } */
+const perLabel = c => PERSONS[c.need.per].label;
+const MISTAKES = {
+  "wrong-cat":    { rule: "cat",       text: c => `<b>${esc(c.g)}</b> is the ${rolesText(c.g)}. But this pronoun ${c.need.slot || `is asked as the <b>${c.need.cat}</b>`} → you need the <b>${c.need.cat}</b> form: <b>${c.answer}</b>.` },
+  "wrong-person": { rule: "person",    text: c => `You picked the right family (${c.need.cat}), but <b>${esc(c.g)}</b> is for <i>${(FORM_INFO[c.g] || []).filter(r => r.cat === c.need.cat).map(r => PERSONS[r.per].label).join(" / ")}</i>. ${c.need.who ? "Who is meant: " + c.need.who : `Here it is <i>${perLabel(c)}</i>`} → <b>${c.answer}</b>.` },
+  "table-person": { rule: "table",     text: c => `Right family (${c.need.cat}), wrong person: <b>${esc(c.g)}</b> is for <i>${(FORM_INFO[c.g] || []).filter(r => r.cat === c.need.cat).map(r => PERSONS[r.per].label).join(" / ")}</i>. The ${c.need.cat} of <i>${perLabel(c)}</i> is <b>${c.answer}</b>.` },
+  "ons-de":       { rule: "onsOnze",   text: c => `<b>ons</b> only goes with a het-word. <b>${c.need.noun}</b> is a de-word${c.need.plural ? " (a plural — every plural is a de-word)" : ""}, so it gets the -e: <b>onze</b>.` },
+  "onze-het":     { rule: "onsOnze",   text: c => `<b>onze</b> only goes with a de-word. <b>${c.need.noun}</b> is a het-word (het ${c.need.noun}), so: <b>ons</b>.` },
+  "je-not-jullie":{ rule: "jullieJe",  text: c => `The subject here is <b>${c.need.subj}</b>, not jullie — so <i>je</i> would sound like 'your' to one person. You have to say <b>jullie</b>.` },
+  "jullie-twice": { rule: "jullieJe",  text: c => `Not wrong Dutch, but the lesson's rule: the subject is already <b>jullie</b>, so the possessive is better as <b>je</b> (no jullie twice).` },
+  "hun-object":   { rule: "hunObject", text: c => `<b>hun</b> is the possessive <i>their</i> (hun huis). As <i>them</i> after a ${c.need.prep ? "preposition" : "verb"} you need <b>ze</b> or <b>hen</b>.` },
+  "ze-one-woman": { rule: "zeObject",  text: c => `As an object, <b>ze</b> only means <i>them</i>. One woman${c.need.prep ? ` after <b>${c.need.prep}</b>` : ""} → <b>haar</b>.` },
+  "uw-not-u":     { rule: "uForm",     text: c => `<b>uw</b> is the possessive (uw boek) and only stands before a noun. As ${c.need.cat === "subject" ? "the subject" : "the object"}, formal you is just <b>u</b>.` },
+  "u-not-uw":     { rule: "uForm",     text: c => `<b>u</b> is formal you as subject or object. Before a noun you need its possessive: <b>uw</b>.` },
+  "typo":         { rule: null,        text: c => `One letter off — probably a typo. Compare: you typed <b>${esc(c.g)}</b>, correct is <b>${c.answer}</b>.` },
+  "snd":          { rule: null,        text: c => c.sndText },
+  "word":         { rule: null,        text: c => c.sndText },
+};
+const KIND_LABEL = {
+  RULE: "Rule · you can work this out",
+  EXCEPTION: "Exception · memorize it",
+  IRREGULAR: "Memorize · the pronoun table",
+  SOUND: "Sound · you heard it right, the spelling differs",
+  TYPO: "Typo",
+};
+function mk(id, c, rule) {
+  const r = rule || MISTAKES[id].rule;
+  const kind = id === "typo" ? "TYPO" : id === "word" ? "" : RULES[r] ? RULES[r].kind : "RULE";
+  return { id, rule: r, kind, text: MISTAKES[id].text(c) };
+}
+
+// The pronoun diagnosis shared by the gap and the vormen drill.
+// need: { cat, per, art?, noun?, plural?, subj?, prep?, slot?, who? }; mode "gap" | "table"
+function diagnosePronoun(c) {
+  const { g, need } = c;
+  if (need.cat === "possessive" && need.per === "1pl" && need.art) {
+    if (g === "ons" && need.art === "de") return [mk("ons-de", c)];
+    if (g === "onze" && need.art === "het") return [mk("onze-het", c)];
+  }
+  if (need.cat === "possessive" && need.per === "2pl" && need.subj) {
+    if (g === "je" && need.subj !== "jullie") return [mk("je-not-jullie", c)];
+    if (g === "jullie" && need.subj === "jullie" && !c.accepted.includes("jullie")) return [mk("jullie-twice", c)];
+  }
+  if (g === "hun" && need.cat === "object") return [mk("hun-object", c)];
+  if (g === "ze" && need.cat === "object" && need.per === "3f") return [mk("ze-one-woman", c)];
+  if (g === "uw" && need.per === "2f" && need.cat !== "possessive") return [mk("uw-not-u", c)];
+  if (g === "u" && need.per === "2f" && need.cat === "possessive") return [mk("u-not-uw", c)];
+  const roles = FORM_INFO[g];
+  if (!roles) return [];
+  if (roles.some(r => r.cat === need.cat)) return [mk(c.mode === "table" ? "table-person" : "wrong-person", c)];
+  return [mk("wrong-cat", c)];
+}
+
+function editDistance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+
+/* ================= FEEDBACK RENDERING ================= */
+function exampleHtml(ex) {
+  const word = t => `<span class="exw">${speakBtn(t)}${esc(t)}</span>`;
+  return `<div class="ex">${ex.map(e => Array.isArray(e) ? `<span class="exw">${word(e[0])} → ${word(e[1])}</span>` : word(e)).join("")}</div>`;
+}
+function ruleHow(id) {
+  const r = RULES[id];
+  return `<details class="how"><summary>How does <b>${r.name}</b> work?</summary><div class="how-body"><span class="tag k-${r.kind}">${r.kind}</span> ${r.how}${exampleHtml(r.ex)}</div></details>`;
+}
+// res: { ok, correct, say, note, mistakes: [mk()], rules: [ids], steps: [html] }
+function renderFeedback(res) {
+  let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
+  if (res.say) h += ` ${speakBtn(res.say)}`;
+  if (!res.ok) {
+    h += res.mistakes.length
+      ? res.mistakes.map(m => `<div class="mistake">${m.kind ? `<span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span>` : ""}<span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("")
+      : `<div class="mistake"><span class="what"><b>Your mistake:</b> not one of the usual patterns — compare your answer with the steps below.</span></div>`;
+  }
+  if (res.note) h += `<span class="why">${res.note}</span>`;
+  if (res.steps && res.steps.length) {
+    h += `<details class="steps"${res.ok ? "" : " open"}><summary>${res.ok ? "Why is this right?" : "How we get there"}</summary><ol>${res.steps.map(s => `<li>${s}</li>`).join("")}</ol></details>`;
+  }
+  // Explain the rules behind the mistakes first; on a right answer, the rules used.
+  const ids = [...new Set([...res.mistakes.map(m => m.rule), ...(res.ok || !res.mistakes.length ? res.rules : [])].filter(r => RULES[r]))];
+  h += ids.map(ruleHow).join("");
+  h += `<span class="why">Press Enter for the next one.</span>`;
+  return h;
+}
+
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  const tally = {}; // rule id → times missed this session
   function newQuestion() {
     current = next();
     answered = false;
@@ -787,32 +1018,59 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, n
     input.value = "";
     input.focus();
   }
+  function renderTally() {
+    const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
+    $(tallyId).innerHTML = ids.length
+      ? `<div class="tally-head">Your mistakes this session — tap to review the rule</div>` +
+        ids.map(id => ruleHow(id).replace(`How does <b>${RULES[id].name}</b> work?`, `<b>${RULES[id].name}</b> ×${tally[id]}`)).join("")
+      : "";
+  }
   function doCheck() {
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
+    res.mistakes = res.mistakes || []; res.rules = res.rules || [];
     answered = true;
     if (res.ok) { right++; streak++; }
-    else { wrong++; streak = 0; }
-    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
-    fb.innerHTML = res.ok
-      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
-      : `<span class="no">✗ ${res.correct}</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`;
-    if (res.say) {
-      speak(res.say);
-      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    else {
+      wrong++; streak = 0;
+      const missed = res.mistakes.map(m => m.rule).filter(r => RULES[r]);
+      [...new Set(missed.length ? missed : res.rules.slice(-1))].forEach(r => { tally[r] = (tally[r] || 0) + 1; });
+      renderTally();
     }
-    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = renderFeedback(res);
+    if (res.say) speak(res.say);
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
   $(checkId).addEventListener("click", doCheck);
+  // Tapping a ▶ or opening an explanation must not steal Enter from the answer box.
+  fb.addEventListener("click", e => { if (e.target.closest("button, summary")) setTimeout(() => input.focus({ preventScroll: true }), 0); });
   return { newQuestion, get current() { return current; } };
+}
+
+// Steps + rules for a pronoun question: family → person → form (+ the special rule).
+function pronounSteps(need, answers) {
+  const steps = [];
+  if (need.slot) steps.push(`The pronoun ${need.slot} → <b>${need.cat}</b>`);
+  else steps.push(`Asked: the <b>${need.cat}</b> — ${TYPE_NOTE[need.cat]}`);
+  if (need.who) steps.push(`Who is meant? ${need.who}`);
+  if (need.prep) steps.push(`After a preposition you use the full object form`);
+  if (need.art) steps.push(`<b>${need.noun}</b> is a <b>${need.art}</b>-word${need.plural ? " (plural)" : ""} → ${need.art === "het" ? "ons" : "onze"}`);
+  if (need.subj) steps.push(`The subject is <b>${need.subj}</b> → ${need.subj === "jullie" ? "possessive <b>je</b> is better" : "the possessive must be <b>jullie</b>"}`);
+  steps.push(`${need.cat} of <i>${PERSONS[need.per].label}</i> = <b>${answers.join(" / ")}</b>`);
+  const rules = need.slot ? ["cat", "person"] : ["cat", "table"];
+  if (need.prep) rules.push("prepFull");
+  if (need.art) rules.push("onsOnze");
+  if (need.subj) rules.push("jullieJe");
+  if (need.per === "2f") rules.push("uForm");
+  return { steps, rules };
 }
 
 /* ================= INVULLEN DRILL ================= */
 const gapDrill = makeDrill({
   inputId: "gap-input", checkId: "gap-check", feedbackId: "gap-feedback",
-  rightId: "gap-right", wrongId: "gap-wrong", streakId: "gap-streak",
+  rightId: "gap-right", wrongId: "gap-wrong", streakId: "gap-streak", tallyId: "gap-tally",
   next() {
     const g = pick(GAPS);
     $("gap-ctx").innerHTML = g.ctx ? `${speakBtn(g.ctx)}${esc(g.ctx)}` : "";
@@ -820,19 +1078,25 @@ const gapDrill = makeDrill({
     $("gap-opts").innerHTML = shuffle(g.opts).map(o => `<span>${esc(o)}</span>`).join("");
     $("gap-hint").textContent = `grammatica ${g.set} · ${g.n}`;
     const full = gapFull(g, g.a);
-    return { g, answers: [g.a, ...(g.alts || [])], say: full, full };
+    const need = GAP_NEED[`${g.set}-${g.n}`];
+    return { g, need, answers: [g.a, ...(g.alts || [])], say: full, full, ...pronounSteps(need, [g.a, ...(g.alts || [])]) };
   },
   check(cur, given) {
     const gv = norm(given);
     const ok = cur.answers.some(a => norm(a) === gv);
     const alt = cur.answers.length > 1
       ? ` Also correct here: ${cur.answers.slice(1).join(", ")}.` : "";
-    return {
+    const res = {
       ok,
       correct: cur.answers[0],
-      why: `${cur.g.why}${alt}<br>Hele zin: <b>${esc(cur.full)}</b>`,
-      say: cur.say,
+      note: `${cur.g.why}${alt}<br>Hele zin: <b>${esc(cur.full)}</b>`,
+      say: cur.say, steps: cur.steps, rules: cur.rules, mistakes: [],
     };
+    if (ok) return res;
+    const c = { g: gv, need: cur.need, answer: cur.answers[0], accepted: cur.answers, mode: "gap" };
+    res.mistakes = diagnosePronoun(c);
+    if (!res.mistakes.length && cur.answers.some(a => editDistance(gv, a) === 1)) res.mistakes = [mk("typo", c)];
+    return res;
   },
 });
 
@@ -844,7 +1108,7 @@ const TYPE_NOTE = {
 };
 const formDrill = makeDrill({
   inputId: "form-input", checkId: "form-check", feedbackId: "form-feedback",
-  rightId: "form-right", wrongId: "form-wrong", streakId: "form-streak",
+  rightId: "form-right", wrongId: "form-wrong", streakId: "form-streak", tallyId: "form-tally",
   next() {
     const r = Math.random();
     // 20% ons/onze, 15% jullie/je, the rest the plain table.
@@ -856,7 +1120,10 @@ const formDrill = makeDrill({
       const why = it.art === "het"
         ? `<b>${esc(it.noun)}</b> is a <b>het</b>-word, and ons goes with het-words: <b>ons ${esc(it.noun)}</b>.`
         : `<b>${esc(it.noun)}</b> is a <b>de</b>-word${it.plural ? " (a plural, and every plural is a de-word)" : ""}, and onze goes with de-words: <b>onze ${esc(it.noun)}</b>.`;
-      return { answers: [it.a], say: it.a, why };
+      const word = it.a.split(" ")[0];
+      const need = { cat: "possessive", per: "1pl", art: it.art, noun: it.noun, plural: it.plural };
+      // "onze" alone is enough — the noun is already given.
+      return { answers: [it.a, word], shown: it.a, say: it.a, why, need, mode: "table", ...pronounSteps(need, [word]) };
     }
     if (r < 0.35) {
       const it = pick(JULLIE_ITEMS);
@@ -867,22 +1134,32 @@ const formDrill = makeDrill({
       const why = it.subj === "jullie"
         ? `The subject is already <b>jullie</b>, so the possessive is better as <b>je</b>.`
         : `The subject is <b>${esc(it.subj)}</b>, not jullie, so the possessive has to be <b>jullie</b>.`;
-      return { answers: [it.a], say: full, why: `${why}<br>Hele zin: <b>${esc(full)}</b>` };
+      const need = { cat: "possessive", per: "2pl", subj: it.subj };
+      return { answers: [it.a], shown: it.a, say: full, why: `${why}<br>Hele zin: <b>${esc(full)}</b>`, need, mode: "table", ...pronounSteps(need, [it.a]) };
     }
     const f = pick(FORMS);
     $("form-prompt").innerHTML = esc(f.en);
     $("form-target").innerHTML = esc(f.type);
     $("form-hint").textContent = f.a.length > 1 ? `${f.a.length} forms are possible — one is enough` : "";
+    const need = { cat: f.type, per: EN_PER[f.en] };
     return {
-      answers: f.a,
+      answers: f.a, shown: f.a.join(" / "),
       say: f.a[0],
       why: `${TYPE_NOTE[f.type]} <b>${f.en}</b> (${f.type}) = <b>${f.a.join(" / ")}</b>.`,
+      need, mode: "table", ...pronounSteps(need, f.a),
     };
   },
   check(cur, given) {
     const gv = norm(given);
     const ok = cur.answers.some(a => norm(a) === gv);
-    return { ok, correct: cur.answers.join(" / "), why: cur.why, say: cur.say };
+    const res = { ok, correct: cur.shown, note: cur.why, say: cur.say, steps: cur.steps, rules: cur.rules, mistakes: [] };
+    if (ok) return res;
+    // For "our + noun" rounds the learner may type the whole phrase: judge the pronoun.
+    const g = cur.need.art ? gv.split(" ")[0] : gv;
+    const c = { g, need: cur.need, answer: cur.need.art ? cur.answers[1] : cur.shown, accepted: cur.answers, mode: cur.mode };
+    res.mistakes = diagnosePronoun(c);
+    if (!res.mistakes.length && cur.answers.some(a => editDistance(gv, a) === 1)) res.mistakes = [mk("typo", { ...c, g: gv, answer: cur.shown })];
+    return res;
   },
 });
 
@@ -898,9 +1175,66 @@ const LISTEN_ITEMS = [...new Set([
   ...GAPS.map(g => gapFull(g, g.a)),
   ...ONS_ITEMS.map(i => i.a),
 ])];
+const isVowel = ch => "aeiou".includes(ch);
+const STRESS_PAIRS = { zij: "ze", wij: "we", mij: "me", jij: "je" };
+// [what the answer has, what the learner may write instead, rule, explanation]
+const SOUND_SWAPS = [
+  ["ij", "ei", "eij", () => `<b>ij</b> and <b>ei</b> sound exactly the same — this word is spelled with <b>ij</b>.`],
+  ["ei", "ij", "eij", () => `<b>ei</b> and <b>ij</b> sound exactly the same — this word is spelled with <b>ei</b>.`],
+  ["z", "s", "zs", () => `You wrote s, but it's a voiced <b>z</b> (a buzz). Play it slowly and listen for it.`],
+  ["s", "z", "zs", () => `You wrote z, but it's a sharp <b>s</b> — no buzz.`],
+  ["v", "f", "vf", () => `You wrote f, but this word is spelled with <b>v</b>.`],
+  ["f", "v", "vf", () => `You wrote v, but this word is spelled with <b>f</b>.`],
+  ["g", "ch", "gch", () => `g and ch sound the same — this word is spelled with <b>g</b>.`],
+  ["aa", "a", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>aa</b>.`],
+  ["ee", "e", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>ee</b>.`],
+  ["oo", "o", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>oo</b>.`],
+  ["uu", "u", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>uu</b>.`],
+];
+const stripAccents = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+// One typed word against the word in the audio.
+function diagnoseWord(g, a, c) {
+  const snd = (text, rule) => mk("snd", { ...c, sndText: text }, rule);
+  if (stripAccents(a) === stripAccents(g)) return snd(`Same letters, but the accent marks are missing: <b>${esc(a)}</b>.`, "accents");
+  if (STRESS_PAIRS[a] === g) return snd(`You wrote the short form <b>${g}</b>, but you heard the long, stressed <b>${a}</b> (ends in the ij sound).`, "stress");
+  if (STRESS_PAIRS[g] === a) return snd(`You wrote the long form <b>${g}</b>, but you heard the short, unstressed <b>${a}</b> (ends in a weak 'uh').`, "stress");
+  if (a.endsWith("d") && g === a.slice(0, -1) + "t") return snd(`At the end of a word d sounds like t — but this word is written with <b>d</b>: <b>${esc(a)}</b>.`, "dt");
+  for (const [from, to, rule, why] of SOUND_SWAPS) {
+    for (let i = a.indexOf(from); i !== -1; i = a.indexOf(from, i + 1)) {
+      if (a.slice(0, i) + to + a.slice(i + from.length) === g) return snd(why(), rule);
+    }
+  }
+  for (let i = 0; i < a.length; i++) {
+    const ch = a[i];
+    if ("aeou".includes(ch) && a[i + 1] !== ch && a[i - 1] !== ch && a.slice(0, i + 1) + a.slice(i) === g)
+      return snd(`The vowel ends its syllable here (open syllable), so one letter is already long — no doubling.`, "vowelLen");
+    if (isVowel(ch)) continue;
+    if (a[i + 1] === ch && a.slice(0, i) + a.slice(i + 1) === g)
+      return snd(`You can't hear a double consonant. It's written <b>${ch}${ch}</b> because the vowel before it is short.`, "consLen");
+    if (a[i + 1] !== ch && a[i - 1] !== ch && a.slice(0, i + 1) + a.slice(i) === g)
+      return snd(`Only one <b>${ch}</b> here. A consonant is doubled only between two vowels, right after a <i>short</i> vowel (mis-sen).`, "consLen");
+  }
+  if (editDistance(g, a) === 1) return mk("typo", { ...c, g, answer: esc(a) });
+  return mk("word", { ...c, sndText: `You wrote <b>${esc(g)}</b>, the audio says <b>${esc(a)}</b>. Play it again slowly 🐢.` });
+}
+function diagnoseListen(c) {
+  const gw = c.g.split(" "), aw = norm(c.answer).split(" ");
+  if (gw.length === aw.length) {
+    const out = [];
+    gw.forEach((w, i) => { if (w !== aw[i]) out.push(diagnoseWord(w, aw[i], c)); });
+    return out.slice(0, 3);
+  }
+  // One word missing or one word too many.
+  const without = (arr, i) => [...arr.slice(0, i), ...arr.slice(i + 1)].join(" ");
+  for (let i = 0; i < aw.length; i++) if (aw.length === gw.length + 1 && without(aw, i) === c.g)
+    return [mk("word", { ...c, sndText: `You missed a word: <b>${esc(aw[i])}</b>.` })];
+  for (let i = 0; i < gw.length; i++) if (gw.length === aw.length + 1 && without(gw, i) === aw.join(" "))
+    return [mk("word", { ...c, sndText: `One word too many: <b>${esc(gw[i])}</b> is not in the audio.` })];
+  return [];
+}
 const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
-  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
     const text = pick(LISTEN_ITEMS);
     const n = text.split(" ").length;
@@ -908,8 +1242,11 @@ const listenDrill = makeDrill({
     return { text };
   },
   check(cur, given) {
-    const ok = norm(given) === norm(cur.text);
-    return { ok, correct: cur.text, say: cur.text };
+    const g = norm(given);
+    const res = { ok: g === norm(cur.text), correct: cur.text, say: cur.text, mistakes: [] };
+    if (res.ok) return res;
+    res.mistakes = diagnoseListen({ g, answer: cur.text });
+    return res;
   },
 });
 $("listen-play").addEventListener("click", () => speak(listenDrill.current.text));

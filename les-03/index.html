@@ -165,6 +165,23 @@
   .feedback .why b { color: var(--ink); }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
   .scorebar b { font-size: 18px; }
+  .feedback .mistake { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-top: 10px; font-family: var(--body); font-size: 15px; }
+  .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border: 2px solid var(--ink); white-space: nowrap; }
+  .tag.k-RULE { background: var(--blue); color: #fff; }
+  .tag.k-EXCEPTION, .tag.k-IRREGULAR { background: var(--red); color: #fff; }
+  .tag.k-SOUND, .tag.k-VOCAB, .tag.k-LISTEN { background: var(--yellow); color: var(--ink); }
+  .tag.k-TYPO { background: #fff; color: var(--ink); }
+  .feedback details, .tally details { margin-top: 10px; border-left: 3px solid var(--ink); padding-left: 12px; font-family: var(--body); font-size: 15px; }
+  .feedback summary, .tally summary { cursor: pointer; font-family: var(--mono); font-size: 14px; }
+  .feedback .steps ol { padding: 6px 0 2px 22px; }
+  .feedback .steps li { margin-bottom: 4px; }
+  .feedback .note-x { font-size: 14px; color: #4a4940; padding: 2px 0 4px; }
+  .how-body { padding: 8px 0 4px; line-height: 1.5; }
+  .how-body .tag { margin-right: 4px; }
+  .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
+  .exw { white-space: nowrap; }
+  .tally { margin-top: 14px; }
+  .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
   @media (max-width: 640px) {
     nav { grid-template-columns: repeat(5, 1fr); }
@@ -278,6 +295,7 @@
       </div>
       <div class="feedback" id="order-feedback"></div>
       <div class="scorebar"><span>Goed <b id="order-right">0</b></span><span>Fout <b id="order-wrong">0</b></span><span>Reeks <b id="order-streak">0</b></span></div>
+      <div class="tally" id="order-tally"></div>
     </div>
   </section>
 
@@ -298,6 +316,7 @@
       </div>
       <div class="feedback" id="ask-feedback"></div>
       <div class="scorebar"><span>Goed <b id="ask-right">0</b></span><span>Fout <b id="ask-wrong">0</b></span><span>Reeks <b id="ask-streak">0</b></span></div>
+      <div class="tally" id="ask-tally"></div>
     </div>
   </section>
 
@@ -320,6 +339,7 @@
       </div>
       <div class="feedback" id="listen-feedback"></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+      <div class="tally" id="listen-tally"></div>
     </div>
   </section>
 </div>
@@ -775,10 +795,373 @@ $("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(f
 $("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl, true); });
 flashInit();
 
+/* ================= RULES =================
+   One entry per thing that can explain a mistake.
+   kind: RULE = you can work it out · EXCEPTION / IRREGULAR = memorize ·
+         VOCAB = a word to learn · SOUND = you heard it right, the spelling differs ·
+         TYPO = one letter off.
+   ex: audio examples (sentences already spoken elsewhere on this page). */
+const RULES = {
+  v2: { kind: "RULE", name: "the verb in 2nd place",
+    how: "The core rule of Dutch word order: in a main sentence the conjugated verb is always the <b>2nd part</b>. Count <i>parts</i>, not words — <i>mijn ouders</i>, <i>elke week</i>, <i>naar de bioscoop</i> are each one part. Whatever stands in 1st place — the subject, a time, an object, a place, a vraagwoord — the verb comes right after it. Hoofdzin, inversie and open vraag are all this one rule with something different in slot 1.",
+    ex: ["Mijn ouders lopen elke week naar de bioscoop.", "Elke week lopen mijn ouders naar de bioscoop.", "Waar wonen de kinderen?"] },
+  hoofd: { kind: "RULE", name: "hoofdzin: subject – verb – rest",
+    how: "A plain hoofdzin starts with the <b>subject</b> (who does it), then the verb in 2nd place, then the rest in TOMP order. If you start with anything else, it is no longer a plain hoofdzin but an inversie — and a sentence starting with the verb is a question.",
+    ex: ["Hij brengt elke morgen de kinderen met de auto naar school."] },
+  inv: { kind: "RULE", name: "inversie",
+    how: "Put a part of the <i>rest</i> first (a time, an object, a manner, a place) and the verb still has to be 2nd. The subject can't stay in front of the verb any more, so it slides to right <b>behind the verb</b>: <b>X – verb – subject – rest</b>. English keeps the subject first (<i>Every week my parents walk…</i>); Dutch doesn't: <b>Elke week lopen mijn ouders</b>, never <i>Elke week mijn ouders lopen</i>.",
+    ex: ["Elke morgen breng ik mijn kinderen met de auto naar school.", "In de tuin slaapt mijn zus."] },
+  tomp: { kind: "RULE", name: "time – object – manner – place",
+    how: "The rest of the sentence runs in a fixed order: <b>time</b> (when? elke week, altijd) – <b>object</b> (what / whom? de kinderen, een brief) – <b>manner</b> (how / with what? met de auto, niet goed) – <b>place</b> (where / to where? naar school, in de tuin). Think <i>when – what – how – where</i>. Time before place is the one English speakers get wrong most (English says <i>to school every day</i>). When one part moves to the front for an inversie or is replaced by a vraagwoord, the others keep this order.",
+    ex: ["Hij brengt elke morgen de kinderen met de auto naar school.", "Maria koopt op zaterdag acht flessen water bij de HEMA."] },
+  receiver: { kind: "RULE", name: "receiver before the thing",
+    how: "With two objects, the person who <i>receives</i> comes before the thing, as long as there is no <b>aan</b>: Ik stuur <b>mijn vader</b> <b>een brief</b>. With <b>aan</b>, both orders are fine: <i>iets aan de leraar</i> or <i>aan de leraar iets</i>.",
+    ex: ["Ik stuur mijn vader een brief.", "De leerling vraagt iets aan de leraar."] },
+  gesloten: { kind: "RULE", name: "gesloten vraag: verb – subject – rest",
+    how: "A yes/no question has no vraagwoord, so the <b>verb</b> takes slot 1 and the subject comes right after it: <b>Brengt hij</b> de kinderen naar school? The rest keeps TOMP order. Statement order with a question mark (<i>Hij brengt…?</i>) isn't a Dutch question — the verb in front is what makes it one.",
+    ex: ["Brengt hij de kinderen naar school?", "Drink je koffie?", "Komen jullie morgen naar werk?"] },
+  open: { kind: "RULE", name: "open vraag: vraagwoord – verb – subject – rest",
+    how: "The vraagwoord takes slot 1, so (verb in 2nd place) the verb comes right after it, and then the subject: <b>Waar werkt hij?</b> — not <i>Waar hij werkt?</i>. It is an inversie with a vraagwoord in front.",
+    ex: ["Waar werkt hij?", "Hoe laat komen jullie naar werk?", "Wat drink je 's morgens?"] },
+  qReplaces: { kind: "RULE", name: "the vraagwoord replaces a part",
+    how: "The vraagwoord stands <i>for</i> the part you are asking about, so that part disappears from the question: <i>De kinderen wonen <b>in het huis van opa en oma</b></i> → <b>Waar</b> wonen de kinderen? When <b>wie</b> or <b>wat</b> asks for the subject, the subject disappears and the vraagwoord itself is the subject: <b>Wie</b> woont in het huis van opa en oma?",
+    ex: ["Waar wonen de kinderen?", "Wie woont in het huis van opa en oma?"] },
+  qwords: { kind: "VOCAB", name: "the vraagwoorden",
+    how: "<b>wie</b> who · <b>wat</b> what · <b>waar</b> where · <b>wanneer</b> when · <b>waarom</b> why · <b>hoe</b> how · <b>hoe laat</b> at what time · <b>hoe duur</b> how expensive · <b>hoeveel</b> how much / many · <b>welk</b> (het-word) / <b>welke</b> (de-word) which.",
+    ex: ["wie", "wat", "waar", "wanneer", "hoe"] },
+  wieSing: { kind: "RULE", name: "wie / wat + the hij-form",
+    how: "When <b>wie</b> or <b>wat</b> is the subject, the verb takes the <b>hij/zij-form</b> (base + t) — even if the answer turns out to be several people: Mijn ouders <i>lopen</i> → <b>Wie loopt</b> elke week naar de bioscoop? You don't know yet who it is, so Dutch treats it as one person.",
+    ex: ["Wie loopt elke week naar de bioscoop?", "Wie brengt de kinderen naar school?"] },
+  jijT: { kind: "RULE", name: "jij / je after the verb loses -t",
+    how: "jij/je normally take base + t (<i>je drinkt</i>). But when <b>jij/je comes right after the verb</b> — in a question or an inversie — the -t disappears: <b>drink je?</b>, <b>doe je</b>, <i>In de pan doe je peper en zout</i>. Only jij/je: hij and u keep their t (<i>drinkt hij?</i>).",
+    ex: ["Drink je koffie?", "Hoe kom je naar werk?", "In de pan doe je peper en zout."] },
+  persons: { kind: "RULE", name: "the person endings (Les 2)",
+    how: "A noun subject is conjugated like the pronoun that could replace it. <b>Singular</b> (mijn zus = zij, de leraar = hij, Maria = zij) → base + <b>t</b>: mijn zus <b>slaapt</b>. <b>Plural</b> (mijn ouders = zij, de kinderen = zij) → the whole <b>infinitive</b>: mijn ouders <b>lopen</b>. ik → the bare base.",
+    ex: ["Mijn zus slaapt in de tuin.", "Mijn ouders lopen elke week naar de bioscoop."] },
+  plural: { kind: "RULE", name: "X en Y = plural",
+    how: "Two people joined with <b>en</b> form a plural subject (= zij, they), so the verb is the infinitive: <b>Mijn oom en tante huren</b>, <b>John en Linda zetten</b>.",
+    ex: ["Mijn oom en tante huren een kleine woning.", "John en Linda zetten elke dag een maaltijd in de magnetron."] },
+  hebben: { kind: "IRREGULAR", name: "hebben",
+    how: "hebben does not follow the base rules — learn its four forms:<br>ik <b>heb</b> · jij/u <b>hebt</b> · u/hij/zij/het <b>heeft</b> · wij/jullie/zij <b>hebben</b>. Under inversion: <b>heb je</b>, <b>heeft hij</b>.",
+    ex: ["De leraar heeft een koffiezetapparaat op zijn tafel.", "Welke auto heb je?"] },
+  double: { kind: "RULE", name: "vowel doubling (Les 2)",
+    how: "In <b>sla-pen</b> the <i>a</i> ends its syllable (an open syllable), so it is long with one letter. Cut off -en and the <i>p</i> closes the syllable: <i>slap</i> would sound short. To keep the long sound you write the vowel twice: <b>slaap</b> → zij <b>slaapt</b>. Same for spreken → spreekt, stelen → steelt, dragen → draagt.",
+    ex: ["Mijn zus slaapt in de tuin.", "Zij steelt het boek uit de tas.", "Mijn moeder draagt een mooie hoed."] },
+  dEnd: { kind: "RULE", name: "base ending in -d (+t = dt) (Les 2)",
+    how: "<b>snijden</b> → base <b>snijd</b> (ij is never doubled). hij/zij add -t as usual: snijd + t = <b>snijdt</b>. You only <i>hear</i> a t, but the <b>d</b> belongs to the base and the <b>t</b> is the ending — write both.",
+    ex: ["De vrouw snijdt de cake met een mes."] },
+  eij: { kind: "SOUND", name: "ei and ij sound the same",
+    how: "<b>ei</b> and <b>ij</b> are pronounced exactly the same. You cannot hear the difference — learn the spelling with the word: mijn, zij, snijden with <b>ij</b>; elke, leerling with <b>e</b>…",
+    ex: ["mijn", "zij"] },
+  zs: { kind: "SOUND", name: "z or s",
+    how: "<b>z</b> is voiced (a buzz, like English 'zoo'); <b>s</b> is sharp. At the start of a word the difference is small, so play it slowly 🐢 and listen for the buzz. At the end of a word it is always written s.",
+    ex: ["zij", "school"] },
+  vf: { kind: "SOUND", name: "v or f",
+    how: "<b>v</b> is softer and voiced, <b>f</b> sharp. Many Dutch speakers make them sound almost the same, so learn the spelling with the word. At the end of a word it is always written f.",
+    ex: ["vader", "de fles"] },
+  gch: { kind: "SOUND", name: "g or ch",
+    how: "In Dutch <b>g</b> and <b>ch</b> are the same throaty sound. Learn the spelling with the word.",
+    ex: ["morgen"] },
+  vowelLen: { kind: "SOUND", name: "long or short vowel",
+    how: "Listen to the vowel's length. A long vowel in a closed syllable is written twice (<b>loopt</b>, <b>week</b>); in an open syllable once (<b>lo</b>-pen). A short vowel is written once (<b>tas</b>, <b>mes</b>).",
+    ex: ["lopen", "elke week"] },
+  consLen: { kind: "SOUND", name: "single or double consonant",
+    how: "You cannot hear a double consonant. In the middle of a word it is written double when the vowel before it is <i>short</i>: <b>zet-ten</b>, <b>kin-de-ren</b> has one n because the next letter is a consonant; single when the vowel is long: <b>lo-pen</b>. A word never ends in a double consonant.",
+    ex: ["zetten", "lopen"] },
+  smallWords: { kind: "LISTEN", name: "small unstressed words",
+    how: "Little words like <b>de, het, een, je, en, in</b> are spoken quickly and softly, so they are easy to miss. Play the sentence slowly 🐢 and count the words — the hint shows how many there are.",
+    ex: ["Drink je koffie?", "Mijn zus slaapt in de tuin."] },
+};
+
+/* ================= SENTENCE ANALYSIS =================
+   A sentence is cut into parts (the loose parts of the exercise, the vraagwoorden,
+   the verb) so we can talk about word order the way the lesson does. */
+const ROLE = {
+  "elke week": "time", "elke morgen": "time", "elke dag": "time", "twee keer per week": "time", "op zaterdag": "time", "altijd": "time",
+  "naar de bioscoop": "place", "in het huis van opa en oma": "place", "in de tuin": "place", "in het lokaal": "place", "uit de tas": "place",
+  "naar school": "place", "op tafel": "place", "naast de borden": "place", "op tafel naast de borden": "place", "in de oven": "place",
+  "bij de hema": "place", "in de trommel": "place", "op zijn tafel": "place", "in de magnetron": "place", "in de koelkast": "place", "in de pan": "place",
+  "met de lerares": "manner", "niet goed": "manner", "met de auto": "manner", "met tomaten": "manner", "met een mes": "manner",
+  "mijn vader": "receiver",
+  "een brief": "object", "iets": "object", "aan de leraar": "object", "het boek": "object", "een kleine woning": "object", "geen boeken": "object",
+  "een mooie hoed": "object", "de oefening": "object", "de kinderen": "object", "spaghetti": "object", "het bestek": "object", "een lekkere cake": "object",
+  "acht flessen water": "object", "de koekjes": "object", "een koffiezetapparaat": "object", "een maaltijd": "object", "het brood": "object",
+  "peper en zout": "object", "de cake": "object",
+};
+const ROLE_RANK = { time: 0, receiver: 1, object: 2, manner: 3, place: 4 };
+const QSET = new Set(QWORDS.map(q => q.nl));
+const QEN = Object.fromEntries(QWORDS.map(q => [q.nl, q.en]));
+const isVowel = c => "aeiou".includes(c);
+
+function editDistance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+
+// Per sentence: subject, infinitive, the verb forms that occur, and the chunk vocabulary.
+function prepSentence(sent) {
+  const parts = sent.parts.map(norm);
+  const hoofd = norm(sent.hoofd);
+  sent.subj = parts.find(p => hoofd.startsWith(p + " "));
+  sent.hv = hoofd.slice(sent.subj.length + 1).split(" ")[0];
+  sent.inf = parts.find(p => !p.includes(" ") && p.endsWith("n") && p.slice(0, 2) === sent.hv.slice(0, 2));
+  sent.plural = sent.hv === sent.inf;
+  const partWords = new Set(parts.filter(p => p !== sent.inf).flatMap(p => p.split(" ")));
+  const forms = new Set([sent.inf, sent.hv, norm(sent.gesloten).split(" ")[0]]);
+  for (const a of [...sent.inv.map(i => i.s), ...sent.open.map(o => o.s)]) {
+    norm(a).split(" ").slice(1).forEach(w => { if (!partWords.has(w) && !QSET.has(w) && w.slice(0, 2) === sent.inf.slice(0, 2)) forms.add(w); });
+  }
+  if (sent.inf === "hebben") ["heb", "hebt", "heeft", "hebben"].forEach(f => forms.add(f));
+  sent.forms = [...forms];
+  sent.partSet = new Set(parts);
+  // Chunks, longest first: the loose parts, inversie openers, multi-word vraagwoorden.
+  sent.chunks = [...new Set([...parts.filter(p => p !== sent.inf), ...sent.inv.map(i => norm(i.start)), ...QSET])]
+    .sort((a, b) => b.split(" ").length - a.split(" ").length);
+}
+// Cut a sentence into labelled parts: S subject · V verb · Q vraagwoord · R rest · U unknown word.
+function segment(str, sent) {
+  const toks = norm(str).split(" ").filter(Boolean), out = [];
+  for (let i = 0; i < toks.length;) {
+    const c = sent.chunks.find(c => { const k = c.split(" ").length; return toks.slice(i, i + k).join(" ") === c; });
+    if (c) { out.push(c); i += c.split(" ").length; continue; }
+    // A part with a spelling slip (naar de bioskoop) still counts as that part.
+    const f = sent.chunks.find(c => { const k = c.split(" ").length; return k > 1 && editDistance(toks.slice(i, i + k).join(" "), c) <= Math.min(2, Math.floor(c.length / 5)); });
+    if (f) { const k = f.split(" ").length; out.push({ t: f, typed: toks.slice(i, i + k).join(" ") }); i += k; continue; }
+    out.push(toks[i]); i++;
+  }
+  return out.map((x, i) => {
+    if (typeof x !== "string") return { t: x.t, L: "R", typed: x.typed, ...(x.t === sent.subj ? { L: "S" } : {}) };
+    const t = x;
+    if (t === sent.subj) return { t, L: "S" };
+    if (QSET.has(t) && !sent.partSet.has(t)) return { t, L: "Q" };
+    if (sent.chunks.includes(t)) return { t, L: "R" };
+    if (sent.forms.includes(t) || sent.forms.some(f => editDistance(t, f) <= 2 && t.length > 2)) return { t, L: "V" };
+    return { t, L: "U" };
+  });
+}
+SENTENCES.forEach(prepSentence);
+// Self-check: every model answer must cut into parts with exactly one verb.
+SENTENCES.forEach(s => [s.hoofd, ...(s.hoofdAlt || []), s.gesloten, ...s.inv.map(i => i.s), ...s.open.map(o => o.s)].forEach(a => {
+  const seg = segment(a, s);
+  if (seg.filter(x => x.L === "V").length !== 1 || seg.some(x => x.L === "U" && !["naartoe", "flessen", "water"].includes(x.t)))
+    console.error("segment:", a, seg.map(x => x.L + ":" + x.t).join(" | "));
+}));
+
+/* ================= MISTAKES =================
+   id → the rule it breaks + a sentence about what the learner typed. */
+const q = t => `„${esc(t)}”`;
+const roleOf = t => ROLE[t] || "";
+const MISTAKES = {
+  "hoofd-q":      { rule: "hoofd",    text: c => `Your sentence starts with the verb — that's question order. A hoofdzin starts with the subject: ${q(c.sent.subj)}.` },
+  "hoofd-inv":    { rule: "hoofd",    text: c => `You made an inversie (starting with ${q(c.T[0].t)}). Correct Dutch — but the task asks for a plain hoofdzin, which starts with the subject ${q(c.sent.subj)}.` },
+  "hoofd-start":  { rule: "hoofd",    text: c => `A hoofdzin starts with the subject: ${q(c.sent.subj)}.` },
+  "v2":           { rule: "v2",       text: c => `The verb ${q(c.vt)} must be the 2nd part, right after ${q(c.first)}.` },
+  "inv-start":    { rule: "inv",      text: c => `The task asks you to begin with ${q(c.start)}. Put it first — then the verb, then the subject.` },
+  "inv-no-swap":  { rule: "inv",      text: c => `After ${q(c.start)} you kept the subject in front of the verb (English order). Because ${q(c.start)} takes slot 1, the verb must be 2nd and the subject moves behind it: ${q(c.start)} – verb – ${q(c.sent.subj)}.` },
+  "subj-after":   { rule: "inv",      text: c => `The subject ${q(c.sent.subj)} must come directly after the verb.` },
+  "gesl-statement": { rule: "gesloten", text: c => `That's statement order with a question mark. A gesloten vraag starts with the verb: verb – ${q(c.sent.subj)} – rest.` },
+  "gesl-start":   { rule: "gesloten", text: c => `A gesloten vraag has no vraagwoord: it starts with the verb, then the subject.` },
+  "gesl-subj":    { rule: "gesloten", text: c => `In a gesloten vraag the subject ${q(c.sent.subj)} comes directly after the verb.` },
+  "open-no-q":    { rule: "open",     text: c => `An open vraag starts with the vraagwoord ${q(c.qw)}.` },
+  "open-q-first": { rule: "open",     text: c => `The vraagwoord ${q(c.qw)} must be the very first word.` },
+  "open-no-swap": { rule: "open",     text: c => `After the vraagwoord you put the subject before the verb. The vraagwoord takes slot 1, so the verb comes next, then the subject: ${q(c.qw)} – verb – ${q(c.sent.subj)}.` },
+  "open-subj":    { rule: "open",     text: c => `The subject ${q(c.sent.subj)} comes directly after the verb.` },
+  "wrong-q":      { rule: "qwords",   text: c => `You used ${q(c.T[0].t)} (${QEN[c.T[0].t] || "?"}), but the task asks for ${q(c.qw)} (${QEN[c.qw]}).` },
+  "q-replaces":   { rule: "qReplaces", text: c => c.extra === c.sent.subj && ["wie", "wat"].includes(c.qw)
+                      ? `${q(c.qw)} asks for the subject, so it replaces ${q(c.extra)} — leave ${q(c.extra)} out.`
+                      : `${q(c.qw)} asks about ${q(c.extra)}, so the vraagwoord replaces it — leave ${q(c.extra)} out.` },
+  "extra-part":   { rule: "hoofd",    text: c => `${q(c.extra)} isn't part of this sentence.` },
+  "missing-part": { rule: "tomp",     text: c => `You left out ${q(c.missing)}${roleOf(c.missing) ? ` (the ${roleOf(c.missing)} part)` : ""}.` },
+  "tomp":         { rule: "tomp",     text: c => `${q(c.a)} (${roleOf(c.a)}) must come after ${q(c.b)} (${roleOf(c.b)}): the rest runs time – object – manner – place.` },
+  "receiver":     { rule: "receiver", text: c => `Without “aan”, the receiver ${q(c.b)} comes before the thing ${q(c.a)}.` },
+  "rest-order":   { rule: "tomp",     text: c => `The parts after the verb are in a different order: ${q(c.b)} comes before ${q(c.a)} here.` },
+  "verb-missing": { rule: "v2",       text: c => `There's no conjugated verb in your sentence — it should be ${q(c.ev)}.` },
+  "jij-t":        { rule: "jijT",     text: c => `${q(c.sent.subj)} comes after the verb here, so the -t drops: ${q(c.ev + " " + c.sent.subj)}, not ${q(c.vt + " " + c.sent.subj)}.` },
+  "jij-needs-t":  { rule: "persons",  text: c => `${q(c.sent.subj)} comes before the verb here, so it keeps base + t: ${q(c.sent.subj + " " + c.ev)}.` },
+  "wie-sing":     { rule: "wieSing",  text: c => `${q(c.qw)} is the subject, so the verb takes the hij-form: ${q(c.ev)}, not ${q(c.vt)}.` },
+  "inf-sing":     { rule: "persons",  text: c => `${q(c.sent.subj)} is one person/thing (= ${c.sent.subj === "ik" ? "ik" : "hij/zij"}), so not the infinitive: ${q(c.ev)}.` },
+  "pl-inf":       { rule: c => c.sent.subj.includes(" en ") ? "plural" : "persons",
+                    text: c => c.sent.subj.includes(" en ") ? `${q(c.sent.subj)} are two people joined with “en” = plural, so the verb is the infinitive: ${q(c.ev)}.`
+                                                            : `${q(c.sent.subj)} is plural (= zij, they), so the verb is the infinitive: ${q(c.ev)}.` },
+  "irr-hebben":   { rule: "hebben",   text: c => `hebben is irregular: with ${q(c.sent.subj)} it is ${q(c.ev)} — ${q(c.vt)} belongs to another person.` },
+  "skip-double":  { rule: "double",   text: c => `You wrote ${q(c.vt)}: the vowel wasn't doubled. The long sound of ${q(c.sent.inf)} needs two letters in a closed syllable: ${q(c.ev)}.` },
+  "dt-lost-d":    { rule: "dEnd",     text: c => `You wrote what you hear, but the d of the base stays: snijd + t = ${q(c.ev)}.` },
+  "verb-form":    { rule: "persons",  text: c => `The verb should be ${q(c.ev)}, not ${q(c.vt)}.` },
+  "spelling":     { rule: null,       text: c => `Check the spelling of ${q(c.u)}${c.near ? ` — did you mean ${q(c.near)}?` : "."}` },
+  "snd":          { rule: null,       text: c => c.sndText },
+  "missed-words": { rule: "smallWords", text: c => `${c.missing.length ? `You missed ${c.missing.map(q).join(", ")}. ` : ""}${c.extra.length ? `Not in the audio: ${c.extra.map(q).join(", ")}.` : ""}` },
+  "typo":         { rule: null,       text: c => `One letter off — probably a typo. You typed ${q(c.g)}; correct is ${q(c.answer)}.` },
+};
+const KIND_LABEL = {
+  RULE: "Rule · you can work this out",
+  EXCEPTION: "Exception · memorize it",
+  IRREGULAR: "Irregular · memorize the whole verb",
+  VOCAB: "Vocabulary · learn the word",
+  SOUND: "Sound · you heard it right, the spelling differs",
+  LISTEN: "Listening · play it again slowly",
+  TYPO: "Typo / spelling",
+};
+function mk(id, c, rule) {
+  const m = MISTAKES[id];
+  const r = rule || (typeof m.rule === "function" ? m.rule(c) : m.rule);
+  return { id, rule: r, kind: ["typo", "spelling"].includes(id) ? "TYPO" : RULES[r] ? RULES[r].kind : "RULE", text: m.text(c) };
+}
+
+// Why the verb has this form, for the steps.
+function verbReason(sent, ev, inverted, qSubj) {
+  if (sent.inf === "hebben") return `hebben is irregular → <b>${ev}</b>`;
+  if (qSubj) return `${q(qSubj)} is the subject → hij-form → <b>${ev}</b>`;
+  if (ev === sent.inf) return sent.subj.includes(" en ") ? `“X en Y” = plural → infinitive <b>${ev}</b>` : `plural subject (= zij, they) → infinitive <b>${ev}</b>`;
+  if (["je", "jij"].includes(sent.subj)) return inverted ? `je comes after the verb → no -t → <b>${ev}</b>` : `je → base + t → <b>${ev}</b>`;
+  if (sent.subj === "ik") return `ik → the bare base → <b>${ev}</b>`;
+  return `singular subject (= hij/zij) → base + t → <b>${ev}</b>`;
+}
+
+/* Diagnose a typed sentence against the expected one.
+   mode: hoofd | inv | gesloten | open · opt: { start, qw } */
+function diagnoseSentence(given, expected, sent, mode, opt = {}) {
+  const T = segment(given, sent), E = segment(expected, sent);
+  const out = [], c = { T, E, sent, ...opt, qw: opt.qw, start: opt.start && norm(opt.start) };
+  const add = (id, extra = {}, rule) => { if (!out.some(m => m.id === id)) out.push(mk(id, { ...c, ...extra }, rule)); };
+  const vi = T.findIndex(x => x.L === "V"), ei = E.findIndex(x => x.L === "V");
+  const ev = E[ei].t, vt = vi >= 0 ? T[vi].t : null;
+  const si = T.findIndex(x => x.L === "S");
+  const qSubj = mode === "open" && !E.some(x => x.L === "S") ? opt.qw : null;
+
+  // 1 · the verb form
+  if (vi < 0) add("verb-missing", { ev });
+  else if (vt !== ev) {
+    const inverted = si > vi;
+    const x = { vt, ev };
+    if (["je", "jij"].includes(sent.subj) && vt === ev + "t") { if (!(si >= 0 && si < vi)) add("jij-t", x); }
+    else if (["je", "jij"].includes(sent.subj) && ev === vt + "t") add("jij-needs-t", x);
+    else if (sent.inf === "hebben") add("irr-hebben", x);
+    else if (qSubj && vt === sent.inf) add("wie-sing", x);
+    else if (vt === sent.inf) add("inf-sing", x);
+    else if (ev === sent.inf) add("pl-inf", x);
+    else if ([...vt].length + 1 === ev.length && ev.replace(/([aeou])\1/, "$1") === vt) add("skip-double", x);
+    else if (ev.endsWith("dt") && vt === ev.slice(0, -2) + "t") add("dt-lost-d", x);
+    else add("verb-form", x);
+  }
+
+  // 2 · the structure of the sentence
+  const L0 = T[0] ? T[0].L : "";
+  if (mode === "hoofd") {
+    if (L0 === "V") add("hoofd-q");
+    else if (L0 !== "S" && T[1] && T[1].L === "V" && T[2] && T[2].L === "S") add("hoofd-inv");
+    else if (L0 !== "S") add("hoofd-start");
+    else if (vi >= 0 && vi !== 1) add("v2", { vt, first: T[0].t });
+  } else if (mode === "inv") {
+    if (T[0].t !== c.start) add("inv-start");
+    else if (T[1] && T[1].L === "S" && vi === 2) add("inv-no-swap");
+    else if (vi >= 0 && vi !== 1) add("v2", { vt, first: T[0].t });
+    else if (si >= 0 && si !== 2) add("subj-after");
+  } else if (mode === "gesloten") {
+    if (L0 === "S" && vi === 1) add("gesl-statement");
+    else if (L0 !== "V") add("gesl-start");
+    else if (si >= 0 && si !== 1) add("gesl-subj");
+  } else if (mode === "open") {
+    const front = ei; // parts before the verb in the model answer (vraagwoord, or "hoeveel flessen water")
+    const tq = T.findIndex(x => x.L === "Q");
+    if (L0 === "Q" && T[0].t !== opt.qw) add("wrong-q");
+    else if (tq > 0) add("open-q-first");
+    else if (tq < 0) add("open-no-q");
+    if (L0 === "Q" && si >= 0 && vi > si) add("open-no-swap");
+    else if (vi >= 0 && L0 === "Q" && vi !== front && !(si >= 0 && vi > si)) add("v2", { vt, first: T.slice(0, vi).map(x => x.t).join(" ") || opt.qw });
+    else if (!qSubj && si >= 0 && vi >= 0 && si !== vi + 1 && L0 === "Q") add("open-subj");
+  }
+
+  // 3 · parts added or left out
+  const eParts = E.filter(x => x.L === "R" || x.L === "S").map(x => x.t);
+  const tParts = T.filter(x => x.L === "R" || x.L === "S").map(x => x.t);
+  for (const extra of tParts.filter(p => !eParts.includes(p))) add(mode === "open" ? "q-replaces" : "extra-part", { extra });
+  for (const missing of eParts.filter(p => !tParts.includes(p) && !(mode === "inv" && p === c.start))) {
+    // An inversie opener the learner put elsewhere isn't "missing"
+    add("missing-part", { missing });
+  }
+
+  // 4 · TOMP order of the rest (the parts both sentences share, excluding the opener)
+  // (a part put in front is an inversie opener, not part of the rest)
+  const restT = T.filter((x, i) => x.L === "R" && i !== 0).map(x => x.t).filter(p => eParts.includes(p));
+  const restE = E.filter((x, i) => x.L === "R" && !(i === 0 && mode === "inv")).map(x => x.t).filter(p => restT.includes(p));
+  outer: for (let i = 0; i < restT.length; i++) for (let j = i + 1; j < restT.length; j++) {
+    if (restE.indexOf(restT[i]) > restE.indexOf(restT[j])) {
+      const a = restT[i], b = restT[j], ra = ROLE[a], rb = ROLE[b];
+      if (ra && rb && ROLE_RANK[ra] !== ROLE_RANK[rb]) add(rb === "receiver" ? "receiver" : "tomp", { a, b });
+      else add("rest-order", { a, b });
+      break outer;
+    }
+  }
+
+  // 5 · spelling slips inside a part, then unknown words
+  for (const x of T.filter(x => x.typed)) add("spelling", { u: x.typed, near: x.t });
+  if (!out.length) {
+    const vocab = [...new Set(E.flatMap(x => x.t.split(" ")))];
+    for (const u of T.filter(x => x.L === "U").map(x => x.t)) {
+      const near = vocab.map(w => [w, editDistance(u, w)]).sort((a, b) => a[1] - b[1])[0];
+      add("spelling", { u, near: near && near[1] <= 2 ? near[0] : null });
+    }
+  }
+  return out.slice(0, 3);
+}
+
+// "How we get there" for a sentence answer.
+function sentenceSteps(sent, expected, mode, opt = {}) {
+  const E = segment(expected, sent), ei = E.findIndex(x => x.L === "V"), ev = E[ei].t;
+  const qSubj = mode === "open" && !E.some(x => x.L === "S") ? opt.qw : null;
+  const inverted = E.findIndex(x => x.L === "S") > ei;
+  const steps = [];
+  steps.push(`Subject: <b>${esc(qSubj || sent.subj)}</b> · verb: ${sent.inf} → ${verbReason(sent, ev, inverted, qSubj)}`);
+  if (mode === "hoofd") steps.push(`Hoofdzin: <b>subject – verb – rest</b>`);
+  if (mode === "inv") steps.push(`Inversie: ${q(opt.start)} takes slot 1 → verb 2nd → subject right behind it: <b>${esc(opt.start)} – ${ev} – ${esc(sent.subj)}</b>`);
+  if (mode === "gesloten") steps.push(`Gesloten vraag: no vraagwoord → <b>verb – subject – rest</b>: <b>${ev} ${esc(sent.subj)}…?</b>`);
+  if (mode === "open") steps.push(qSubj
+    ? `Open vraag: ${q(opt.qw)} is the subject itself → <b>${esc(opt.qw)} – ${ev} – rest</b>`
+    : `Open vraag: <b>vraagwoord – verb – subject – rest</b> → <b>${E.slice(0, ei).map(x => esc(x.t)).join(" ")} ${ev} ${esc(sent.subj)}…?</b>`);
+  const rest = E.slice(ei + 1).filter((x, i) => x.L === "R");
+  if (rest.length) steps.push(`Rest in TOMP order: ${rest.map(x => `${esc(x.t)}${ROLE[x.t] ? ` <i>(${ROLE[x.t]})</i>` : ""}`).join(" – ")}`);
+  return steps;
+}
+
+/* ================= FEEDBACK RENDERING ================= */
+function exampleHtml(ex) {
+  const word = t => `<span class="exw">${speakBtn(t)}${esc(t)}</span>`;
+  return `<div class="ex">${ex.map(e => Array.isArray(e) ? `<span class="exw">${word(e[0])} → ${word(e[1])}</span>` : word(e)).join("")}</div>`;
+}
+function ruleHow(id) {
+  const r = RULES[id];
+  return `<details class="how"><summary>How does <b>${r.name}</b> work?</summary><div class="how-body"><span class="tag k-${r.kind}">${r.kind}</span> ${r.how}${exampleHtml(r.ex)}</div></details>`;
+}
+// res: { ok, correct, say, mistakes: [mk()], rules: [ids], steps: [html], note }
+function renderFeedback(res) {
+  let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${esc(res.correct)}</span>`;
+  if (res.say) h += ` ${speakBtn(res.say)}`;
+  if (!res.ok) {
+    if (res.mistakes.length) {
+      h += res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("");
+    } else {
+      h += `<div class="mistake"><span class="what"><b>Your mistake:</b> not one of the usual patterns — compare your answer with the steps below.</span></div>`;
+    }
+  }
+  if (res.steps && res.steps.length) {
+    h += `<details class="steps"${res.ok ? "" : " open"}><summary>${res.ok ? "Why is this right?" : "How we get there"}</summary><ol>${res.steps.map(s => `<li>${s}</li>`).join("")}</ol>${res.note ? `<div class="note-x">${res.note}</div>` : ""}</details>`;
+  }
+  const ids = [...new Set([...res.mistakes.map(m => m.rule), ...(res.ok || !res.mistakes.length ? res.rules : [])].filter(r => RULES[r]))];
+  h += ids.map(ruleHow).join("");
+  h += `<span class="why">Press Enter for the next one.</span>`;
+  return h;
+}
+
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  const tally = {}; // rule id → times missed this session
   function newQuestion() {
     current = next();
     answered = false;
@@ -786,25 +1169,34 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, n
     input.value = "";
     input.focus();
   }
+  function renderTally() {
+    const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
+    $(tallyId).innerHTML = ids.length
+      ? `<div class="tally-head">Your mistakes this session — tap to review the rule</div>` +
+        ids.map(id => ruleHow(id).replace(`How does <b>${RULES[id].name}</b> work?`, `<b>${RULES[id].name}</b> ×${tally[id]}`)).join("")
+      : "";
+  }
   function doCheck() {
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
+    res.mistakes = res.mistakes || []; res.rules = res.rules || [];
     answered = true;
     if (res.ok) { right++; streak++; }
-    else { wrong++; streak = 0; }
-    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
-    fb.innerHTML = res.ok
-      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
-      : `<span class="no">✗ ${res.correct}</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`;
-    if (res.say) {
-      speak(res.say);
-      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    else {
+      wrong++; streak = 0;
+      const missed = res.mistakes.map(m => m.rule).filter(r => RULES[r]);
+      [...new Set(missed.length ? missed : res.rules.slice(0, 1))].forEach(r => { tally[r] = (tally[r] || 0) + 1; });
+      renderTally();
     }
-    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = renderFeedback(res);
+    if (res.say) speak(res.say);
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
   $(checkId).addEventListener("click", doCheck);
+  // Tapping a ▶ or opening an explanation must not steal Enter from the answer box.
+  fb.addEventListener("click", e => { if (e.target.closest("button, summary")) setTimeout(() => input.focus({ preventScroll: true }), 0); });
   return { newQuestion, get current() { return current; } };
 }
 
@@ -815,11 +1207,31 @@ function extraNote(sent, item) {
   if (sent.note) bits.push(sent.note);
   return bits.length ? " " + bits.join(" ") : "";
 }
+// The rules a sentence of this kind uses (shown under a right answer).
+function sentenceRules(sent, mode, qw) {
+  const r = [{ hoofd: "hoofd", inv: "inv", gesloten: "gesloten", open: "open" }[mode], "tomp"];
+  if (mode === "open" && ["wie", "wat"].includes(qw) && sent.open.some(o => o.q === qw && !segment(o.s, sent).some(x => x.L === "S"))) r.push("wieSing");
+  if (["je", "jij"].includes(sent.subj) && mode !== "hoofd") r.push("jijT");
+  if (sent.inf === "hebben") r.push("hebben");
+  return r;
+}
+function checkSentence(cur, given, mode) {
+  const g = norm(given);
+  const ok = cur.answers.some(a => norm(a) === g);
+  const res = { ok, correct: cur.answers[0], say: ok ? cur.answers.find(a => norm(a) === g) : cur.say,
+                steps: cur.steps, rules: cur.rules, note: cur.note, mistakes: [] };
+  if (ok) return res;
+  // Diagnose against the model answer closest to what was typed.
+  const target = cur.answers.map(a => [a, editDistance(norm(a), g)]).sort((a, b) => a[1] - b[1])[0][0];
+  res.mistakes = diagnoseSentence(given, target, cur.sent, mode, cur.opt);
+  if (!res.mistakes.length && editDistance(norm(target), g) === 1) res.mistakes = [mk("typo", { g, answer: norm(target) })];
+  return res;
+}
 
 /* ================= ZINSBOUW DRILL ================= */
 const orderDrill = makeDrill({
   inputId: "order-input", checkId: "order-check", feedbackId: "order-feedback",
-  rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak",
+  rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak", tallyId: "order-tally",
   next() {
     const sent = pick(SENTENCES);
     // Half the rounds ask for the plain hoofdzin, half for an inversie.
@@ -829,30 +1241,21 @@ const orderDrill = makeDrill({
     if (wantInv) {
       const item = pick(sent.inv);
       $("order-target").innerHTML = `Hoofdzin met inversie — begin met: „${esc(item.start)}”`;
-      return {
-        answers: [item.s],
-        say: item.s,
-        why: `<b>Inversie:</b> you start with „${esc(item.start)}”, which comes from the <em>rest</em>, so the verb keeps second place and the subject slides behind it — <b>${esc(item.start)} – verb – subject – rest</b>. The plain hoofdzin is: ${esc(sent.hoofd)}${extraNote(sent, item)}`,
-      };
+      return { sent, mode: "inv", opt: { start: item.start }, answers: [item.s], say: item.s,
+               steps: sentenceSteps(sent, item.s, "inv", { start: item.start }),
+               rules: sentenceRules(sent, "inv"), note: extraNote(sent, item).trim() };
     }
     $("order-target").innerHTML = `Hoofdzin`;
-    return {
-      answers: [sent.hoofd, ...(sent.hoofdAlt || [])],
-      say: sent.hoofd,
-      why: `<b>Hoofdzin:</b> subject – verb – rest, and the rest runs <b>time – object – manner – place</b>.${extraNote(sent, null)}`,
-    };
+    return { sent, mode: "hoofd", opt: {}, answers: [sent.hoofd, ...(sent.hoofdAlt || [])], say: sent.hoofd,
+             steps: sentenceSteps(sent, sent.hoofd, "hoofd"), rules: sentenceRules(sent, "hoofd"), note: extraNote(sent, null).trim() };
   },
-  check(cur, given) {
-    const g = norm(given);
-    const ok = cur.answers.some(a => norm(a) === g);
-    return { ok, correct: cur.answers[0], why: cur.why, say: cur.say };
-  },
+  check(cur, given) { return checkSentence(cur, given, cur.mode); },
 });
 
 /* ================= VRAGEN DRILL ================= */
 const askDrill = makeDrill({
   inputId: "ask-input", checkId: "ask-check", feedbackId: "ask-feedback",
-  rightId: "ask-right", wrongId: "ask-wrong", streakId: "ask-streak",
+  rightId: "ask-right", wrongId: "ask-wrong", streakId: "ask-streak", tallyId: "ask-tally",
   next() {
     const sent = pick(SENTENCES);
     const wantOpen = sent.open.length && Math.random() < 0.55;
@@ -861,24 +1264,15 @@ const askDrill = makeDrill({
     if (wantOpen) {
       const item = pick(sent.open);
       $("ask-target").innerHTML = `Open vraag met „${esc(item.q)}”`;
-      return {
-        answers: [item.s],
-        say: item.s,
-        why: `<b>Open vraag:</b> vraagwoord – verb – subject – rest. Here the vraagwoord is „${esc(item.q)}”.${extraNote(sent, item)}`,
-      };
+      return { sent, mode: "open", opt: { qw: item.q }, answers: [item.s], say: item.s,
+               steps: sentenceSteps(sent, item.s, "open", { qw: item.q }),
+               rules: sentenceRules(sent, "open", item.q), note: extraNote(sent, item).trim() };
     }
     $("ask-target").innerHTML = `Gesloten vraag`;
-    return {
-      answers: [sent.gesloten],
-      say: sent.gesloten,
-      why: `<b>Gesloten vraag:</b> verb – subject – rest. No vraagwoord, so the answer is ja or nee.${extraNote(sent, null)}`,
-    };
+    return { sent, mode: "gesloten", opt: {}, answers: [sent.gesloten], say: sent.gesloten,
+             steps: sentenceSteps(sent, sent.gesloten, "gesloten"), rules: sentenceRules(sent, "gesloten"), note: extraNote(sent, null).trim() };
   },
-  check(cur, given) {
-    const g = norm(given);
-    const ok = cur.answers.some(a => norm(a) === g);
-    return { ok, correct: cur.answers[0], why: cur.why, say: cur.say };
-  },
+  check(cur, given) { return checkSentence(cur, given, cur.mode); },
 });
 
 /* ================= LISTENING DRILL ================= */
@@ -892,17 +1286,85 @@ const LISTEN_ITEMS = [
   ...SENTENCES.flatMap(s => s.inv.map(i => i.s)),
   ...SENTENCES.flatMap(s => s.open.map(o => o.s)),
 ];
+// [what the answer has, what the learner may write instead, rule, explanation]
+const SOUND_SWAPS = [
+  ["ij", "ei", "eij", w => `<b>ij</b> and <b>ei</b> sound exactly the same — ${q(w)} is spelled with <b>ij</b>.`],
+  ["ei", "ij", "eij", w => `<b>ei</b> and <b>ij</b> sound exactly the same — ${q(w)} is spelled with <b>ei</b>.`],
+  ["z", "s", "zs", w => `You wrote s, but ${q(w)} has a voiced <b>z</b> (a buzz). Play it slowly and listen for it.`],
+  ["s", "z", "zs", w => `You wrote z, but ${q(w)} has a sharp <b>s</b> — no buzz.`],
+  ["v", "f", "vf", w => `You wrote f, but ${q(w)} is spelled with <b>v</b>.`],
+  ["f", "v", "vf", w => `You wrote v, but ${q(w)} is spelled with <b>f</b>.`],
+  ["g", "ch", "gch", w => `g and ch sound the same — ${q(w)} is spelled with <b>g</b>.`],
+  ["ch", "g", "gch", w => `g and ch sound the same — ${q(w)} is spelled with <b>ch</b>.`],
+  ["aa", "a", "vowelLen", w => `The vowel in ${q(w)} is long — in a closed syllable that's written <b>aa</b>.`],
+  ["ee", "e", "vowelLen", w => `The vowel in ${q(w)} is long — in a closed syllable that's written <b>ee</b>.`],
+  ["oo", "o", "vowelLen", w => `The vowel in ${q(w)} is long — in a closed syllable that's written <b>oo</b>.`],
+  ["uu", "u", "vowelLen", w => `The vowel in ${q(w)} is long — in a closed syllable that's written <b>uu</b>.`],
+];
+// One word: which sound-alike explains the difference?
+function diagnoseWord(g, a) {
+  for (const [from, to, rule, why] of SOUND_SWAPS) {
+    for (let i = a.indexOf(from); i !== -1; i = a.indexOf(from, i + 1)) {
+      if (a.slice(0, i) + to + a.slice(i + from.length) === g) return mk("snd", { sndText: why(a) }, rule);
+    }
+  }
+  for (let i = 0; i < a.length; i++) {
+    if ("aeou".includes(a[i]) && a[i + 1] !== a[i] && a[i - 1] !== a[i] && a.slice(0, i + 1) + a.slice(i) === g)
+      return mk("snd", { sndText: `In ${q(a)} the vowel ends its syllable (open syllable), so one letter is already long — no doubling.` }, "vowelLen");
+  }
+  for (let i = 0; i < a.length; i++) {
+    const ch = a[i];
+    if (isVowel(ch)) continue;
+    if (a[i + 1] === ch && a.slice(0, i) + a.slice(i + 1) === g)
+      return mk("snd", { sndText: `You can't hear a double consonant. ${q(a)} has <b>${ch}${ch}</b> because the vowel before it is short.` }, "consLen");
+    if (a[i + 1] !== ch && a[i - 1] !== ch && a.slice(0, i + 1) + a.slice(i) === g)
+      return mk("snd", { sndText: a[i + 1] === undefined ? `A Dutch word never ends in a double consonant — ${q(a)} has one <b>${ch}</b>.`
+                                                         : `Only one <b>${ch}</b> in ${q(a)}. A consonant is doubled only between two vowels, right after a <i>short</i> vowel.` }, "consLen");
+  }
+  if (editDistance(g, a) === 1) return mk("typo", { g, answer: a });
+  return null;
+}
+// Words in a but not matched in b, in order (longest common subsequence).
+function lcsDiff(a, b) {
+  const d = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--)
+    d[i][j] = a[i] === b[j] ? d[i + 1][j + 1] + 1 : Math.max(d[i + 1][j], d[i][j + 1]);
+  const onlyA = [], onlyB = [];
+  let i = 0, j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; } else if (d[i + 1][j] >= d[i][j + 1]) onlyA.push(a[i++]); else onlyB.push(b[j++]);
+  }
+  return [onlyA.concat(a.slice(i)), onlyB.concat(b.slice(j))];
+}
+function diagnoseListen(g, a) {
+  const gw = g.split(" "), aw = a.split(" ");
+  if (gw.length === aw.length) {
+    const diffs = aw.map((w, i) => [gw[i], w]).filter(([x, y]) => x !== y);
+    const ms = diffs.map(([x, y]) => diagnoseWord(x, y));
+    if (diffs.length <= 3 && ms.every(Boolean)) return ms;
+    if (diffs.length <= 3) return ms.filter(Boolean).concat(diffs.filter((_, k) => !ms[k]).map(([x, y]) => mk("spelling", { u: x, near: y })));
+  }
+  const [missing, extra] = lcsDiff(aw, gw);
+  if (missing.length + extra.length <= 3) {
+    // a missing word typed with a sound-alike shows up as one missing + one extra
+    if (missing.length === 1 && extra.length === 1) { const m = diagnoseWord(extra[0], missing[0]); if (m) return [m]; }
+    return [mk("missed-words", { missing, extra })];
+  }
+  return [];
+}
 const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
-  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
     const text = pick(LISTEN_ITEMS);
     $("listen-hint").textContent = text.split(" ").length > 1 ? `${text.split(" ").length} woorden` : "1 woord";
     return { text };
   },
   check(cur, given) {
-    const ok = norm(given) === norm(cur.text);
-    return { ok, correct: cur.text, say: cur.text };
+    const g = norm(given), a = norm(cur.text);
+    const res = { ok: g === a, correct: cur.text, say: cur.text, mistakes: [] };
+    if (!res.ok) res.mistakes = diagnoseListen(g, a);
+    return res;
   },
 });
 $("listen-play").addEventListener("click", () => speak(listenDrill.current.text));

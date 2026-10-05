@@ -190,9 +190,25 @@
   .feedback .no { color: var(--red); font-weight: 600; }
   .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
   .feedback .why b { color: var(--ink); }
-  .feedback .trap { display:block; font-size: 13.5px; margin-top: 6px; background: var(--yellow); color: var(--ink); padding: 4px 8px; border: 2px solid var(--ink); }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
   .scorebar b { font-size: 18px; }
+  .feedback .mistake { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-top: 10px; font-family: var(--body); font-size: 15px; }
+  .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border: 2px solid var(--ink); white-space: nowrap; }
+  .tag.k-RULE { background: var(--blue); color: #fff; }
+  .tag.k-IRREGULAR { background: var(--red); color: #fff; }
+  .tag.k-MEANING { background: var(--ink); color: var(--paper); }
+  .tag.k-SOUND { background: var(--yellow); color: var(--ink); }
+  .tag.k-TYPO, .tag.k-WORDS { background: #fff; color: var(--ink); }
+  .feedback details, .tally details { margin-top: 10px; border-left: 3px solid var(--ink); padding-left: 12px; font-family: var(--body); font-size: 15px; }
+  .feedback summary, .tally summary { cursor: pointer; font-family: var(--mono); font-size: 14px; }
+  .feedback .steps ol { padding: 6px 0 2px 22px; }
+  .feedback .steps li { margin-bottom: 4px; }
+  .how-body { padding: 8px 0 4px; line-height: 1.5; }
+  .how-body .tag { margin-right: 4px; }
+  .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
+  .exw { white-space: nowrap; }
+  .tally { margin-top: 14px; }
+  .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
   @media (max-width: 640px) {
     nav { grid-template-columns: repeat(4, 1fr); }
@@ -327,6 +343,7 @@
       </div>
       <div class="feedback" id="conj-feedback"></div>
       <div class="scorebar"><span>Goed <b id="conj-right">0</b></span><span>Fout <b id="conj-wrong">0</b></span><span>Reeks <b id="conj-streak">0</b></span></div>
+      <div class="tally" id="conj-tally"></div>
     </div>
   </section>
 
@@ -347,6 +364,7 @@
       </div>
       <div class="feedback" id="choose-feedback"></div>
       <div class="scorebar"><span>Goed <b id="choose-right">0</b></span><span>Fout <b id="choose-wrong">0</b></span><span>Reeks <b id="choose-streak">0</b></span></div>
+      <div class="tally" id="choose-tally"></div>
     </div>
   </section>
 
@@ -367,6 +385,7 @@
       </div>
       <div class="feedback" id="change-feedback"></div>
       <div class="scorebar"><span>Goed <b id="change-right">0</b></span><span>Fout <b id="change-wrong">0</b></span><span>Reeks <b id="change-streak">0</b></span></div>
+      <div class="tally" id="change-tally"></div>
     </div>
   </section>
 
@@ -387,6 +406,7 @@
       </div>
       <div class="feedback" id="order-feedback"></div>
       <div class="scorebar"><span>Goed <b id="order-right">0</b></span><span>Fout <b id="order-wrong">0</b></span><span>Reeks <b id="order-streak">0</b></span></div>
+      <div class="tally" id="order-tally"></div>
     </div>
   </section>
 
@@ -409,6 +429,7 @@
       </div>
       <div class="feedback" id="listen-feedback"></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+      <div class="tally" id="listen-tally"></div>
     </div>
   </section>
 </div>
@@ -566,39 +587,40 @@ const WORDS = [
 ];
 
 /* ---- Grammatica 18: kies het goede verbum ----
-   opts = the two choices printed in the book, a = the answer key.          */
+   opts = the two choices printed in the book, a = the answer key,
+   key = CONJ row of the subject (to diagnose a wrong form of the right modal).          */
 const CHOOSE = [
-  { n: "voorbeeld", s: "___ we vanavond naar de bioscoop gaan?", opts: ["Willen", "Zullen"], a: "Zullen",
+  { n: "voorbeeld", key: "pl", s: "___ we vanavond naar de bioscoop gaan?", opts: ["Willen", "Zullen"], a: "Zullen",
     en: "Shall we go to the cinema tonight?",
     why: "<b>Zullen we …?</b> is a suggestion: <em>shall we</em>. <b>Willen</b> would only ask what we want." },
-  { n: "1", s: "___ jullie een kopje thee drinken?", opts: ["Willen", "Zullen"], a: "Willen",
+  { n: "1", key: "pl", s: "___ jullie een kopje thee drinken?", opts: ["Willen", "Zullen"], a: "Willen",
     en: "Do you want to drink a cup of tea?",
     why: "You offer tea and ask what they <em>want</em> → <b>willen</b>. Subject jullie → plural = infinitive: <b>willen</b>." },
-  { n: "2", s: "De kinderen ___ om half negen op school zijn. Dan begint de les.", opts: ["mogen", "moeten"], a: "moeten",
+  { n: "2", key: "pl", s: "De kinderen ___ om half negen op school zijn. Dan begint de les.", opts: ["mogen", "moeten"], a: "moeten",
     en: "The children have to be at school at half past eight. Then the lesson starts.",
     why: "The lesson starts, so it is an obligation: they <em>have to</em> be there → <b>moeten</b>." },
-  { n: "3", s: "Ik ___ naar de tandarts gaan want ik heb een afspraak.", opts: ["moet", "zal"], a: "moet",
+  { n: "3", key: "ik", s: "Ik ___ naar de tandarts gaan want ik heb een afspraak.", opts: ["moet", "zal"], a: "moet",
     en: "I have to go to the dentist because I have an appointment.",
     why: "I have an appointment, so I <em>have to</em> go → <b>moet</b>." },
-  { n: "4", s: "___ ik even naar de wc gaan?", opts: ["Mag", "Moet"], a: "Mag",
+  { n: "4", key: "ik", s: "___ ik even naar de wc gaan?", opts: ["Mag", "Moet"], a: "Mag",
     en: "May I go to the toilet for a moment?",
     why: "You ask <em>permission</em> → <b>mogen</b>: <b>Mag ik …?</b>" },
-  { n: "5", s: "Ik ___ goed zwemmen, want ik heb drie zwemdiploma's.", opts: ["kan", "wil"], a: "kan",
+  { n: "5", key: "ik", s: "Ik ___ goed zwemmen, want ik heb drie zwemdiploma's.", opts: ["kan", "wil"], a: "kan",
     en: "I can swim well, because I have three swimming certificates.",
     why: "The diplomas prove an <em>ability</em> → <b>kunnen</b>: ik <b>kan</b>." },
-  { n: "6", s: "___ we naar de film gaan?", opts: ["Willen", "Zullen"], a: "Zullen",
+  { n: "6", key: "pl", s: "___ we naar de film gaan?", opts: ["Willen", "Zullen"], a: "Zullen",
     en: "Shall we go to the movies?",
     why: "A suggestion: <em>shall we / are we going to</em> → <b>Zullen we …?</b>" },
-  { n: "7", s: "Hij ___ geen boek kopen. Hij houdt niet van lezen.", opts: ["wil", "kan"], a: "wil",
+  { n: "7", key: "hij", s: "Hij ___ geen boek kopen. Hij houdt niet van lezen.", opts: ["wil", "kan"], a: "wil",
     en: "He doesn't want to buy a book. He doesn't like reading.",
     why: "He doesn't like reading, so he doesn't <em>want</em> to → <b>willen</b>. And hij takes no -t: hij <b>wil</b>." },
-  { n: "8", s: "Je ___ tijdens het examen niet praten.", opts: ["mag", "moet"], a: "mag",
+  { n: "8", key: "jij", s: "Je ___ tijdens het examen niet praten.", opts: ["mag", "moet"], a: "mag",
     en: "You are not allowed to talk during the exam.",
     why: "Something is <em>forbidden</em> → <b>mogen + niet</b>: je <b>mag</b> niet praten." },
-  { n: "9", s: "___ ik de deur dichtdoen, alsjeblieft? Het is koud.", opts: ["Mag", "Zal"], a: "Mag",
+  { n: "9", key: "ik", s: "___ ik de deur dichtdoen, alsjeblieft? Het is koud.", opts: ["Mag", "Zal"], a: "Mag",
     en: "May I close the door, please? It's cold.",
     why: "With <em>alsjeblieft</em> you are asking <em>permission</em> → <b>Mag ik …?</b>" },
-  { n: "10", s: "Je ___ geen alcohol kopen als je nog geen 18 jaar bent.", opts: ["mag", "moet"], a: "mag",
+  { n: "10", key: "jij", s: "Je ___ geen alcohol kopen als je nog geen 18 jaar bent.", opts: ["mag", "moet"], a: "mag",
     en: "You are not allowed to buy alcohol if you're not 18 yet.",
     why: "Not allowed → <b>mogen + geen</b>: je <b>mag</b> geen alcohol kopen." },
 ];
@@ -853,14 +875,6 @@ function cellPhrase(verb, key, pron) {
 function fillGap(s, word) {
   return s.indexOf("___") === 0 ? cap(word) + s.slice(3) : s.replace("___", word);
 }
-// Explains why a sentence with a modal is wrong when the 2nd verb is misplaced.
-function orderTrap(given, answer) {
-  const g = norm(given).split(" "), a = norm(answer).split(" ");
-  const inf = a[a.length - 1];
-  if (g[0] === inf) return `The 2nd verb (<b>${esc(inf)}</b>) can never be at the beginning of the sentence.`;
-  if (g.includes(inf) && g[g.length - 1] !== inf) return `The 2nd verb <b>${esc(inf)}</b> has to go to the <b>end</b> of the sentence.`;
-  return "";
-}
 
 /* ================= TABS ================= */
 document.querySelectorAll("nav button").forEach(btn => {
@@ -948,10 +962,133 @@ $("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(f
 $("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashCurrent().nl, true); });
 flashInit();
 
+/* ================= RULES =================
+   One entry per thing that can explain a mistake.
+   kind: RULE = you can work it out · IRREGULAR = memorize ·
+         MEANING = pick the modal by what the sentence says ·
+         SOUND = you heard it right, the spelling differs.
+   ex: audio examples; a pair [a, b] renders as "a → b". */
+const RULES = {
+  noT: { kind: "RULE", name: "no -t for ik and hij / zij / het",
+    how: "Normal verbs add -t for hij / zij / het (Les 2: hij <b>werkt</b>). The five modals don't: ik <b>kan</b> – hij <b>kan</b>, ik <b>wil</b> – hij <b>wil</b>, ik <b>zal</b> – hij <b>zal</b>, ik <b>mag</b> – hij <b>mag</b>. So with a modal, ik and hij/zij/het always share one form. English does the same: <i>he can, he must, he will</i> — never 'he cans'. (Historically most of these verbs — kunnen, mogen, moeten, zullen — use old past-tense forms as their present, and the past tense has no -t either: ik werkte, hij werkte. willen followed the same pattern.) One rule for all five modals — learn it once.",
+    ex: ["ik kan", "hij kan", "hij wil", "hij zal"] },
+  singForms: { kind: "IRREGULAR", name: "the singular forms kan, zal, mag",
+    how: "The Les 2 base rules don't work for modals. Regular rules would give <i>kun</i>, <i>zul</i>, <i>moog</i> — but the real singular forms change the vowel or the consonant: <b>kunnen → kan</b>, <b>zullen → zal</b>, <b>mogen → mag</b>. (willen → wil and moeten → moet happen to look regular.) Memorize the singular row: <b>zal · wil · kan · mag · moet</b>. The forms <i>kun</i> and <i>zul</i> only appear in questions: kun je? zul je?",
+    ex: [["kunnen", "ik kan"], ["zullen", "ik zal"], ["mogen", "ik mag"]] },
+  twoForms: { kind: "RULE", name: "je / u: two forms",
+    how: "For je and u, three modals have two correct forms: <b>zal / zult</b>, <b>wil / wilt</b>, <b>kan / kunt</b>. The -t form is more formal. mogen and moeten have only one form for everyone in the singular: je <b>mag</b> (never <i>magt</i>), je <b>moet</b> (it already ends in t).",
+    ex: ["je zal, je zult", "je kan, je kunt", "je wil, je wilt"] },
+  invT: { kind: "RULE", name: "je after the verb → the -t drops",
+    how: "You know this from Les 3 with normal verbs: jij drinkt → <b>drink je?</b> When je/jij comes <i>after</i> the verb (a question or inversie), the -t ending disappears. Modals do the same: je zult → <b>zul je</b>, je wilt → <b>wil je</b>, je kunt → <b>kun je</b>. (zal je and kan je are also correct.) It only happens with je/jij — u keeps its -t (kunt u), and hij/ik never had one.",
+    ex: ["Zul je om 8 uur naar werk komen?", "Wil je op vakantie gaan?", "Kun je heel goed zwemmen?"] },
+  uKeepsT: { kind: "RULE", name: "u keeps its -t",
+    how: "The -t only drops for <b>je/jij</b> after the verb. With <b>u</b> it can stay: <b>Kunt u</b> goed Nederlands spreken? (Kan u … is used too.) So <i>kun u</i> / <i>zul u</i> don't exist.",
+    ex: ["Kunt u goed Nederlands spreken?"] },
+  plural: { kind: "RULE", name: "plural = the infinitive",
+    how: "we / jullie / ze (and plural nouns like <i>de kinderen</i>) use the whole infinitive, just like normal verbs: we <b>zullen</b>, jullie <b>willen</b>, ze <b>moeten</b>. The other way round: ik / je / u / hij never take the infinitive — they use a singular form (kan, wil, zal, mag, moet).",
+    ex: ["we zullen", "jullie willen", "ze moeten"] },
+  modalForm: { kind: "RULE", name: "the modal is the verb you conjugate",
+    how: "In a sentence with a modal, only the modal changes for the person: ik <b>moet</b>, hij <b>moet</b>, wij <b>moeten</b>. The 2nd verb never changes. So put the modal in the right form for the subject, and leave the other verb as an infinitive.",
+    ex: ["Ik moet Nederlands leren.", "Hij moet de rekening op tijd betalen."] },
+  infEnd: { kind: "RULE", name: "the 2nd verb: infinitive, at the end",
+    how: "The modal already shows who is doing it, so the 2nd verb doesn't need a person ending: it stays in its dictionary form (the infinitive) and goes to the very end. Modal and infinitive make a frame around the rest: Ik <b>moet</b> Nederlands <b>leren</b>. That's why the 2nd verb can never start the sentence.",
+    ex: [["Ik leer Nederlands.", "Ik moet Nederlands leren."]] },
+  verbSecond: { kind: "RULE", name: "the modal takes the verb's place",
+    how: "The conjugated verb has a fixed spot in a Dutch sentence — and with a modal, the conjugated verb <i>is</i> the modal.<br><b>Hoofdzin:</b> subject – <b>modal</b> – rest – 2nd verb.<br><b>Inversie:</b> first part – <b>modal</b> – subject – … The modal stays in 2nd place, so the subject has to move behind it.<br><b>Open vraag:</b> vraagwoord – <b>modal</b> – subject – …<br><b>Gesloten vraag:</b> <b>modal</b> first – subject – …",
+    ex: ["Ik zal morgen de kinderen met de auto naar school brengen.", "Morgen zal ik de kinderen met de auto naar school brengen.", "Zul je de kinderen naar school brengen?"] },
+  restOrder: { kind: "RULE", name: "the rest: time – object – manner – place",
+    how: "Between the modal (+ subject) and the 2nd verb, the rest keeps the Les 3 order: <b>time</b> (morgen) – <b>object</b> (de kinderen) – <b>manner</b> (met de auto) – <b>place</b> (naar school). If one part moves to the front for inversie, the others keep their order.",
+    ex: ["Ik zal morgen de kinderen met de auto naar school brengen."] },
+  "m-zullen": { kind: "MEANING", name: "zullen — going to, shall",
+    how: "zullen talks about what is going to happen — a plan or a promise: Hij <b>zal</b> morgen komen. <b>Zullen we …?</b> makes a suggestion: <i>shall we?</i> It doesn't say anyone wants, can, or must.",
+    ex: ["Zullen we vanavond naar de bioscoop gaan?", "Hij zal morgen komen."] },
+  "m-willen": { kind: "MEANING", name: "willen — to want",
+    how: "willen = to want: a wish, or an offer (<b>Willen</b> jullie een kopje thee drinken? = do you want…?). It is not a suggestion for doing something together (that is <i>zullen we</i>), and not about being able (kunnen).",
+    ex: ["Willen jullie een kopje thee drinken?", "Hij wil een nieuwe auto kopen."] },
+  "m-kunnen": { kind: "MEANING", name: "kunnen — can, be able to",
+    how: "kunnen = being able to (Ik <b>kan</b> goed zwemmen — I have diplomas) or something being possible (<b>Kunnen</b> we in de pauze naar de kantine gaan?). It is about ability or possibility, not about wanting or permission.",
+    ex: ["Ik kan goed zwemmen, want ik heb drie zwemdiploma's.", "Kunnen we in de pauze naar de kantine gaan?"] },
+  "m-mogen": { kind: "MEANING", name: "mogen — may, be allowed to",
+    how: "mogen = being allowed. <b>Mag ik …?</b> asks permission. Something forbidden or not allowed → <b>mogen + niet / geen</b>: Je <b>mag</b> hier niet roken. (Like English <i>you may not</i>.)",
+    ex: ["Mag ik even naar de wc gaan?", "Je mag hier niet roken."] },
+  "m-moeten": { kind: "MEANING", name: "moeten — must, have to",
+    how: "moeten = something is necessary or an obligation: there's an appointment, the lesson starts, the bill has to be paid. It is not about wanting (willen) or permission (mogen).",
+    ex: ["Ik moet naar de tandarts gaan want ik heb een afspraak.", "Hij moet de rekening op tijd betalen."] },
+  eij: { kind: "SOUND", name: "ei and ij sound the same",
+    how: "<b>ei</b> and <b>ij</b> are pronounced exactly the same — you cannot hear the difference. Learn the spelling with the word: tijdens, wij with <b>ij</b>; heel, een with <b>ee</b> — not ei.",
+    ex: ["tijdens", "wij"] },
+  zs: { kind: "SOUND", name: "z or s",
+    how: "<b>z</b> is voiced (a buzz, like English 'zoo'); <b>s</b> is sharp. At the start of a word the difference is small, so play it slowly 🐢 and listen for the buzz. At the end of a word it is always written s.",
+    ex: ["zwemmen", "spreken"] },
+  vf: { kind: "SOUND", name: "v or f",
+    how: "<b>v</b> is softer and voiced, <b>f</b> sharp. Many speakers make them sound almost the same, so learn the spelling with the word. At the end of a word it is always f.",
+    ex: ["vakantie", "film"] },
+  gch: { kind: "SOUND", name: "g or ch",
+    how: "In Dutch <b>g</b> and <b>ch</b> (as in <i>lachen</i>) are the same throaty sound. Learn the spelling with the word.",
+    ex: ["goed", "gaan"] },
+  vowelLen: { kind: "SOUND", name: "long or short vowel",
+    how: "Listen to the vowel's length. A long vowel in a closed syllable is written twice (<b>uur</b>, <b>heel</b>); at the end of a syllable once (<b>mo</b>-gen, <b>la</b>-ten). A short vowel is written once (<b>kan</b>, <b>mag</b>).",
+    ex: [["mogen", "mag"], "om 8 uur"] },
+  consLen: { kind: "SOUND", name: "single or double consonant",
+    how: "You cannot hear a double consonant. In the middle of a word it is written double when the vowel before it is <i>short</i>: <b>kun-nen</b>, <b>zul-len</b>, <b>wil-len</b>; single when the vowel is long: <b>mo-gen</b>, <b>moe-ten</b>. At the end of a word never double: kan, wil, zal.",
+    ex: ["kunnen", "mogen", "zullen"] },
+};
+
+const KIND_LABEL = {
+  RULE: "Rule · you can work this out",
+  IRREGULAR: "Irregular · memorize it",
+  MEANING: "Meaning · pick the modal by what the sentence says",
+  SOUND: "Sound · you heard it right, the spelling differs",
+  TYPO: "Typo",
+  WORDS: "Words · something missing or extra",
+};
+// mk(rule, text) → a mistake record; rule null + kind for TYPO / WORDS
+const mk = (rule, text, kind) => ({ rule, text, kind: kind || (RULES[rule] ? RULES[rule].kind : "RULE") });
+
+function editDistance(a, b) {
+  // works on strings (letters) and arrays (words)
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+
+/* ================= FEEDBACK RENDERING ================= */
+function exampleHtml(ex) {
+  const word = t => `<span class="exw">${speakBtn(t)}${esc(t)}</span>`;
+  return `<div class="ex">${ex.map(e => Array.isArray(e) ? `<span class="exw">${word(e[0])} → ${word(e[1])}</span>` : word(e)).join("")}</div>`;
+}
+function ruleHow(id) {
+  const r = RULES[id];
+  return `<details class="how"><summary>How does <b>${r.name}</b> work?</summary><div class="how-body"><span class="tag k-${r.kind}">${r.kind}</span> ${r.how}${exampleHtml(r.ex)}</div></details>`;
+}
+// res: { ok, correct, say, mistakes: [mk()], rules: [ids], also: [ids], steps: [html] }
+function renderFeedback(res) {
+  let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
+  if (res.say) h += ` ${speakBtn(res.say)}`;
+  if (!res.ok) {
+    h += res.mistakes.length
+      ? res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("")
+      : `<div class="mistake"><span class="what"><b>Your mistake:</b> not one of the usual patterns — compare your answer with the steps below.</span></div>`;
+  }
+  if (res.steps && res.steps.length) {
+    h += `<details class="steps"${res.ok ? "" : " open"}><summary>${res.ok ? "Why is this right?" : "How we get there"}</summary><ol>${res.steps.map(s => `<li>${s}</li>`).join("")}</ol></details>`;
+  }
+  // Explain the rules behind the mistakes first; on a right answer, the rules used.
+  const ids = [...new Set([...res.mistakes.map(m => m.rule), ...(res.also || []), ...(res.ok || !res.mistakes.length ? res.rules : [])].filter(r => RULES[r]))];
+  h += ids.map(ruleHow).join("");
+  h += `<span class="why">Press Enter for the next one.</span>`;
+  return h;
+}
+
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  const tally = {}; // rule id → times missed this session
   function newQuestion() {
     current = next();
     answered = false;
@@ -959,30 +1096,159 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, n
     input.value = "";
     input.focus();
   }
+  function renderTally() {
+    const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
+    $(tallyId).innerHTML = ids.length
+      ? `<div class="tally-head">Your mistakes this session — tap to review the rule</div>` +
+        ids.map(id => ruleHow(id).replace(`How does <b>${RULES[id].name}</b> work?`, `<b>${RULES[id].name}</b> ×${tally[id]}`)).join("")
+      : "";
+  }
   function doCheck() {
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
+    res.mistakes = res.mistakes || []; res.rules = res.rules || [];
     answered = true;
     if (res.ok) { right++; streak++; }
-    else { wrong++; streak = 0; }
-    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
-    fb.innerHTML = res.ok
-      ? `<span class="ok">✓ Goed zo!</span>${res.why ? `<span class="why">${res.why}</span>` : ""}`
-      : `<span class="no">✗ ${res.correct}</span>${res.trap ? `<span class="trap">${res.trap}</span>` : ""}${res.why ? `<span class="why">${res.why}</span>` : ""}`;
-    if (res.say) {
-      speak(res.say);
-      fb.insertAdjacentHTML("beforeend", `<span class="why">Replay: ${speakBtn(res.say)}</span>`);
+    else {
+      wrong++; streak = 0;
+      const missed = res.mistakes.map(m => m.rule).filter(r => RULES[r]);
+      [...new Set(missed.length ? missed : res.rules.slice(-1))].forEach(r => { tally[r] = (tally[r] || 0) + 1; });
+      renderTally();
     }
-    fb.insertAdjacentHTML("beforeend", `<span class="why">Press Enter for the next one.</span>`);
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = renderFeedback(res);
+    if (res.say) speak(res.say);
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
   $(checkId).addEventListener("click", doCheck);
+  // Tapping a ▶ or opening an explanation must not steal Enter from the answer box.
+  fb.addEventListener("click", e => { if (e.target.closest("button, summary")) setTimeout(() => input.focus({ preventScroll: true }), 0); });
   return { newQuestion, get current() { return current; } };
 }
 
-/* ================= VERVOEGEN DRILL ================= */
+/* ================= MODAL-FORM DIAGNOSIS ================= */
 const T_FORMS = ["zult", "wilt", "kunt"];
+const modalEn = v => MODALS.find(m => m.nl === v).en;
+const formsOf = v => [...new Set(Object.values(CONJ[v]).flat())];
+// Which modal a typed form belongs to (zal → zullen), or undefined.
+const verbOf = f => Object.keys(CONJ).find(v => formsOf(v).includes(f));
+// Forms the Les 2 base rules would (wrongly) produce.
+const REGULARIZED = { kunnen: ["kun", "kunn"], zullen: ["zul", "zull"], mogen: ["moog", "mog", "moogt", "mogt"], willen: ["will"], moeten: ["moe"] };
+const KEY_WHO = { ik: "ik", jij: "je / jij", jijInv: "je (after the verb)", u: "u", uInv: "u (after the verb)", hij: "hij / zij / het", pl: "we / jullie / ze" };
+// verb = the modal asked for, key = CONJ row of the subject, g = the typed form
+function diagnoseForm(verb, key, g) {
+  const c = CONJ[verb], ok = key === "pl" ? [c.pl] : c[key];
+  if (ok.includes(g)) return [];
+  const other = verbOf(g);
+  if (other && other !== verb)
+    return [mk("m-" + verb, `<b>${g}</b> is a form of <b>${other}</b> (${modalEn(other)}), not of <b>${verb}</b> (${modalEn(verb)}).`)];
+  if ((key === "ik" || key === "hij") && (T_FORMS.includes(g) || ok.some(f => g === f + "t")))
+    return [mk("noT", `${KEY_WHO[key]} + a modal never gets -t: <b>${ok[0]}</b>, not <i>${g}</i>.`)];
+  if (key === "jijInv" && (T_FORMS.includes(g) || ok.some(f => g === f + "t")))
+    return [mk("invT", `je comes <i>after</i> the verb here, so the -t drops: <b>${ok[0]} je</b>, not <i>${g} je</i>.`)];
+  if ((key === "jij" || key === "u") && (g === "zul" || g === "kun"))
+    return [mk("invT", `<b>${g}</b> (without -t) is only used when je comes <i>after</i> the verb (${g} je?). With ${key === "u" ? "u" : "je"} before the verb: <b>${ok.join("</b> or <b>")}</b>.`)];
+  if (key === "uInv" && (g === "zul" || g === "kun"))
+    return [mk("uKeepsT", `Only je/jij drops the -t. With u: <b>${ok.map(f => f + " u").join("</b> or <b>")}</b>.`)];
+  if (key === "pl" && formsOf(verb).includes(g))
+    return [mk("plural", `<b>${g}</b> is a singular form — the subject is plural, so use the infinitive <b>${c.pl}</b>.`)];
+  if (key !== "pl" && g === c.pl)
+    return [mk("plural", `<b>${g}</b> is the infinitive / plural form — ${KEY_WHO[key]} is singular: <b>${ok[0]}</b>.`)];
+  if ((verb === "mogen" && g === "magt") || (verb === "moeten" && g === "moett"))
+    return [mk("twoForms", `${verb} has one singular form for everyone: <b>${ok[0]}</b> — never <i>${g}</i>.`)];
+  if ((REGULARIZED[verb] || []).includes(g) || (REGULARIZED[verb] || []).includes(g.replace(/t$/, "")))
+    return [mk("singForms", `<i>${g}</i> is what the Les 2 base rules would give, but modals are irregular: ${KEY_WHO[key]} <b>${ok[0]}</b>.${g.startsWith("kun") || g.startsWith("zul") ? ` (${g.replace(/t$/, "")} only appears in questions: ${g.replace(/t$/, "")} je?)` : ""}`)];
+  if (ok.some(f => editDistance(g, f) === 1)) return [mk(null, `One letter off — probably a typo: <i>${esc(g)}</i> → <b>${ok[0]}</b>.`, "TYPO")];
+  return [];
+}
+// The CONJ row for the subject next to the modal in a correct sentence.
+const PRON_KEY = { ik: "ik", je: "jij", jij: "jij", u: "u", hij: "hij", zij: "hij", ze: "hij", het: "hij", we: "pl", wij: "pl", jullie: "pl" };
+function keyFor(tokens, ma, verb) {
+  if (tokens[ma] === CONJ[verb].pl && verb) return "pl";
+  const before = tokens[ma - 1], after = tokens[ma + 1];
+  if (PRON_KEY[before]) return PRON_KEY[before];
+  if (PRON_KEY[after]) { const k = PRON_KEY[after]; return k === "jij" ? "jijInv" : k === "u" ? "uInv" : k; }
+  return "hij";
+}
+
+/* ================= SENTENCE DIAGNOSIS =================
+   Compares a typed sentence with the closest correct one, word by word.
+   ctx: { type: "hoofd" | "inv" | "open" | "gesl", start?: first part for inversie,
+          old?: the conjugated verb of the original sentence (grammatica 20) } */
+const VRAAGWOORDEN = new Set(["wat", "wie", "waar", "wanneer", "hoe", "waarom", "welke"]);
+const sameBag = (a, b) => a.length === b.length && [...a].sort().join(" ") === [...b].sort().join(" ");
+function sentenceType(tokens, raw) {
+  if (!/\?\s*$/.test(raw)) return "hoofd";
+  return verbOf(tokens[0]) ? "gesl" : "open";
+}
+function diagnoseSentence(given, answers, ctx = {}) {
+  const gt = norm(given).split(" ");
+  const best = answers.reduce((b, a) => editDistance(norm(a).split(" "), gt) < editDistance(norm(b).split(" "), gt) ? a : b);
+  const at = norm(best).split(" ");
+  const type = ctx.type || sentenceType(at, best);
+  const out = [];
+  const ma = at.findIndex(t => verbOf(t)), af = at[ma], verb = verbOf(af);
+  const inf = at[at.length - 1];
+  let gn = [...gt];
+  // 1 · the modal's form
+  const mg = gn.findIndex(t => verbOf(t) || (REGULARIZED[verb] || []).includes(t));
+  if (mg === -1) {
+    out.push(mk("modalForm", `There's no modal verb in your sentence — it needs <b>${af}</b> (${verb}).`));
+  } else if (gn[mg] !== af) {
+    const okHere = answers.some(a => norm(a).split(" ")[mg] === gn[mg]);
+    if (!okHere) {
+      const d = diagnoseForm(verb, keyFor(at, ma, verb), gn[mg]);
+      out.push(...(d.length ? d : [mk("modalForm", `<b>${gn[mg]}</b> isn't the right form here — use <b>${af}</b>.`)]));
+    }
+    gn[mg] = af;
+  }
+  // 2 · the 2nd verb left conjugated
+  if (ctx.old && ctx.old !== inf && gn.includes(ctx.old) && !gn.includes(inf)) {
+    out.push(mk("infEnd", `The 2nd verb must be the infinitive <b>${inf}</b>, not the conjugated <i>${ctx.old}</i> — the modal already shows the person.`));
+    gn = gn.map(t => t === ctx.old ? inf : t);
+  } else if (!gn.includes(inf)) {
+    const conj = gn.find(t => t !== inf && !t.endsWith("en") && editDistance(t, inf) <= 3 && t.slice(0, 2) === inf.slice(0, 2) && !at.includes(t));
+    if (conj) { out.push(mk("infEnd", `The 2nd verb stays in the infinitive: <b>${inf}</b>, not <i>${conj}</i>.`)); gn = gn.map(t => t === conj ? inf : t); }
+  }
+  // 3 · word order (same words, different order)
+  if (sameBag(gn, at) && gn.join(" ") !== at.join(" ")) {
+    const gm = gn.indexOf(af);
+    const startTok = ctx.start ? norm(ctx.start).split(" ") : null;
+    if (gn[0] === inf) out.push(mk("infEnd", `The 2nd verb (<b>${inf}</b>) can never be at the beginning of the sentence.`));
+    else if (gn[gn.length - 1] !== inf) out.push(mk("infEnd", `The 2nd verb <b>${inf}</b> has to go to the <b>end</b> of the sentence.`));
+    else if (type === "inv" && startTok && gn.slice(0, startTok.length).join(" ") !== startTok.join(" "))
+      out.push(mk("verbSecond", `For inversie, start with „${esc(ctx.start)}”, then the modal, then the subject: <b>${at.slice(0, ma + 2).join(" ")}</b> …`));
+    else if (type === "gesl" && gm !== 0)
+      out.push(mk("verbSecond", `In a gesloten vraag the modal comes <b>first</b>: <b>${cap(at.slice(0, 2).join(" "))}</b> …`));
+    else if (type === "open" && gm !== ma)
+      out.push(mk("verbSecond", `Open vraag: vraagwoord – modal – subject: <b>${cap(at.slice(0, ma + 2).join(" "))}</b> …`));
+    else if (gm !== ma)
+      out.push(type === "inv"
+        ? mk("verbSecond", `Inversie: the modal keeps 2nd place, so the subject moves <i>behind</i> it: <b>${cap(at.slice(0, ma + 2).join(" "))}</b> …`)
+        : mk("verbSecond", `Hoofdzin: subject – modal – rest. The modal comes right after the subject: <b>${cap(at.slice(0, ma + 1).join(" "))}</b> …`));
+    else if (type !== "hoofd" && gn[ma + 1] !== at[ma + 1])
+      out.push(mk("verbSecond", `The subject comes right after the modal: <b>${at.slice(ma, ma + 2).join(" ")}</b> …`));
+    else out.push(mk("restOrder", `The middle part is in the wrong order. It runs time – object – manner – place: <b>${at.slice(ma + 1, -1).join(" ")}</b>.`));
+  } else if (gn.join(" ") !== at.join(" ")) {
+    // 4 · a misspelt or missing / extra word
+    if (gn.length === at.length) {
+      const diff = gn.map((t, i) => [t, at[i]]).filter(([t, a]) => t !== a);
+      if (diff.length === 1 && editDistance(diff[0][0], diff[0][1]) <= 2)
+        out.push(mk(null, `Check the spelling of <b>${diff[0][1]}</b> (you wrote <i>${esc(diff[0][0])}</i>).`, "TYPO"));
+    }
+    if (!out.length) {
+      const missing = at.filter(t => !gn.includes(t)), extra = gn.filter(t => !at.includes(t));
+      const parts = [];
+      if (missing.length) parts.push(`missing: <b>${missing.join(", ")}</b>`);
+      if (extra.length) parts.push(`not in the sentence: <i>${extra.map(esc).join(", ")}</i>`);
+      if (parts.length && missing.length + extra.length <= 4) out.push(mk(null, cap(parts.join(" · ")) + ".", "WORDS"));
+    }
+  }
+  return out;
+}
+
+/* ================= VERVOEGEN DRILL ================= */
 // The rule that decides the form for one subject row.
 function conjRule(verb, key) {
   const c = CONJ[verb];
@@ -1005,32 +1271,12 @@ function conjRule(verb, key) {
       : `With <b>u</b> after the verb the -t can stay: <b>${c.uInv.map(f => f + " u").join("</b> or <b>")}</b>. The -t only has to drop for je/jij.`;
   }
 }
-// A targeted message for the classic mistakes.
-function conjTrap(verb, key, givenVerb) {
-  if (!givenVerb) return "";
-  const allForms = new Set(Object.values(CONJ[verb]).flat());
-  if ((key === "hij" || key === "ik") && T_FORMS.includes(givenVerb))
-    return `✗ <b>${key === "ik" ? "ik" : "hij/zij"} ${givenVerb}</b> — modals never add -t for ${key === "ik" ? "ik" : "the 3rd person singular"}.`;
-  if (key === "jijInv" && T_FORMS.includes(givenVerb))
-    return `✗ <b>${givenVerb} je</b> — when je comes after the verb, the -t is removed.`;
-  if ((key === "jij" || key === "u") && (givenVerb === "zul" || givenVerb === "kun"))
-    return `✗ <b>${givenVerb}</b> only exists with je <em>after</em> the verb (${givenVerb} je?). Before the verb: je ${CONJ[verb].jij.join(" / je ")}.`;
-  if (key === "uInv" && (givenVerb === "zul" || givenVerb === "kun"))
-    return `✗ The -t only drops for je/jij. With u: ${CONJ[verb].uInv.map(f => f + " u").join(" / ")}.`;
-  if (key === "pl" && givenVerb !== CONJ[verb].pl && allForms.has(givenVerb))
-    return `✗ <b>${givenVerb}</b> is singular — the subject is plural, so use the infinitive <b>${CONJ[verb].pl}</b>.`;
-  if (key !== "pl" && givenVerb === CONJ[verb].pl)
-    return `✗ <b>${givenVerb}</b> is the plural / infinitive — the subject here is singular.`;
-  if (!allForms.has(givenVerb)) {
-    const other = Object.keys(CONJ).find(v => Object.values(CONJ[v]).flat().includes(givenVerb));
-    if (other) return `✗ <b>${givenVerb}</b> is a form of <b>${other}</b> (${MODALS.find(m => m.nl === other).en}), not of <b>${verb}</b> (${MODALS.find(m => m.nl === verb).en}).`;
-  }
-  return "";
-}
+// Rules that explain one subject row (shown on right answers).
+const KEY_RULES = { ik: ["noT", "singForms"], hij: ["noT", "singForms"], pl: ["plural"], jij: ["twoForms"], u: ["twoForms"], jijInv: ["invT"], uInv: ["uKeepsT"] };
 const PRONOUNS = new Set(["ik", "jij", "je", "u", "hij", "zij", "ze", "we", "wij", "jullie"]);
 const conjDrill = makeDrill({
   inputId: "conj-input", checkId: "conj-check", feedbackId: "conj-feedback",
-  rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak",
+  rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak", tallyId: "conj-tally",
   next() {
     if (Math.random() < 0.5) {
       // Table round.
@@ -1060,17 +1306,18 @@ const conjDrill = makeDrill({
     const verbWords = words.filter(w => !PRONOUNS.has(w));
     const givenVerb = verbWords.join(" ");
     const ok = verbWords.length === 1 && cur.forms.includes(givenVerb);
-    const alt = cur.forms.length > 1 ? " Both forms are right." : "";
-    let why = conjRule(cur.verb, cur.key) + alt;
-    if (cur.full) why += `<br>Hele zin: <b>${esc(cur.full)}</b>`;
-    return { ok, correct: cur.correct, why, trap: ok ? "" : conjTrap(cur.verb, cur.key, verbWords[0]), say: cur.say };
+    const steps = [conjRule(cur.verb, cur.key) + (cur.forms.length > 1 ? " Both forms are right." : "")];
+    if (cur.full) steps.push(`Hele zin: <b>${esc(cur.full)}</b>`);
+    const res = { ok, correct: cur.correct, say: cur.say, steps, rules: KEY_RULES[cur.key], mistakes: [] };
+    if (!ok && verbWords.length === 1) res.mistakes = diagnoseForm(cur.verb, cur.key, givenVerb);
+    return res;
   },
 });
 
 /* ================= KIEZEN DRILL (grammatica 18) ================= */
 const chooseDrill = makeDrill({
   inputId: "choose-input", checkId: "choose-check", feedbackId: "choose-feedback",
-  rightId: "choose-right", wrongId: "choose-wrong", streakId: "choose-streak",
+  rightId: "choose-right", wrongId: "choose-wrong", streakId: "choose-streak", tallyId: "choose-tally",
   next() {
     const c = pick(CHOOSE);
     $("choose-sentence").innerHTML = esc(c.s).replace("___", '<span class="gap">___</span>');
@@ -1079,21 +1326,30 @@ const chooseDrill = makeDrill({
     return { c, full: fillGap(c.s, c.a) };
   },
   check(cur, given) {
-    const ok = norm(given) === norm(cur.c.a);
-    const other = cur.c.opts.find(o => norm(o) !== norm(cur.c.a));
-    const trap = !ok && norm(given) === norm(other) ? `✗ <b>${esc(other)}</b> doesn't fit the meaning here.` : "";
-    return {
-      ok, correct: cur.c.a, trap,
-      why: `${cur.c.why}<br>Hele zin: <b>${esc(cur.full)}</b><br><em>${esc(cur.c.en)}</em>`,
-      say: cur.full,
-    };
+    const c = cur.c, g = norm(given), a = norm(c.a);
+    const want = verbOf(a);
+    const res = { ok: g === a, correct: c.a, say: cur.full, rules: ["m-" + want],
+                  steps: [c.why, `Hele zin: <b>${esc(cur.full)}</b>`, `<em>${esc(c.en)}</em>`], mistakes: [] };
+    if (res.ok) return res;
+    const got = verbOf(g);
+    if (got && got !== want) {
+      res.mistakes = [mk("m-" + want, `You chose <b>${esc(g)}</b>${g === got ? "" : ` (${got})`}: ${modalEn(got)}. Here the sentence needs <b>${want}</b>: ${modalEn(want)}.`)];
+      res.also = ["m-" + got];
+    } else if (got === want) {
+      // right modal, wrong form for the subject
+      res.mistakes = diagnoseForm(want, c.key, g);
+      if (!res.mistakes.length) res.mistakes = [mk("modalForm", `Right verb, wrong form: with this subject it is <b>${a}</b>.`)];
+    } else if (editDistance(g, a) === 1) {
+      res.mistakes = [mk(null, `One letter off — probably a typo: <i>${esc(g)}</i> → <b>${a}</b>.`, "TYPO")];
+    }
+    return res;
   },
 });
 
 /* ================= OMZETTEN DRILL (grammatica 20) ================= */
 const changeDrill = makeDrill({
   inputId: "change-input", checkId: "change-check", feedbackId: "change-feedback",
-  rightId: "change-right", wrongId: "change-wrong", streakId: "change-streak",
+  rightId: "change-right", wrongId: "change-wrong", streakId: "change-streak", tallyId: "change-tally",
   next() {
     const c = pick(CHANGE);
     $("change-base").innerHTML = `${speakBtn(c.base)}${esc(c.base)}`;
@@ -1106,19 +1362,23 @@ const changeDrill = makeDrill({
     const answers = [c.a, ...(c.alts || [])];
     const ok = answers.some(a => norm(a) === norm(given));
     const [from, to] = c.verb;
-    const step = from === to
-      ? `<b>${esc(to)}</b> is already the infinitive, and moves to the end.`
-      : `<b>${esc(from)}</b> goes back to its infinitive <b>${esc(to)}</b> at the end.`;
-    const why = `The modal takes the verb's place in the right form; ${step}${c.note ? " " + c.note : ""}` +
-      (answers.length > 1 ? `<br>Also correct: ${answers.slice(1).map(esc).join(" · ")}` : "");
-    return { ok, correct: esc(c.a), why, trap: ok ? "" : orderTrap(given, c.a), say: c.a };
+    const at = norm(c.a).split(" "), ma = at.findIndex(t => verbOf(t)), verb = verbOf(at[ma]);
+    const steps = [
+      `Meaning (${esc(c.en)}) → <b>${verb}</b>; the modal takes the verb's place in the right form: <b>${at[ma]}</b>.`,
+      from === to ? `<b>${esc(to)}</b> is already the infinitive, and moves to the end.` : `<b>${esc(from)}</b> goes back to its infinitive <b>${esc(to)}</b> at the end.`,
+    ];
+    if (c.note) steps.push(c.note);
+    if (answers.length > 1) steps.push(`Also correct: ${answers.slice(1).map(esc).join(" · ")}`);
+    const res = { ok, correct: esc(c.a), say: c.a, steps, rules: ["verbSecond", "infEnd"], mistakes: [] };
+    if (!ok) res.mistakes = diagnoseSentence(given, answers, { old: norm(from) });
+    return res;
   },
 });
 
 /* ================= ZINSBOUW DRILL ================= */
 const orderDrill = makeDrill({
   inputId: "order-input", checkId: "order-check", feedbackId: "order-feedback",
-  rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak",
+  rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak", tallyId: "order-tally",
   next() {
     if (Math.random() < 0.6) {
       const b = pick(BUILD);
@@ -1131,14 +1391,14 @@ const orderDrill = makeDrill({
         const it = pick(b.inv);
         $("order-target").textContent = `Hoofdzin met inversie — begin met: „${it.start}”`;
         return {
-          answers: [it.s, ...(it.alts || [])], say: it.s,
+          answers: [it.s, ...(it.alts || [])], say: it.s, type: "inv", start: it.start, rules: ["verbSecond", "infEnd"],
           why: `<b>Inversie:</b> „${esc(it.start)}” – modal – subject – rest – <b>2nd verb</b>. The modal keeps 2nd place, the subject slides behind it.` +
                `${it.note ? " " + it.note : ""}${b.note ? " " + b.note : ""}<br>The plain hoofdzin: ${esc(b.hoofd)}`,
         };
       }
       $("order-target").textContent = "Hoofdzin";
       return {
-        answers: [b.hoofd, ...(b.hoofdAlt || [])], say: b.hoofd,
+        answers: [b.hoofd, ...(b.hoofdAlt || [])], say: b.hoofd, type: "hoofd", rules: ["verbSecond", "restOrder", "infEnd"],
         why: `<b>Hoofdzin:</b> subject – modal – rest (time – object – manner – place) – <b>2nd verb</b> at the end.${b.note ? " " + b.note : ""}`,
       };
     }
@@ -1151,20 +1411,23 @@ const orderDrill = makeDrill({
       const o = pick(q.open);
       $("order-target").textContent = `Open vraag met „${o.q}”`;
       return {
-        answers: o.s, say: o.s[0],
+        answers: o.s, say: o.s[0], type: "open", rules: ["verbSecond", "infEnd"],
         why: `<b>Open vraag:</b> vraagwoord – modal – subject – rest – <b>2nd verb</b>.${o.note ? " " + o.note : ""}${q.note ? " " + q.note : ""}`,
       };
     }
     $("order-target").textContent = "Gesloten vraag";
     return {
-      answers: q.gesloten, say: q.gesloten[0],
+      answers: q.gesloten, say: q.gesloten[0], type: "gesl", rules: ["verbSecond", "infEnd"],
       why: `<b>Gesloten vraag:</b> modal – subject – rest – <b>2nd verb</b>. The answer is ja or nee.${q.note ? " " + q.note : ""}`,
     };
   },
   check(cur, given) {
     const ok = cur.answers.some(a => norm(a) === norm(given));
-    const alt = cur.answers.length > 1 ? `<br>Also correct: ${cur.answers.slice(1).map(esc).join(" · ")}` : "";
-    return { ok, correct: esc(cur.answers[0]), why: cur.why + alt, trap: ok ? "" : orderTrap(given, cur.answers[0]), say: cur.say };
+    const steps = cur.why.split("<br>");
+    if (cur.answers.length > 1) steps.push(`Also correct: ${cur.answers.slice(1).map(esc).join(" · ")}`);
+    const res = { ok, correct: esc(cur.answers[0]), say: cur.say, steps, rules: cur.rules, mistakes: [] };
+    if (!ok) res.mistakes = diagnoseSentence(given, cur.answers, { type: cur.type, start: cur.start });
+    return res;
   },
 });
 
@@ -1183,9 +1446,73 @@ const LISTEN_ITEMS = [...new Set([
   ...CHOOSE.map(c => fillGap(c.s, c.a)),
   ...CHANGE.map(c => c.a),
 ])];
+// [what the answer has, what the learner may write instead, rule, explanation]
+const SOUND_SWAPS = [
+  ["ij", "ei", "eij", () => `<b>ij</b> and <b>ei</b> sound exactly the same — this word is spelled with <b>ij</b>.`],
+  ["ei", "ij", "eij", () => `<b>ei</b> and <b>ij</b> sound exactly the same — this word is spelled with <b>ei</b>.`],
+  ["z", "s", "zs", () => `You wrote s, but it's a voiced <b>z</b> (a buzz). Play it slowly and listen for it.`],
+  ["s", "z", "zs", () => `You wrote z, but it's a sharp <b>s</b> — no buzz.`],
+  ["v", "f", "vf", () => `You wrote f, but this word is spelled with <b>v</b>.`],
+  ["f", "v", "vf", () => `You wrote v, but this word is spelled with <b>f</b>.`],
+  ["g", "ch", "gch", () => `g and ch sound the same — this word is spelled with <b>g</b>.`],
+  ["aa", "a", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>aa</b>.`],
+  ["ee", "e", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>ee</b>.`],
+  ["oo", "o", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>oo</b>.`],
+  ["uu", "u", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>uu</b>.`],
+];
+const isVowel = ch => "aeiou".includes(ch);
+// a = correct word, g = typed word
+function diagnoseWord(g, a, prev, nextTok) {
+  for (const [from, to, rule, why] of SOUND_SWAPS) {
+    for (let i = a.indexOf(from); i !== -1; i = a.indexOf(from, i + 1)) {
+      if (a.slice(0, i) + to + a.slice(i + from.length) === g) return [mk(rule, why())];
+    }
+  }
+  for (let i = 0; i < a.length; i++) {
+    if ("aeou".includes(a[i]) && a[i + 1] !== a[i] && a[i - 1] !== a[i] && a.slice(0, i + 1) + a.slice(i) === g)
+      return [mk("vowelLen", `The vowel ends its syllable here (open syllable), so one letter is already long — no doubling.`)];
+  }
+  for (let i = 0; i < a.length; i++) {
+    const ch = a[i];
+    if (isVowel(ch)) continue;
+    if (a[i + 1] === ch && a.slice(0, i) + a.slice(i + 1) === g)
+      return [mk("consLen", `You can't hear a double consonant. It's written <b>${ch}${ch}</b> because the vowel before it is short.`)];
+    if (a[i + 1] !== ch && a[i - 1] !== ch && a.slice(0, i + 1) + a.slice(i) === g)
+      return [mk("consLen", a[i + 1] === undefined
+        ? `A Dutch word never ends in a double consonant — just one <b>${ch}</b>.`
+        : `Only one <b>${ch}</b> here. A consonant is doubled only between two vowels, right after a <i>short</i> vowel (kun-nen).`)];
+  }
+  const gv = verbOf(g), av = verbOf(a);
+  if (gv && av && gv !== av) return [mk("m-" + av, `You wrote <i>${g}</i> (${gv}), but it's <b>${a}</b> (${av}).`)];
+  if (gv && gv === av) {
+    // Same modal, other form: grammar may rule your form out, or both may be right.
+    if ((prev === "ik" || PRON_KEY[prev] === "hij") && (T_FORMS.includes(g) || g.endsWith("t") && !a.endsWith("t")))
+      return [mk("noT", `After <b>${prev}</b> a modal never takes -t, so <i>${g}</i> can't be right: <b>${prev} ${a}</b>.`)];
+    if ((prev === "ik" || PRON_KEY[prev] === "hij") && (g === "kun" || g === "zul"))
+      return [mk("singForms", `<i>${g}</i> only appears in questions (${g} je?). After <b>${prev}</b>: <b>${a}</b>.`)];
+    if ((nextTok === "je" || nextTok === "jij") && T_FORMS.includes(g))
+      return [mk("invT", `je comes after the verb, so the -t drops: <b>${a} ${nextTok}</b>, not <i>${g} ${nextTok}</i>.`)];
+    return [mk("twoForms", `<i>${g}</i> is also a correct form of ${av}, but the speaker says <b>${a}</b> — listen for the vowel (k<b>a</b>n / k<b>u</b>n, z<b>a</b>l / z<b>u</b>l) and a final t.`, "SOUND")];
+  }
+  if (editDistance(g, a) === 1) return [mk(null, `One letter off — probably a typo: <i>${esc(g)}</i> → <b>${a}</b>.`, "TYPO")];
+  return [];
+}
+function diagnoseListen(given, text) {
+  const gt = norm(given).split(" "), at = norm(text).split(" ");
+  if (gt.length === at.length) {
+    const diff = gt.map((t, i) => [t, at[i], i]).filter(([t, a]) => t !== a);
+    if (diff.length === 1) { const [t, a, i] = diff[0]; return diagnoseWord(t, a, at[i - 1], at[i + 1]); }
+    if (diff.length === 0) return [];
+  }
+  const missing = at.filter(t => !gt.includes(t)), extra = gt.filter(t => !at.includes(t));
+  if (!missing.length && !extra.length) return [mk(null, `All the words are there, but in a different order. Listen again 🐢.`, "WORDS")];
+  if (missing.length + extra.length <= 3)
+    return [mk(null, cap([missing.length ? `missing: <b>${missing.join(", ")}</b>` : "", extra.length ? `you added: <i>${extra.map(esc).join(", ")}</i>` : ""].filter(Boolean).join(" · ")) + ".", "WORDS")];
+  return [];
+}
 const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
-  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
     const text = pick(LISTEN_ITEMS);
     const n = text.split(" ").length;
@@ -1194,7 +1521,9 @@ const listenDrill = makeDrill({
   },
   check(cur, given) {
     const ok = norm(given) === norm(cur.text);
-    return { ok, correct: esc(cur.text), say: cur.text };
+    const res = { ok, correct: esc(cur.text), say: cur.text, mistakes: [] };
+    if (!ok) res.mistakes = diagnoseListen(given, cur.text);
+    return res;
   },
 });
 $("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
