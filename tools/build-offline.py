@@ -13,9 +13,9 @@ SKIP_FILES = {"CLAUDE.md", "offline-files.json", "sw.js", ".DS_Store"}
 
 files = {}
 for dirpath, dirnames, filenames in os.walk(ROOT):
-    dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
+    dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS and not d.startswith("."))
     for name in sorted(filenames):
-        if name in SKIP_FILES:
+        if name in SKIP_FILES or name.startswith("."):  # Pages doesn't serve dotfiles
             continue
         full = os.path.join(dirpath, name)
         rel = os.path.relpath(full, ROOT).replace(os.sep, "/")
