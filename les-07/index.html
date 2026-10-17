@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 7 — Perfectum</title>
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nederlands">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #16150F;
+    --red: #DE3B24;
+    --blue: #2247B5;
+    --yellow: #F5C518;
+    --rule: 3px solid var(--ink);
+    --display: "Archivo Black", "Arial Black", sans-serif;
+    --body: "Archivo", "Helvetica Neue", sans-serif;
+    --mono: "IBM Plex Mono", "Menlo", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .frame { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---- Header: Mondrian composition ---- */
+  header { border-bottom: var(--rule); padding: 36px 0 24px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .eyebrow a.home { color: inherit; text-decoration: none; border-bottom: 2px solid currentColor; }
+  h1 {
+    font-family: var(--display); font-size: clamp(30px, 5.5vw, 54px);
+    line-height: 1.02; text-transform: uppercase; letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--red); }
+  header p.sub { margin-top: 12px; max-width: 600px; color: #4a4940; }
+
+  /* ---- Nav as Mondrian blocks ---- */
+  nav {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    border: var(--rule); border-top: none; background: var(--ink); gap: 3px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  nav button {
+    font-family: var(--display); font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.02em; border: none; padding: 16px 6px 14px;
+    cursor: pointer; background: var(--paper); color: var(--ink);
+  }
+  nav button:hover { background: #efede2; }
+  nav button:focus-visible { outline: 3px dashed var(--blue); outline-offset: -6px; }
+  nav button[aria-selected="true"]:nth-child(1) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(2) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(3) { background: var(--blue); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(4) { background: var(--red); color: var(--paper); }
+  nav button[aria-selected="true"]:nth-child(5) { background: var(--yellow); color: var(--ink); }
+  nav button[aria-selected="true"]:nth-child(6) { background: var(--blue); color: var(--paper); }
+
+  section.panel { display: none; padding-top: 34px; }
+  section.panel.active { display: block; }
+
+  h2 {
+    font-family: var(--display); font-size: 24px; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h3 { font-family: var(--display); font-size: 18px; text-transform: uppercase; margin: 8px 0 12px; }
+  .note { color: #4a4940; margin-bottom: 22px; max-width: 640px; }
+
+  /* ---- Reference tables ---- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 26px; margin-bottom: 40px; align-items: start; }
+  .card { border: var(--rule); background: #fff; }
+  .card .head {
+    font-family: var(--display); text-transform: uppercase; font-size: 16px;
+    padding: 10px 14px; border-bottom: var(--rule);
+  }
+  .card .head small { display:block; font-family: var(--mono); font-weight: 400; text-transform: none; font-size: 12px; }
+  .card.red .head { background: var(--red); color: var(--paper); }
+  .card.blue .head { background: var(--blue); color: var(--paper); }
+  .card.yellow .head { background: var(--yellow); }
+  .card table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; }
+  .card td { padding: 8px 14px; border-bottom: 1px solid #d8d5c6; vertical-align: top; }
+  .card tr:last-child td { border-bottom: none; }
+  .card td.en { color: #6a685c; font-size: 13.5px; text-align: right; }
+  .card td.lbl { font-family: var(--body); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; background:#f1efe4; }
+  .speak {
+    border: 2px solid var(--ink); background: var(--paper); cursor: pointer;
+    font-size: 12px; font-family: var(--mono); padding: 1px 7px; margin-right: 8px;
+    border-radius: 0;
+  }
+  .speak:hover { background: var(--yellow); }
+  .speak:focus-visible { outline: 3px dashed var(--blue); }
+
+  .rules { border: var(--rule); background: #fff; margin-bottom: 40px; }
+  .rules .head { font-family: var(--display); text-transform: uppercase; font-size: 16px; padding: 10px 14px; border-bottom: var(--rule); background: var(--ink); color: var(--paper); }
+  .rules .head.red { background: var(--red); }
+  .rules .head.blue { background: var(--blue); }
+  .rules ol, .rules ul { padding: 16px 16px 16px 40px; }
+  .rules li { margin-bottom: 12px; }
+  .rules p { padding: 12px 16px 0; }
+  .rules code { font-family: var(--mono); background: #f1efe4; padding: 1px 5px; font-size: 14.5px; }
+  .rules .exs { padding: 4px 16px 16px; font-family: var(--mono); font-size: 14.5px; }
+  .rules .exs div { padding: 5px 0; border-bottom: 1px solid #ebe8dc; }
+  .rules .exs div:last-child { border-bottom: none; }
+  .rules .exs .en { color: #6a685c; font-family: var(--body); font-size: 13.5px; }
+  .ketchup { font-family: var(--display); font-size: 22px; letter-spacing: .04em; padding: 12px 16px 0; }
+  .ketchup b { color: var(--red); }
+  .pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 0 24px; padding: 8px 16px 14px; font-family: var(--mono); font-size: 14.5px; }
+  .pairs div { padding: 6px 0; border-bottom: 1px solid #ebe8dc; }
+  .pairs .arrow { color: #6a685c; margin: 0 4px; }
+  .mark { background: var(--yellow); padding: 0 3px; }
+
+  /* word-order grid */
+  .order { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
+  .order th { font-family: var(--body); font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; text-align: left; padding: 6px 8px; background: #f1efe4; border-bottom: 2px solid var(--ink); }
+  .order td { padding: 7px 8px; border-bottom: 1px solid #ebe8dc; vertical-align: top; }
+  .order td.aux { color: var(--red); font-weight: 600; }
+  .order td.pp { color: var(--blue); font-weight: 600; }
+  .order-wrap { overflow-x: auto; padding: 8px 12px 12px; }
+
+  /* irregular list */
+  .irr-tools { padding: 12px 14px; border-bottom: 1px solid #d8d5c6; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .irr-tools input { font-family: var(--mono); font-size: 15px; padding: 8px 10px; border: 2px solid var(--ink); flex: 1; min-width: 160px; }
+  .irr-tools span { font-family: var(--mono); font-size: 13px; color: #6a685c; }
+  .irr-scroll { max-height: 520px; overflow-y: auto; }
+  table.irr td { padding: 6px 10px; }
+  table.irr td.imp { color: #6a685c; font-size: 13px; }
+  table.irr td.aux { font-size: 12.5px; color: #6a685c; white-space: nowrap; }
+  table.irr tr.core td:first-child { box-shadow: inset 4px 0 0 var(--yellow); }
+
+  /* ---- Flashcards ---- */
+  .flash-stage { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .flashcard {
+    width: min(460px, 100%); min-height: 240px; border: var(--rule); background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; text-align: center; padding: 24px;
+  }
+  .flashcard .side-label {
+    position: absolute; top: 10px; left: 12px; font-family: var(--mono);
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .flashcard .word { font-family: var(--display); font-size: 36px; line-height: 1.15; }
+  .flashcard .sub { font-family: var(--mono); font-size: 15px; margin-top: 10px; color: #4a4940; }
+  .flashcard.back { background: var(--yellow); }
+  .flash-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    font-family: var(--display); text-transform: uppercase; font-size: 14px;
+    border: var(--rule); background: var(--paper); padding: 12px 20px; cursor: pointer;
+  }
+  .btn:hover { background: #efede2; }
+  .btn:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .btn.primary { background: var(--blue); color: var(--paper); }
+  .btn.primary:hover { background: #1b3a99; }
+  .btn.good { background: var(--yellow); }
+  .btn.bad { background: var(--red); color: var(--paper); }
+  .flash-progress { font-family: var(--mono); font-size: 14px; }
+
+  /* ---- Drills ---- */
+  .drill { max-width: 620px; }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+  .toolbar select { font-family: var(--mono); font-size: 14px; padding: 8px 10px; border: var(--rule); background: #fff; color: var(--ink); text-transform: none; letter-spacing: 0; max-width: 100%; }
+  .prompt-box { border: var(--rule); background: #fff; padding: 26px 24px; margin-bottom: 18px; }
+  .prompt-box .task { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; color: #6a685c; }
+  .prompt-box .big { font-family: var(--display); font-size: 32px; line-height: 1.1; }
+  .prompt-box .big.sent { font-family: var(--body); font-weight: 700; font-size: 22px; line-height: 1.45; }
+  .prompt-box .big .verb { color: var(--blue); }
+  .prompt-box .hint { font-family: var(--mono); font-size: 14px; margin-top: 8px; color: #6a685c; }
+  .gap { display: inline-block; min-width: 3.2em; border-bottom: 3px solid var(--red); color: var(--red); text-align: center; line-height: 1.1; }
+  .answer-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  input[type=text] {
+    flex: 1; font-family: var(--mono); font-size: 20px; padding: 12px 14px;
+    border: var(--rule); background: #fff; min-width: 0;
+  }
+  input[type=text]:focus-visible { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
+  .feedback .ok { color: #1e7a1e; font-weight: 600; }
+  .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
+  .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
+  .scorebar b { font-size: 18px; }
+  .feedback .mistake { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-top: 10px; font-family: var(--body); font-size: 15px; }
+  .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border: 2px solid var(--ink); white-space: nowrap; }
+  .tag.k-RULE { background: var(--blue); color: #fff; }
+  .tag.k-EXCEPTION, .tag.k-IRREGULAR { background: var(--red); color: #fff; }
+  .tag.k-SOUND { background: var(--yellow); color: var(--ink); }
+  .tag.k-TYPO { background: #fff; color: var(--ink); }
+  .feedback details, .tally details { margin-top: 10px; border-left: 3px solid var(--ink); padding-left: 12px; font-family: var(--body); font-size: 15px; }
+  .feedback summary, .tally summary { cursor: pointer; font-family: var(--mono); font-size: 14px; }
+  .feedback .steps ol { padding: 6px 0 2px 22px; }
+  .feedback .steps li { margin-bottom: 4px; }
+  .how-body { padding: 8px 0 4px; line-height: 1.5; }
+  .how-body .tag { margin-right: 4px; }
+  .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
+  .exw { white-space: nowrap; }
+  .tally { margin-top: 14px; }
+  .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
+
+  @media (max-width: 640px) {
+    nav { grid-template-columns: repeat(3, 1fr); }
+    nav button { font-size: 11px; padding: 12px 2px; }
+    .flashcard .word { font-size: 26px; }
+    .prompt-box .big { font-size: 24px; }
+    .prompt-box .big.sent { font-size: 18px; }
+    table.irr td.imp { display: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flashcard { transition: transform .12s ease; }
+    .flashcard:active { transform: scale(.985); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="eyebrow"><a class="home" href="../">← Nederlands</a> · Les 7 · 15-10-2026</div>
+    <h1>Het <span class="accent">perfectum</span><br>— de verleden tijd</h1>
+    <p class="sub">The past tense with <strong>hebben</strong> or <strong>zijn</strong> + a participle: regular participles (<em>soft ketchup</em>), verbs without ge-, irregular verbs, and the homework from De opmaat (Oefening 9 p.98, Oefening 10 p.100).</p>
+  </header>
+
+  <nav role="tablist" aria-label="Practice sections">
+    <button role="tab" aria-selected="true" data-panel="learn">Leer</button>
+    <button role="tab" aria-selected="false" data-panel="flash">Woorden</button>
+    <button role="tab" aria-selected="false" data-panel="part">Deelwoord</button>
+    <button role="tab" aria-selected="false" data-panel="hw">Huiswerk</button>
+    <button role="tab" aria-selected="false" data-panel="change">Omzetten</button>
+    <button role="tab" aria-selected="false" data-panel="listen">Luisteren</button>
+  </nav>
+
+  <!-- ================= LEARN ================= -->
+  <section class="panel active" id="panel-learn">
+    <h2>Reference — het perfectum</h2>
+    <p class="note">Click ▶ to hear the Dutch, 🐢 to hear it slowly.</p>
+
+    <div class="rules">
+      <div class="head">Perfectum = two verbs</div>
+      <ol>
+        <li>The <strong>helping verb</strong>: <code>hebben</code> or <code>zijn</code>, in the present tense and in the right form for the subject (ik <b>heb</b>, hij <b>heeft</b>, ik <b>ben</b>, hij <b>is</b>…). It sits where the verb always sits.</li>
+        <li>The <strong>main verb</strong> becomes a <strong>participle</strong> (voltooid deelwoord) and goes to the <strong>end</strong>. The participle is the same for all persons: ik heb ge<b>werkt</b>, wij hebben ge<b>werkt</b>.</li>
+      </ol>
+      <div class="exs" id="ex-perf"></div>
+    </div>
+
+    <div class="cols" id="pers-cols"></div>
+
+    <div class="rules">
+      <div class="head blue">Participle of regular verbs</div>
+      <ol>
+        <li>Find the <strong>base</strong> of the verb by removing <code>-en</code> (with the spelling rules from Les 2: <code>maken → maak</code>, <code>kennen → ken</code>, <code>leven → leef</code>).</li>
+        <li>Add <code>ge-</code> in front (where that's necessary — see "no ge-" below).</li>
+        <li>Add <code>-t</code> or <code>-d</code> at the end.</li>
+        <li>To know if it's t or d, look at the <strong>letter before -en in the infinitive</strong>. Is it in <em>soft ketchup(x)</em>? → <code>t</code>. Not in it? → <code>d</code>.</li>
+      </ol>
+      <div class="ketchup"><b>S</b>o<b>F</b><b>T</b> <b>K</b>et<b>CH</b>u<b>P</b> (+<b>X</b>) &nbsp;→ t</div>
+      <p>The book also calls it <em>'t ex-kofschip</em> — same letters. Everything else (l, m, n, r, w, g, b, d, z, v, a vowel…) → <code>d</code>.</p>
+      <div class="pairs" id="ex-regular"></div>
+    </div>
+
+    <div class="cols">
+      <div class="rules" style="margin-bottom:0">
+        <div class="head red">Let op: z and v → d</div>
+        <p>The rule looks at the <strong>infinitive</strong>, not the base. rei<b>z</b>en has a <b>z</b>, proe<b>v</b>en a <b>v</b> — not in soft ketchup → <code>d</code>, even though the base is written with s / f (reis, proef).</p>
+        <div class="exs" id="ex-zv"></div>
+      </div>
+      <div class="rules" style="margin-bottom:0">
+        <div class="head red">Base ends in t or d → add nothing</div>
+        <p>A Dutch word never ends in <i>tt</i>, <i>dd</i>, <i>td</i> or <i>dt</i> after ge-. If the base already ends in <b>t</b> or <b>d</b>, nothing is added.</p>
+        <div class="exs" id="ex-td"></div>
+      </div>
+    </div>
+    <div style="height:40px"></div>
+
+    <div class="rules">
+      <div class="head blue">No ge- : be-, ge-, ont-, ver-, her-, er-</div>
+      <p>If the verb begins with <code>be- ge- ont- ver- her- er-</code> and the stress is <strong>not</strong> on that first syllable (ge<b>BEU</b>ren, ver<b>TEL</b>len), the participle gets <strong>no extra ge-</strong>. The rest of the rule stays the same.</p>
+      <div class="pairs" id="ex-prefix-pairs"></div>
+      <div class="exs" id="ex-prefix"></div>
+    </div>
+
+    <div class="rules">
+      <div class="head red">Hebben or zijn?</div>
+      <ul>
+        <li>Most verbs take <code>hebben</code>.</li>
+        <li><code>zijn</code> for: <b>zijn</b> itself, and verbs of a <strong>change of place or state</strong> — gaan, komen, blijven, worden, beginnen, stoppen, gebeuren, veranderen, trouwen, slagen, zakken, stijgen, dalen… (book p.99). Learn them with their helping verb: <code>komen → zijn gekomen</code>, <code>brengen → hebben gebracht</code>.</li>
+        <li>Verbs of <strong>movement</strong> (lopen, fietsen, zwemmen, rijden): <code>zijn</code> when you go <strong>to a place</strong> (naar …), <code>hebben</code> when you just do the activity.</li>
+      </ul>
+      <div class="exs" id="ex-zijn"></div>
+      <div class="exs" id="ex-motion" style="border-top: 2px solid var(--ink); padding-top: 10px;"></div>
+    </div>
+
+    <div class="rules">
+      <div class="head">Word order (Les 3) with two verbs</div>
+      <p>The helping verb takes the place of the normal verb; the participle closes the sentence. The middle stays <em>time – object – manner – place</em>.</p>
+      <div class="order-wrap"><table class="order" id="order-table"></table></div>
+    </div>
+
+    <div class="rules">
+      <div class="head red">Irregular verbs (onregelmatige verba)</div>
+      <p>Many verbs are irregular: you can't build the participle yourself — look it up in the list (book p.125–127) and learn the common ones by heart. Most end in <code>-en</code> and change their vowel; a few end in <code>-cht</code>.</p>
+      <div class="exs" id="ex-irr"></div>
+    </div>
+
+    <div class="card" id="irr-card">
+      <div class="head red">Lijst met onregelmatige werkwoorden<small>De opmaat p.125–127 · participle (helping verb) · yellow = in the drills</small></div>
+      <div class="irr-tools"><input type="text" id="irr-search" placeholder="zoek: drinken, gegeten, to buy…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search the list"><span id="irr-count"></span></div>
+      <div class="irr-scroll"><table class="irr" id="irr-table"></table></div>
+    </div>
+  </section>
+
+  <!-- ================= FLASHCARDS ================= -->
+  <section class="panel" id="panel-flash">
+    <h2>Woorden — participle flashcards</h2>
+    <p class="note">Front: the infinitive. Back: the perfectum with its helping verb. Click the card (or press space) to flip. Unknown cards come back until you know them all.</p>
+    <div class="toolbar"><label for="flash-deck">Deck</label>
+      <select id="flash-deck">
+        <option value="irr">Irregular — the common ones</option>
+        <option value="reg">Regular — verbs of this lesson</option>
+        <option value="all">The whole list p.125–127</option>
+      </select>
+    </div>
+    <div class="flash-stage">
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <span class="side-label" id="flash-side">NL</span>
+        <div class="word" id="flash-word">—</div>
+        <div class="sub" id="flash-sub"></div>
+      </div>
+      <div class="flash-controls">
+        <button class="btn" id="flash-audio">▶ Uitspraak</button>
+        <button class="btn" id="flash-slow">🐢 Langzaam</button>
+        <button class="btn bad" id="flash-no">✗ Nog niet</button>
+        <button class="btn good" id="flash-yes">✓ Ik weet het</button>
+      </div>
+      <div class="flash-progress" id="flash-progress"></div>
+    </div>
+  </section>
+
+  <!-- ================= PARTICIPLE DRILL ================= -->
+  <section class="panel" id="panel-part">
+    <h2>Deelwoord — infinitive → participle</h2>
+    <p class="note">Type the participle (voltooid deelwoord). Regular verbs: work it out with soft ketchup. Irregular verbs: from the list. Press Enter to check, Enter again for the next one.</p>
+    <div class="drill">
+      <div class="toolbar"><label for="part-mode">Verbs</label>
+        <select id="part-mode">
+          <option value="mix">Mix</option>
+          <option value="reg">Regular only</option>
+          <option value="irr">Irregular only</option>
+        </select>
+      </div>
+      <div class="prompt-box">
+        <div class="task">Participle of</div>
+        <div class="big" id="part-prompt">—</div>
+        <div class="hint" id="part-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="part-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ge…" aria-label="Your answer">
+        <button class="btn primary" id="part-check">Check</button>
+      </div>
+      <div class="feedback" id="part-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="part-right">0</b></span><span>Fout <b id="part-wrong">0</b></span><span>Reeks <b id="part-streak">0</b></span></div>
+      <div class="tally" id="part-tally"></div>
+    </div>
+  </section>
+
+  <!-- ================= HOMEWORK DRILL ================= -->
+  <section class="panel" id="panel-hw">
+    <h2>Huiswerk — zet de zinnen in perfectum</h2>
+    <p class="note">The exercises from the book and the lesson. Type the two missing words — the helping verb and the participle — e.g. <code>heb gekookt</code>.</p>
+    <div class="drill">
+      <div class="toolbar"><label for="hw-set">Oefening</label>
+        <select id="hw-set">
+          <option value="o9">Oefening 9 · p.98 — regelmatig</option>
+          <option value="o10">Oefening 10 · p.100 — onregelmatig</option>
+          <option value="klas">Les-oefening · De opmaat p.117–118</option>
+          <option value="pers">Personen · ik heb / ik ben …</option>
+          <option value="all">Alles door elkaar</option>
+        </select>
+      </div>
+      <div class="prompt-box">
+        <div class="task" id="hw-task">Fill in</div>
+        <div class="big sent" id="hw-prompt">—</div>
+        <div class="hint" id="hw-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="hw-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="heb gekookt" aria-label="Your answer">
+        <button class="btn primary" id="hw-check">Check</button>
+      </div>
+      <div class="feedback" id="hw-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="hw-right">0</b></span><span>Fout <b id="hw-wrong">0</b></span><span>Reeks <b id="hw-streak">0</b></span></div>
+      <div class="tally" id="hw-tally"></div>
+    </div>
+  </section>
+
+  <!-- ================= CHANGE DRILL ================= -->
+  <section class="panel" id="panel-change">
+    <h2>Omzetten — present → perfectum</h2>
+    <p class="note">Rewrite the whole sentence in the perfectum. Sentences from the lesson and the book (p.98–100): hoofdzinnen, open and closed questions.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task" id="change-task">Zet in perfectum</div>
+        <div class="big sent" id="change-prompt">—</div>
+        <div class="hint" id="change-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="change-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="hij heeft …" aria-label="Your answer">
+        <button class="btn primary" id="change-check">Check</button>
+      </div>
+      <div class="feedback" id="change-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="change-right">0</b></span><span>Fout <b id="change-wrong">0</b></span><span>Reeks <b id="change-streak">0</b></span></div>
+      <div class="tally" id="change-tally"></div>
+    </div>
+  </section>
+
+  <!-- ================= LISTENING ================= -->
+  <section class="panel" id="panel-listen">
+    <h2>Luisteren — dictation</h2>
+    <p class="note">Play the audio and type exactly what you hear (a short perfectum phrase or sentence). At the end of a word d and t sound the same — let soft ketchup decide.</p>
+    <div class="drill">
+      <div class="prompt-box">
+        <div class="task">Listen and type</div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn" id="listen-slow">🐢 Langzaam</button>
+        </div>
+        <div class="hint" id="listen-hint"></div>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="listen-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wat hoor je?" aria-label="Your answer">
+        <button class="btn primary" id="listen-check">Check</button>
+      </div>
+      <div class="feedback" id="listen-feedback"></div>
+      <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
+      <div class="tally" id="listen-tally"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ================= REGULAR VERBS =================
+   The lesson's verbs, book p.98–100 and the class exercise. base is the Les 2
+   base; pre = an unstressed prefix that blocks ge-. The participle is re-derived
+   from inf + base at load as a self-check. aux: heb / ben / "ben/heb" (movement:
+   depends on the sentence). */
+const REG = [
+  { inf: "werken",       base: "werk",       part: "gewerkt",     aux: "heb", en: "to work" },
+  { inf: "studeren",     base: "studeer",    part: "gestudeerd",  aux: "heb", en: "to study" },
+  { inf: "reizen",       base: "reis",       part: "gereisd",     aux: "ben/heb", en: "to travel" },
+  { inf: "proeven",      base: "proef",      part: "geproefd",    aux: "heb", en: "to taste" },
+  { inf: "fietsen",      base: "fiets",      part: "gefietst",    aux: "heb/ben", en: "to cycle" },
+  { inf: "praten",       base: "praat",      part: "gepraat",     aux: "heb", en: "to talk" },
+  { inf: "antwoorden",   base: "antwoord",   part: "geantwoord",  aux: "heb", en: "to answer" },
+  { inf: "koken",        base: "kook",       part: "gekookt",     aux: "heb", en: "to cook" },
+  { inf: "wachten",      base: "wacht",      part: "gewacht",     aux: "heb", en: "to wait" },
+  { inf: "leren",        base: "leer",       part: "geleerd",     aux: "heb", en: "to learn" },
+  { inf: "maken",        base: "maak",       part: "gemaakt",     aux: "heb", en: "to make / to do" },
+  { inf: "luisteren",    base: "luister",    part: "geluisterd",  aux: "heb", en: "to listen", schwa: true },
+  { inf: "wonen",        base: "woon",       part: "gewoond",     aux: "heb", en: "to live (somewhere)" },
+  { inf: "mailen",       base: "mail",       part: "gemaild",     aux: "heb", en: "to email" },
+  { inf: "gooien",       base: "gooi",       part: "gegooid",     aux: "heb", en: "to throw" },
+  { inf: "dansen",       base: "dans",       part: "gedanst",     aux: "heb", en: "to dance" },
+  { inf: "surfen",       base: "surf",       part: "gesurft",     aux: "heb", en: "to surf" },
+  { inf: "bellen",       base: "bel",        part: "gebeld",      aux: "heb", en: "to call (phone)" },
+  { inf: "zeggen",       base: "zeg",        part: "gezegd",      aux: "heb", en: "to say" },
+  { inf: "kosten",       base: "kost",       part: "gekost",      aux: "heb", en: "to cost" },
+  { inf: "pakken",       base: "pak",        part: "gepakt",      aux: "heb", en: "to take / to grab" },
+  { inf: "missen",       base: "mis",        part: "gemist",      aux: "heb", en: "to miss" },
+  { inf: "zetten",       base: "zet",        part: "gezet",       aux: "heb", en: "to put" },
+  { inf: "kennen",       base: "ken",        part: "gekend",      aux: "heb", en: "to know (a person)" },
+  { inf: "leven",        base: "leef",       part: "geleefd",     aux: "heb", en: "to live (be alive)" },
+  { inf: "spelen",       base: "speel",      part: "gespeeld",    aux: "heb", en: "to play" },
+  { inf: "horen",        base: "hoor",       part: "gehoord",     aux: "heb", en: "to hear" },
+  { inf: "poetsen",      base: "poets",      part: "gepoetst",    aux: "heb", en: "to brush / to polish" },
+  { inf: "winkelen",     base: "winkel",     part: "gewinkeld",   aux: "heb", en: "to shop", schwa: true },
+  { inf: "wandelen",     base: "wandel",     part: "gewandeld",   aux: "heb/ben", en: "to walk (for pleasure)", schwa: true },
+  { inf: "stoppen",      base: "stop",       part: "gestopt",     aux: "ben/heb", en: "to stop / to quit" },
+  { inf: "trouwen",      base: "trouw",      part: "getrouwd",    aux: "ben", en: "to marry" },
+  { inf: "slagen",       base: "slaag",      part: "geslaagd",    aux: "ben", en: "to pass (an exam)" },
+  { inf: "zakken",       base: "zak",        part: "gezakt",      aux: "ben", en: "to fail (an exam)" },
+  { inf: "dalen",        base: "daal",       part: "gedaald",     aux: "ben", en: "to go down" },
+  { inf: "beantwoorden", base: "beantwoord", part: "beantwoord",  aux: "heb", en: "to answer (a question)", pre: "be" },
+  { inf: "betalen",      base: "betaal",     part: "betaald",     aux: "heb", en: "to pay", pre: "be" },
+  { inf: "gebruiken",    base: "gebruik",    part: "gebruikt",    aux: "heb", en: "to use", pre: "ge" },
+  { inf: "gebeuren",     base: "gebeur",     part: "gebeurd",     aux: "ben", en: "to happen", pre: "ge" },
+  { inf: "geloven",      base: "geloof",     part: "geloofd",     aux: "heb", en: "to believe", pre: "ge" },
+  { inf: "ontmoeten",    base: "ontmoet",    part: "ontmoet",     aux: "heb", en: "to meet", pre: "ont" },
+  { inf: "ontdekken",    base: "ontdek",     part: "ontdekt",     aux: "heb", en: "to discover", pre: "ont" },
+  { inf: "verhuizen",    base: "verhuis",    part: "verhuisd",    aux: "ben", en: "to move (house)", pre: "ver" },
+  { inf: "vertellen",    base: "vertel",     part: "verteld",     aux: "heb", en: "to tell", pre: "ver" },
+  { inf: "veranderen",   base: "verander",   part: "veranderd",   aux: "ben/heb", en: "to change", pre: "ver", schwa: true },
+  { inf: "herhalen",     base: "herhaal",    part: "herhaald",    aux: "heb", en: "to repeat", pre: "her" },
+  { inf: "herkennen",    base: "herken",     part: "herkend",     aux: "heb", en: "to recognise", pre: "her" },
+  { inf: "herinneren",   base: "herinner",   part: "herinnerd",   aux: "heb", en: "to remind / remember", pre: "her", schwa: true },
+  { inf: "erkennen",     base: "erken",      part: "erkend",      aux: "heb", en: "to acknowledge", pre: "er" },
+];
+
+/* ================= THE BOOK'S LIST (p.125–127) =================
+   inf | imperfectum sing. | imperfectum plur. | participle | helping verb | English */
+const LIST = `bakken|bakte|bakten|gebakken|heb|to bake
+beginnen|begon|begonnen|begonnen|ben|to begin
+begrijpen|begreep|begrepen|begrepen|heb|to understand
+bewegen|bewoog|bewogen|bewogen|heb|to move
+bezoeken|bezocht|bezochten|bezocht|heb|to visit
+bidden|bad|baden|gebeden|heb|to pray
+bieden|bood|boden|geboden|heb|to offer
+blijken|bleek|bleken|gebleken|ben|to turn out
+blijven|bleef|bleven|gebleven|ben|to stay
+braden|braadde|braadden|gebraden|heb|to roast
+breken|brak|braken|gebroken|ben/heb|to break
+brengen|bracht|brachten|gebracht|heb|to bring
+denken|dacht|dachten|gedacht|heb|to think
+doen|deed|deden|gedaan|heb|to do
+drinken|dronk|dronken|gedronken|heb|to drink
+duiken|dook|doken|gedoken|ben/heb|to dive
+ervaren|ervoer|ervoeren|ervaren|heb|to experience
+eten|at|aten|gegeten|heb|to eat
+fluiten|floot|floten|gefloten|heb|to whistle
+gaan|ging|gingen|gegaan|ben|to go
+gelden|gold|golden|gegolden|heb|to be valid
+genezen|genas|genazen|genezen|ben/heb|to heal
+genieten|genoot|genoten|genoten|heb|to enjoy
+geven|gaf|gaven|gegeven|heb|to give
+hangen|hing|hingen|gehangen|heb|to hang
+hebben|had|hadden|gehad|heb|to have
+helpen|hielp|hielpen|geholpen|heb|to help
+heten|heette|heetten|geheten|heb|to be called
+houden|hield|hielden|gehouden|heb|to hold / to love
+kiezen|koos|kozen|gekozen|heb|to choose
+kijken|keek|keken|gekeken|heb|to look / to watch
+klimmen|klom|klommen|geklommen|heb|to climb
+klinken|klonk|klonken|geklonken|heb|to sound
+komen|kwam|kwamen|gekomen|ben|to come
+kopen|kocht|kochten|gekocht|heb|to buy
+krijgen|kreeg|kregen|gekregen|heb|to get / to receive
+kunnen|kon|konden|gekund|heb|can / to be able to
+lachen|lachte|lachten|gelachen|heb|to laugh
+laten|liet|lieten|gelaten|heb|to let
+lezen|las|lazen|gelezen|heb|to read
+liegen|loog|logen|gelogen|heb|to lie (tell a lie)
+liggen|lag|lagen|gelegen|heb|to lie (be lying down)
+lijden|leed|leden|geleden|heb|to suffer
+lijken|leek|leken|geleken|heb|to seem / to look like
+lopen|liep|liepen|gelopen|heb/ben|to walk
+meten|mat|maten|gemeten|heb|to measure
+moeten|moest|moesten|gemoeten|heb|must / to have to
+mogen|mocht|mochten|gemogen|heb|may / to be allowed to
+nemen|nam|namen|genomen|heb|to take
+ontwerpen|ontwierp|ontwierpen|ontworpen|heb|to design
+opschieten|schoot op|schoten op|opgeschoten|ben/heb|to hurry up
+overlijden|overleed|overleden|overleden|ben|to pass away
+raden|raadde / ried|raadden / rieden|geraden|heb|to guess
+rijden|reed|reden|gereden|ben/heb|to drive / to ride
+roepen|riep|riepen|geroepen|heb|to call
+ruiken|rook|roken|geroken|heb|to smell
+scheiden|scheidde|scheidden|gescheiden|ben/heb|to separate / to divorce
+schenken|schonk|schonken|geschonken|heb|to pour / to give
+scheren|schoor|schoren|geschoren|heb|to shave
+schrijven|schreef|schreven|geschreven|heb|to write
+schrikken|schrok|schrokken|geschrokken|ben|to get a fright
+schuiven|schoof|schoven|geschoven|heb/ben|to push / to slide
+slaan|sloeg|sloegen|geslagen|heb|to hit
+slapen|sliep|sliepen|geslapen|heb|to sleep
+sluiten|sloot|sloten|gesloten|heb|to close
+smelten|smolt|smolten|gesmolten|heb|to melt
+smijten|smeet|smeten|gesmeten|heb|to fling
+snijden|sneed|sneden|gesneden|heb|to cut
+snuiten|snoot|snoten|gesnoten|heb|to blow (your nose)
+spreken|sprak|spraken|gesproken|heb|to speak
+springen|sprong|sprongen|gesprongen|ben/heb|to jump
+staan|stond|stonden|gestaan|heb|to stand
+steken|stak|staken|gestoken|heb|to sting / to stick
+stelen|stal|stalen|gestolen|heb|to steal
+sterven|stierf|stierven|gestorven|ben|to die
+stijgen|steeg|stegen|gestegen|ben|to rise
+stinken|stonk|stonken|gestonken|heb|to stink
+strijken|streek|streken|gestreken|heb|to iron
+treden|trad|traden|getreden|ben/heb|to step
+trekken|trok|trokken|getrokken|heb/ben|to pull
+vallen|viel|vielen|gevallen|ben|to fall
+vangen|ving|vingen|gevangen|heb|to catch
+varen|voer|voeren|gevaren|ben/heb|to sail
+vechten|vocht|vochten|gevochten|heb|to fight
+verbieden|verbood|verboden|verboden|heb|to forbid
+verdwijnen|verdween|verdwenen|verdwenen|ben|to disappear
+vergelijken|vergeleek|vergeleken|vergeleken|heb|to compare
+vergeten|vergat|vergaten|vergeten|ben/heb|to forget
+verliezen|verloor|verloren|verloren|heb/ben|to lose
+vertrekken|vertrok|vertrokken|vertrokken|ben|to leave
+verzinnen|verzon|verzonnen|verzonnen|heb|to make up
+verzoeken|verzocht|verzochten|verzocht|heb|to request
+vinden|vond|vonden|gevonden|heb|to find
+vliegen|vloog|vlogen|gevlogen|ben/heb|to fly
+vragen|vroeg|vroegen|gevraagd|heb|to ask
+waaien|waaide / woei|waaiden / woeien|gewaaid|heb|to blow (wind)
+wassen|waste|wasten|gewassen|heb|to wash
+wegen|woog|wogen|gewogen|heb|to weigh
+weten|wist|wisten|geweten|heb|to know (a fact)
+wijzen|wees|wezen|gewezen|heb|to point
+willen|wilde / wou|wilden / wouden|gewild|heb|to want
+winnen|won|wonnen|gewonnen|heb|to win
+worden|werd|werden|geworden|ben|to become
+zeggen|zei|zeiden|gezegd|heb|to say
+zenden|zond|zonden|gezonden|heb|to send
+zien|zag|zagen|gezien|heb|to see
+zijn|was|waren|geweest|ben|to be
+zingen|zong|zongen|gezongen|heb|to sing
+zitten|zat|zaten|gezeten|heb|to sit
+zoeken|zocht|zochten|gezocht|heb|to search / to look for
+zullen|zou|zouden||—|will / shall
+zwemmen|zwom|zwommen|gezwommen|ben/heb|to swim
+zwijgen|zweeg|zwegen|gezwegen|heb|to be silent`;
+
+// Irregular verbs used in the drills and the "common" flashcard deck.
+const CORE = ["beginnen", "begrijpen", "bezoeken", "blijven", "brengen", "denken", "doen", "drinken", "eten",
+  "gaan", "geven", "hebben", "helpen", "houden", "kijken", "komen", "kopen", "krijgen", "lachen", "lezen",
+  "liggen", "lopen", "nemen", "rijden", "schrijven", "slapen", "spreken", "staan", "vergeten", "verliezen",
+  "vertrekken", "vinden", "vliegen", "worden", "zien", "zijn", "zitten", "zoeken", "zwemmen", "zingen",
+  "sluiten", "kiezen", "roepen", "vallen", "weten", "winnen", "wassen", "bakken", "vragen", "kunnen",
+  "willen", "mogen", "moeten", "overlijden", "ervaren", "stijgen", "bewegen", "vergelijken"];
+const SEPARABLE = ["opschieten"]; // op + ge + schoten — separable verbs come later; kept out of the drills
+const PREFIXES = ["over", "ont", "ver", "her", "be", "ge", "er"];
+// Participles that no vowel pattern explains.
+const IRR_NOTE = {
+  zijn: "a completely different word — like English <i>be → been</i>",
+  hebben: "short form: ge + ha + d — like English <i>have → had</i>",
+};
+
+/* ================= RULES =================
+   One entry per thing that can explain a mistake.
+   kind: RULE = you can work it out · EXCEPTION / IRREGULAR = memorize ·
+         SOUND = you heard it right, the spelling differs · TYPO = one letter off.
+   ex: audio examples; a pair [a, b] renders as "a → b". */
+const RULES = {
+  perf: { kind: "RULE", name: "the perfectum",
+    how: "The perfectum always has <b>two verbs</b>: a form of <b>hebben</b> or <b>zijn</b> in the present tense (it agrees with the subject), and the <b>participle</b> of the main verb at the end. The main verb itself is no longer conjugated: <i>hij werkt</i> → hij <b>heeft</b> … ge<b>werkt</b>.",
+    ex: ["hij heeft tot 5 uur gewerkt", "we zijn in juni op vakantie gegaan"] },
+  ge: { kind: "RULE", name: "ge + base + t/d",
+    how: "A regular participle has three parts: <b>ge-</b> + the <b>base</b> (infinitive minus -en, with the Les 2 spelling rules) + <b>-t or -d</b>. Only irregular verbs end in -en (gegeten, gedronken).",
+    ex: [["werken", "gewerkt"], ["wonen", "gewoond"], ["maken", "gemaakt"]] },
+  ketchup: { kind: "RULE", name: "t or d: soft ketchup",
+    how: "Look at the <b>letter before -en in the infinitive</b>. Is it one of <b>s, f, t, k, ch, p</b> (+x) — the consonants of <b>soft ketchup</b>? Then add <b>-t</b>. Anything else → <b>-d</b>. Why: s f t k ch p are 'voiceless' sounds (no buzz in the throat), and a voiceless sound is followed by voiceless t. Careful: look at the infinitive, not the base — rei<b>z</b>en → gereis<b>d</b>, le<b>v</b>en → geleef<b>d</b>.",
+    ex: [["werken", "gewerkt"], ["fietsen", "gefietst"], ["bellen", "gebeld"], ["reizen", "gereisd"]] },
+  baseTD: { kind: "RULE", name: "base already ends in t or d",
+    how: "If the base already ends in <b>t</b> or <b>d</b>, you add nothing — a word can't end in tt, td, dt or dd here. pra<b>t</b>en → gepraat (not gepraatt), antwoor<b>d</b>en → geantwoord, kos<b>t</b>en → gekost, ontmoe<b>t</b>en → ontmoet.",
+    ex: [["praten", "gepraat"], ["antwoorden", "geantwoord"], ["kosten", "gekost"]] },
+  prefix: { kind: "RULE", name: "no ge- after be-, ge-, ont-, ver-, her-, er-",
+    how: "When a verb starts with <b>be- ge- ont- ver- her- er-</b> and the stress is <i>not</i> on that syllable (ge<b>BEU</b>ren, ver<b>TEL</b>len), the participle gets <b>no extra ge-</b>. Two unstressed syllables in a row at the start (<i>gegebeurd</i>) would be clumsy — the prefix already does the job. The t/d rule stays the same: gebeur → gebeur<b>d</b>, gebruik → gebruik<b>t</b>.",
+    ex: [["gebeuren", "gebeurd"], ["vertellen", "verteld"], ["herhalen", "herhaald"], ["ontmoeten", "ontmoet"]] },
+  double: { kind: "RULE", name: "vowel doubling (the base)",
+    how: "Dutch shows a vowel's length by the syllable it sits in. In <b>ma-ken</b> the <i>a</i> ends its syllable (an <i>open</i> syllable), so it is long and one letter is enough. When you cut off -en, the <i>k</i> closes the syllable: <b>mak</b>. A single vowel in a <i>closed</i> syllable is always short — so you write it twice to keep it long: <b>maak</b> → ge<b>maak</b>t. This happens with a, e, o, u.",
+    ex: [["maken", "gemaakt"], ["wonen", "gewoond"], ["koken", "gekookt"]] },
+  single: { kind: "RULE", name: "no double letter at the end of the base",
+    how: "In the middle of a word a double consonant is only a signal that the vowel before it is <i>short</i>: <b>ken-nen</b>. In the base that signal isn't needed — the base never ends in a double letter: <i>kenn</i> → <b>ken</b> → ge<b>ken</b>d, <i>miss</i> → <b>mis</b> → ge<b>mis</b>t.",
+    ex: [["kennen", "gekend"], ["missen", "gemist"], ["bellen", "gebeld"]] },
+  zv: { kind: "RULE", name: "no z or v at the end of the base",
+    how: "At the end of a word Dutch pronounces <b>z</b> as <b>s</b> and <b>v</b> as <b>f</b>, and the spelling follows: reizen → <b>reis</b>, leven → <b>leef</b>. In the participle the base keeps that s/f — but the ending is still chosen by the <i>infinitive</i> letter (z, v → d): gerei<b>sd</b>, gelee<b>fd</b>.",
+    ex: [["reizen", "gereisd"], ["leven", "geleefd"], ["proeven", "geproefd"]] },
+  irr: { kind: "IRREGULAR", name: "irregular participles",
+    how: "For irregular verbs the soft-ketchup rule doesn't work — learn the participle by heart (list p.125–127). There are patterns that help: most end in <b>-en</b>, some keep their vowel (<b>eten → gegeten</b>, <b>komen → gekomen</b>), many change it (<b>ij → e</b>: blijven → gebleven; <b>i → o</b>: drinken → gedronken; <b>ie/ui → o</b>: kiezen → gekozen), and a small group ends in <b>-cht</b> (brengen → gebracht, denken → gedacht, kopen → gekocht).",
+    ex: [["eten", "gegeten"], ["blijven", "gebleven"], ["drinken", "gedronken"], ["brengen", "gebracht"]] },
+  hebZijn: { kind: "RULE", name: "hebben or zijn",
+    how: "Most verbs make their perfectum with <b>hebben</b>. Only <b>zijn</b> itself and verbs of a <b>change of place or state</b> (gaan, komen, blijven, worden, beginnen, stoppen, gebeuren, trouwen, slagen…) take <b>zijn</b>. Movement verbs (lopen, fietsen) take zijn only with a destination.",
+    ex: ["ik heb vandaag gewerkt", "ik ben naar werk gegaan"] },
+  zijnList: { kind: "EXCEPTION", name: "verbs that take zijn",
+    how: "These take <b>zijn</b> — learn them with their helping verb. The reason: they describe a <b>change of place or state</b>, not an activity. <b>zijn, gaan, komen, blijven, worden, beginnen, stoppen, gebeuren, veranderen, trouwen, slagen, zakken, stijgen, dalen</b> (p.99), and also vertrekken, verhuizen, overlijden, vallen, sterven. (blijven is the odd one out: it's the 'non-change', but it goes with this group.)",
+    ex: ["ik ben gisteren naar amsterdam geweest", "de les is om 9 uur begonnen", "simone is 25 jaar geworden"] },
+  motion: { kind: "RULE", name: "movement: zijn with a destination",
+    how: "Verbs of movement (lopen, fietsen, zwemmen, rijden, reizen…) take <b>zijn</b> when you go <b>to a place</b> — there is a destination, usually with <b>naar</b>. When you only describe the activity (how far, where, how long), they take <b>hebben</b>.",
+    ex: ["ik heb 10 kilometer gelopen", "ik ben naar het station gelopen", "we zijn naar amersfoort gefietst"] },
+  hebben: { kind: "IRREGULAR", name: "the forms of hebben",
+    how: "ik <b>heb</b> · jij/je <b>hebt</b> (but <b>heb je?</b>) · u <b>hebt / heeft</b> · hij/zij/het <b>heeft</b> · wij/jullie/zij <b>hebben</b>.",
+    ex: ["ik heb", "jij hebt", "hij heeft", "wij hebben"] },
+  zijn: { kind: "IRREGULAR", name: "the forms of zijn",
+    how: "ik <b>ben</b> · jij/je <b>bent</b> (but <b>ben je?</b>) · u <b>bent</b> · hij/zij/het <b>is</b> · wij/jullie/zij <b>zijn</b>.",
+    ex: ["ik ben", "jij bent", "hij is", "wij zijn"] },
+  jijT: { kind: "RULE", name: "jij / je after the verb loses -t",
+    how: "You know this from Les 3: when <b>jij/je comes right after the verb</b> — in a question or an inversie — the -t disappears. That's also true for the helping verb: je hebt → <b>heb je</b> …?, je bent → <b>ben je</b> …? Only jij/je: u keeps its -t (<b>hebt u</b>), and hij says <b>heeft hij</b>.",
+    ex: ["heb je de kaas geproefd", "ben je laat naar werk gekomen", "je hebt lekker gekookt"] },
+  ppEnd: { kind: "RULE", name: "the participle goes to the end",
+    how: "In a hoofdzin and in questions, the participle is the <b>last word</b> of the sentence. Everything else (time – object – manner – place) goes between the helping verb and the participle.",
+    ex: ["hij heeft de kinderen naar school gebracht", "wanneer heeft hij de kinderen naar school gebracht"] },
+  auxPlace: { kind: "RULE", name: "where the helping verb goes",
+    how: "The helping verb takes the place the verb always has (Les 3): <b>hoofdzin</b> subject – <b>helping verb</b> – rest – participle; <b>inversie / open vraag</b> first word – <b>helping verb</b> – subject – …; <b>gesloten vraag</b> (ja/nee) the <b>helping verb comes first</b>.",
+    ex: ["hij heeft de kinderen naar school gebracht", "waarom ben je laat naar werk gekomen", "heeft hij de kinderen naar school gebracht"] },
+  tdSound: { kind: "SOUND", name: "final d sounds like t",
+    how: "At the end of a word Dutch pronounces <b>d</b> as <b>t</b>: gebel<b>d</b> and gewerk<b>t</b> end in the same sound. You can't hear it — use the rule: the letter before -en in the infinitive in <i>soft ketchup</i> → t, otherwise d.",
+    ex: ["gebeld", "gewerkt", "gewoond"] },
+  eij: { kind: "SOUND", name: "ei and ij sound the same",
+    how: "<b>ei</b> and <b>ij</b> are pronounced exactly the same. Learn the spelling with the word: geschreven ← schr<b>ij</b>ven, gereisd ← r<b>ei</b>zen.",
+    ex: ["schrijven", "reizen"] },
+  zs: { kind: "SOUND", name: "z or s",
+    how: "<b>z</b> is voiced (a buzz, like English 'zoo'); <b>s</b> is sharp. Play it slowly 🐢 and listen for the buzz. At the end of a word it is always written s.",
+    ex: ["gezien", "gestudeerd"] },
+  vf: { kind: "SOUND", name: "v or f",
+    how: "<b>v</b> is softer and voiced, <b>f</b> sharp. Many Dutch speakers make them sound almost the same, so learn the spelling with the word.",
+    ex: ["gevonden", "gefietst"] },
+  gch: { kind: "SOUND", name: "g or ch",
+    how: "In Dutch <b>g</b> and <b>ch</b> are the same throaty sound. The ge- of a participle is always written with <b>g</b>; -cht participles (gebracht, gedacht) with <b>ch</b>.",
+    ex: ["gegeten", "gebracht"] },
+  vowelLen: { kind: "SOUND", name: "long or short vowel",
+    how: "Listen to the vowel's length. A long vowel in a closed syllable is written twice (ge<b>maa</b>kt, ge<b>woo</b>nd); in an open syllable once (ge<b>ge</b>-ten, ge<b>ko</b>-men). A short vowel is written once (ge<b>we</b>rkt).",
+    ex: ["gemaakt", "gegeten", "gewerkt"] },
+  consLen: { kind: "SOUND", name: "single or double consonant",
+    how: "You can't hear a double consonant. In the middle of a word it is written double when the vowel before it is <i>short</i>: ge<b>dronk</b>en, be<b>gonn</b>en, ge<b>zwomm</b>en; single when the vowel is long: ge<b>ge-t</b>en.",
+    ex: ["begonnen", "gegeten", "gezwommen"] },
+};
+
+/* ================= SENTENCES =================
+   Homework gap sentences: "_" = a gap (1st the helping verb, 2nd the participle).
+   p = person (ik / je / u / 3 / pl); inv = the subject comes after the helping verb.
+   aux overrides the verb's helping verb (needed for "ben/heb" verbs). */
+const HW = [
+  // Oefening 9 · p.98 — alle verba zijn regelmatig
+  { set: "o9", n: "Voorbeeld", v: "bellen",    s: "Ik _ mijn vader gisteren _.", p: "ik", en: "I called my father yesterday." },
+  { set: "o9", n: "1",  v: "koken",     s: "Gisterenavond _ ik voor vrienden _.", p: "ik", inv: true, en: "Last night I cooked for friends." },
+  { set: "o9", n: "2",  v: "wachten",   s: "Ik _ een uur op je _.", p: "ik", en: "I waited an hour for you." },
+  { set: "o9", n: "3",  v: "werken",    s: "_ jullie samen aan deze oefening _?", p: "pl", inv: true, en: "Did you work on this exercise together?" },
+  { set: "o9", n: "4",  v: "studeren",  s: "Vroeger _ hij Italiaans _.", p: "3", inv: true, en: "He used to study Italian." },
+  { set: "o9", n: "5",  v: "wonen",     s: "Hoe lang _ jij in Amerika _?", p: "je", inv: true, en: "How long did you live in America?" },
+  { set: "o9", n: "6",  v: "leren",     s: "We _ veel nieuw vocabulaire _.", p: "pl", en: "We learned a lot of new vocabulary." },
+  { set: "o9", n: "7",  v: "maken",     s: "Hij _ zijn huiswerk niet _.", p: "3", en: "He didn't do his homework." },
+  { set: "o9", n: "8",  v: "luisteren", s: "_ u vanochtend naar de radio _?", p: "u", inv: true, en: "Did you listen to the radio this morning?" },
+  { set: "o9", n: "9",  v: "koken",     s: "Je _ lekker _.", p: "je", en: "You cooked well (it was tasty)." },
+  { set: "o9", n: "10", v: "praten",    s: "In de kantine _ we over het feest _.", p: "pl", inv: true, en: "In the canteen we talked about the party." },
+  // Oefening 10 · p.100–101 — alle verba zijn onregelmatig
+  { set: "o10", n: "Voorbeeld", v: "slapen", s: "Ik _ vanochtend tot 10 uur _.", p: "ik", en: "This morning I slept until 10." },
+  { set: "o10", n: "1",  v: "krijgen",   s: "Voor zijn verjaardag _ hij een nieuwe fiets _.", p: "3", inv: true, en: "For his birthday he got a new bike." },
+  { set: "o10", n: "2",  v: "geven",     s: "Wat _ jij Karin _?", p: "je", inv: true, en: "What did you give Karin?" },
+  { set: "o10", n: "3",  v: "doen",      s: "We _ donderdagavond alle boodschappen _.", p: "pl", en: "We did all the shopping on Thursday evening." },
+  { set: "o10", n: "4",  v: "eten",      s: "Ik _ gisteravond pizza _.", p: "ik", en: "I ate pizza last night." },
+  { set: "o10", n: "5",  v: "zien",      s: "_ u die nieuwe film met Tom Cruise _?", p: "u", inv: true, en: "Have you seen that new film with Tom Cruise?" },
+  { set: "o10", n: "6",  v: "kijken",    s: "Gisteren _ Max vier uur televisie _.", p: "3", inv: true, en: "Yesterday Max watched four hours of TV." },
+  { set: "o10", n: "7",  v: "spreken",   s: "Wanneer _ jullie met de directeur _?", p: "pl", inv: true, en: "When did you speak with the director?" },
+  { set: "o10", n: "8",  v: "drinken",   s: "Ik _ een lekker glaasje rode wijn _.", p: "ik", en: "I drank a nice glass of red wine." },
+  { set: "o10", n: "9",  v: "lezen",     s: "Jan _ de krant al _.", p: "3", en: "Jan has already read the newspaper." },
+  { set: "o10", n: "10", v: "schrijven", s: "Mijn oma _ me een leuke brief _.", p: "3", en: "My grandma wrote me a nice letter." },
+  // The exercise done in class (De opmaat p.117–118)
+  { set: "klas", n: "Voorbeeld", v: "maken", s: "_ jullie je huiswerk _?", p: "pl", inv: true, en: "Did you do your homework?" },
+  { set: "klas", n: "1",  v: "bellen",    s: "Wanneer _ jij je moeder _?", p: "je", inv: true, en: "When did you call your mother?" },
+  { set: "klas", n: "2",  v: "luisteren", s: "We _ gisteravond naar de radio _.", p: "pl", en: "Last night we listened to the radio." },
+  { set: "klas", n: "3",  v: "zeggen",    s: "Wat _ hij _?", p: "3", inv: true, en: "What did he say?" },
+  { set: "klas", n: "4",  v: "kosten",    s: "De televisie _ 599 euro _.", p: "3", en: "The television cost 599 euros." },
+  { set: "klas", n: "5",  v: "pakken",    s: "Wie _ mijn woordenboek _?", p: "3", en: "Who took my dictionary?" },
+  { set: "klas", n: "6",  v: "wachten",   s: "Ik _ een uur op je _.", p: "ik", en: "I waited an hour for you." },
+  { set: "klas", n: "7",  v: "missen",    s: "Helaas _ we de trein _.", p: "pl", inv: true, en: "Unfortunately we missed the train." },
+  { set: "klas", n: "8",  v: "studeren",  s: "Mijn vader _ Duits _.", p: "3", en: "My father studied German." },
+  { set: "klas", n: "9",  v: "zetten",    s: "_ jij de kopjes op tafel _?", p: "je", inv: true, en: "Did you put the cups on the table?",
+    note: "Your class notes say „hebt”, but jij comes after the verb here, so the -t drops: <b>Heb jij</b> … (Les 3)." },
+  { set: "klas", n: "10", v: "kennen",    s: "Ik _ mijn opa niet _.", p: "ik", en: "I didn't know my grandpa." },
+  { set: "klas", n: "11", v: "leven",     s: "Mijn oma _ lang alleen _ omdat haar man jong is overleden.", p: "3", en: "My grandma lived alone for a long time because her husband died young.",
+    note: "Your class notes first had <i>geleevd</i>: the base is <b>leef</b> (no v at the end), and the ending is chosen by the v of le<b>v</b>en → d: geleef<b>d</b>." },
+  { set: "klas", n: "12", v: "praten",    s: "We _ met onze nieuwe buren _.", p: "pl", en: "We talked with our new neighbours." },
+  { set: "klas", n: "13", v: "koken",     s: "Je _ lekker _. Het smaakt goed.", p: "je", en: "You cooked well. It tastes good." },
+  { set: "klas", n: "14", v: "proeven",   s: "_ u weleens Hollandse haring _?", p: "u", inv: true, en: "Have you ever tasted Dutch herring?" },
+  { set: "klas", n: "15", v: "wonen",     s: "Mila _ lang in Peru _.", p: "3", en: "Mila lived in Peru for a long time." },
+];
+// The lesson's tables (ik heb vandaag gewerkt / ik ben naar werk gegaan) for every person.
+const PERSONS = [
+  ["Ik", "ik", "I"], ["Je", "je", "You"], ["U", "u", "You (formal)"], ["Hij", "3", "He"], ["Ze", "3", "She", "she"],
+  ["Het", "3", "It"], ["We", "pl", "We"], ["Jullie", "pl", "You (plural)"], ["Ze", "pl", "They", "they"],
+];
+const PERSON_FRAMES = [
+  { v: "werken", rest: "vandaag _", en: "worked today" },
+  { v: "gaan",   rest: "naar werk _", en: "went to work" },
+  { v: "koken",  rest: "lekker _", en: "cooked well" },
+  { v: "komen",  rest: "laat naar werk _", en: "came late to work" },
+];
+PERSON_FRAMES.forEach(f => PERSONS.forEach(([sw, p, en, who]) =>
+  HW.push({ set: "pers", n: who ? `ze = ${who}` : "", v: f.v, s: `${sw} _ ${f.rest}.`, p, en: `${en} ${f.en}.` })));
+
+/* Omzetten: present → perfectum. vt = the conjugated verb in the present sentence.
+   type: hoofd / open / gesl (ja-nee vraag). */
+const CHANGE = [
+  { from: "Hij werkt tot 5 uur.", to: "Hij heeft tot 5 uur gewerkt.", v: "werken", vt: "werkt", p: "3", type: "hoofd", en: "He worked until 5." },
+  { from: "We gaan in juni op vakantie.", to: "We zijn in juni op vakantie gegaan.", v: "gaan", vt: "gaan", p: "pl", type: "hoofd", en: "We went on holiday in June." },
+  { from: "Hij brengt de kinderen naar school.", to: "Hij heeft de kinderen naar school gebracht.", v: "brengen", vt: "brengt", p: "3", type: "hoofd", en: "He took the children to school." },
+  { from: "Je komt laat naar werk.", to: "Je bent laat naar werk gekomen.", v: "komen", vt: "komt", p: "je", type: "hoofd", en: "You came to work late." },
+  { from: "Wanneer brengt hij de kinderen naar school?", to: "Wanneer heeft hij de kinderen naar school gebracht?", v: "brengen", vt: "brengt", p: "3", inv: true, type: "open", en: "When did he take the children to school?" },
+  { from: "Waarom kom je laat naar werk?", to: "Waarom ben je laat naar werk gekomen?", v: "komen", vt: "kom", p: "je", inv: true, type: "open", en: "Why did you come to work late?" },
+  { from: "Brengt hij de kinderen naar school?", to: "Heeft hij de kinderen naar school gebracht?", v: "brengen", vt: "brengt", p: "3", inv: true, type: "gesl", en: "Did he take the children to school?" },
+  { from: "Kom je laat naar werk?", to: "Ben je laat naar werk gekomen?", v: "komen", vt: "kom", p: "je", inv: true, type: "gesl", en: "Did you come to work late?" },
+  { from: "Hij werkt de hele dag.", to: "Hij heeft de hele dag gewerkt.", v: "werken", vt: "werkt", p: "3", type: "hoofd", en: "He worked all day." },
+  { from: "Ik fiets zondag 45 kilometer.", to: "Ik heb zondag 45 kilometer gefietst.", v: "fietsen", vt: "fiets", p: "ik", type: "hoofd", aux: "heb", en: "On Sunday I cycled 45 kilometres.", why: "no destination — you describe the activity (45 km) → hebben" },
+  { from: "Ik praat de hele dag Nederlands.", to: "Ik heb de hele dag Nederlands gepraat.", v: "praten", vt: "praat", p: "ik", type: "hoofd", en: "I spoke Dutch all day." },
+  { from: "We wonen twee jaar in Eindhoven.", to: "We hebben twee jaar in Eindhoven gewoond.", v: "wonen", vt: "wonen", p: "pl", type: "hoofd", en: "We lived in Eindhoven for two years." },
+  { from: "Wanneer mail je me?", to: "Wanneer heb je me gemaild?", v: "mailen", vt: "mail", p: "je", inv: true, type: "open", en: "When did you email me?" },
+  { from: "Hij gooit de bal naar Mila.", to: "Hij heeft de bal naar Mila gegooid.", v: "gooien", vt: "gooit", p: "3", type: "hoofd", en: "He threw the ball to Mila." },
+  { from: "We reizen naar Spanje.", to: "We zijn naar Spanje gereisd.", v: "reizen", vt: "reizen", p: "pl", type: "hoofd", aux: "ben", en: "We travelled to Spain.", why: "a destination (naar Spanje) → zijn" },
+  { from: "Willem danst niet.", to: "Willem heeft niet gedanst.", v: "dansen", vt: "danst", p: "3", type: "hoofd", en: "Willem didn't dance." },
+  { from: "Proef je de kaas?", to: "Heb je de kaas geproefd?", v: "proeven", vt: "proef", p: "je", inv: true, type: "gesl", en: "Did you taste the cheese?" },
+  { from: "Ik surf op internet.", to: "Ik heb op internet gesurft.", v: "surfen", vt: "surf", p: "ik", type: "hoofd", en: "I surfed the internet." },
+  { from: "Wij gaan om 5 uur naar huis.", to: "Wij zijn om 5 uur naar huis gegaan.", v: "gaan", vt: "gaan", p: "pl", type: "hoofd", en: "We went home at 5." },
+  { from: "Mila komt naar Nederland.", to: "Mila is naar Nederland gekomen.", v: "komen", vt: "komt", p: "3", type: "hoofd", en: "Mila came to the Netherlands." },
+  { from: "We blijven lang op het feest.", to: "We zijn lang op het feest gebleven.", v: "blijven", vt: "blijven", p: "pl", type: "hoofd", en: "We stayed at the party for a long time." },
+  { from: "De les begint om 9 uur.", to: "De les is om 9 uur begonnen.", v: "beginnen", vt: "begint", p: "3", type: "hoofd", en: "The lesson started at 9." },
+  { from: "Peter stopt met zijn studie.", to: "Peter is met zijn studie gestopt.", v: "stoppen", vt: "stopt", p: "3", type: "hoofd", aux: "ben", en: "Peter quit his studies.", why: "stoppen (met) = a change of state → zijn (book p.99)" },
+  { from: "Carla en Johan trouwen.", to: "Carla en Johan zijn getrouwd.", v: "trouwen", vt: "trouwen", p: "pl", type: "hoofd", en: "Carla and Johan got married." },
+  { from: "Ik slaag voor mijn examen.", to: "Ik ben voor mijn examen geslaagd.", v: "slagen", vt: "slaag", p: "ik", type: "hoofd", en: "I passed my exam." },
+  { from: "Ik loop 10 kilometer.", to: "Ik heb 10 kilometer gelopen.", v: "lopen", vt: "loop", p: "ik", type: "hoofd", aux: "heb", en: "I walked 10 kilometres.", why: "no destination — only how far → hebben" },
+  { from: "Ik loop naar het station.", to: "Ik ben naar het station gelopen.", v: "lopen", vt: "loop", p: "ik", type: "hoofd", aux: "ben", en: "I walked to the station.", why: "a destination (naar het station) → zijn" },
+  { from: "We fietsen in de regen.", to: "We hebben in de regen gefietst.", v: "fietsen", vt: "fietsen", p: "pl", type: "hoofd", aux: "heb", en: "We cycled in the rain.", why: "no destination — only where/how → hebben" },
+  { from: "We fietsen naar Amersfoort.", to: "We zijn naar Amersfoort gefietst.", v: "fietsen", vt: "fietsen", p: "pl", type: "hoofd", aux: "ben", en: "We cycled to Amersfoort.", why: "a destination (naar Amersfoort) → zijn" },
+  { from: "Wat gebeurt er?", to: "Wat is er gebeurd?", v: "gebeuren", vt: "gebeurt", p: "3", inv: true, type: "open", en: "What happened?" },
+  { from: "Willem ontmoet Mila in Peru.", to: "Willem heeft Mila in Peru ontmoet.", v: "ontmoeten", vt: "ontmoet", p: "3", type: "hoofd", en: "Willem met Mila in Peru." },
+  { from: "De docent herhaalt de grammatica.", to: "De docent heeft de grammatica herhaald.", v: "herhalen", vt: "herhaalt", p: "3", type: "hoofd", en: "The teacher repeated the grammar." },
+  { from: "Hij vertelt een interessant verhaal.", to: "Hij heeft een interessant verhaal verteld.", v: "vertellen", vt: "vertelt", p: "3", type: "hoofd", en: "He told an interesting story." },
+  { from: "Wij ervaren veel nieuwe dingen.", to: "Wij hebben veel nieuwe dingen ervaren.", v: "ervaren", vt: "ervaren", p: "pl", type: "hoofd", en: "We experienced a lot of new things." },
+  { from: "We doen veel.", to: "We hebben veel gedaan.", v: "doen", vt: "doen", p: "pl", type: "hoofd", en: "We did a lot." },
+  { from: "De man geeft ons veel tips.", to: "De man heeft ons veel tips gegeven.", v: "geven", vt: "geeft", p: "3", type: "hoofd", en: "The man gave us a lot of tips." },
+];
+
+// Reference examples (Leer). [nl, en]
+const EX_PERF = [
+  ["Hij werkt tot 5 uur.", "present — He works until 5."], ["Hij heeft tot 5 uur gewerkt.", "past — He worked until 5."],
+  ["We gaan in juni op vakantie.", "present — We go on holiday in June."], ["We zijn in juni op vakantie gegaan.", "past — We went on holiday in June."],
+];
+const EX_ZV = [["We zijn naar Spanje gereisd.", "rei-z-en → gereisd"], ["Willem heeft niet gedanst.", "dan-s-en → gedanst"],
+  ["Heb je de lekkere kaas al geproefd?", "proe-v-en → geproefd"], ["Ik heb op internet gesurft.", "sur-f-en → gesurft"]];
+const EX_TD = [["Ik heb de hele dag Nederlands gepraat.", "praten → praat → gepraat"], ["Hij heeft niet geantwoord.", "antwoorden → antwoord → geantwoord"],
+  ["De televisie heeft 599 euro gekost.", "kosten → kost → gekost"]];
+const EX_PREFIX = [["Wat is er gebeurd?", "gebeuren"], ["De les is om 9.00 uur begonnen.", "beginnen (irregular)"],
+  ["Willem heeft Mila in Peru ontmoet.", "ontmoeten"], ["De docent heeft de grammatica herhaald.", "herhalen"],
+  ["Hij heeft een interessant verhaal verteld.", "vertellen"], ["Wij hebben veel nieuwe dingen ervaren.", "ervaren (irregular)"]];
+const EX_ZIJN = [
+  ["Ik ben gisteren naar Amsterdam geweest.", "zijn"], ["Wij zijn om 17.00 uur naar huis gegaan.", "gaan"],
+  ["Mila is twee jaar geleden naar Nederland gekomen.", "komen"], ["Het feest was gezellig, we zijn lang op het feest gebleven.", "blijven"],
+  ["Simone is 25 jaar geworden.", "worden"], ["De les is om 9 uur begonnen.", "beginnen"],
+  ["Peter is met zijn studie gestopt.", "stoppen"], ["Op de A2 is vanmiddag een ongeluk gebeurd.", "gebeuren"],
+  ["Er is de laatste jaren in Nederland veel veranderd.", "veranderen"], ["Carla en Johan zijn vorig jaar getrouwd.", "trouwen"],
+  ["Ik ben voor mijn examen geslaagd.", "slagen"], ["Veel studenten zijn helaas voor het examen gezakt.", "zakken"],
+  ["Het aantal studenten in Utrecht is met 10 procent gestegen.", "stijgen"], ["Het aantal studenten in Amsterdam is met 5 procent gedaald.", "dalen"],
+];
+const EX_MOTION = [["Ik heb 10 kilometer gelopen.", "hebben — just the activity"], ["Ik ben naar het station gelopen.", "zijn — to a place"],
+  ["We hebben in de regen gefietst.", "hebben — just the activity"], ["We zijn naar Amersfoort gefietst.", "zijn — to a place"]];
+const EX_IRR = [["Ik ben naar Maastricht geweest.", "zijn → geweest"], ["We hebben veel gedaan.", "doen → gedaan"],
+  ["De man heeft ons veel tips gegeven.", "geven → gegeven"], ["Hij heeft de kinderen naar school gebracht.", "brengen → hebben gebracht"],
+  ["Je bent laat naar werk gekomen.", "komen → zijn gekomen"]];
+// Word order (lesson p.1): [type, cells, en] — cells: first | helping verb | subject | rest | participle
+const ORDER = [
+  ["Hoofdzin", ["Hij", "heeft", "", "de kinderen naar school", "gebracht"], "He took the children to school."],
+  ["Hoofdzin", ["Je", "bent", "", "laat naar werk", "gekomen"], "You came to work late."],
+  ["Open vraag", ["Wanneer", "heeft", "hij", "de kinderen naar school", "gebracht?"], "When did he take the kids to school?"],
+  ["Open vraag", ["Waarom", "ben", "je", "laat naar werk", "gekomen?"], "Why did you come to work late?"],
+  ["Gesloten vraag", ["", "Heeft", "hij", "de kinderen naar school", "gebracht?"], "Did he take the kids to school?"],
+  ["Gesloten vraag", ["", "Ben", "je", "laat naar werk", "gekomen?"], "Did you come to work late?"],
+];
+
+/* ================= AUDIO ================= */
+const slug = t => t.toLowerCase().replace(/[.?!,;:'"„”]/g, "").replace(/\s+/g, "_");
+let currentAudio = null;
+let nlVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => v.lang.startsWith("nl"));
+  nlVoice = vs.find(v => v.lang === "nl-NL") || vs[0] || null;
+}
+if ("speechSynthesis" in window) {
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+// Play a pre-generated neural-voice file when we have one.
+// slow=true uses the natively slowed recording in audio/slow/;
+// fallback chain: slow file -> normal file at reduced playbackRate -> browser TTS.
+function speak(text, slow = false) {
+  const s = slug(text);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const a = new Audio((slow ? "audio/slow/" : "audio/") + s + ".mp3");
+  a.onerror = () => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false));
+  a.play().catch(() => (slow ? speakFallbackSlow(s, text) : speakTTS(text, false)));
+  currentAudio = a;
+}
+function speakFallbackSlow(s, text) {
+  const a = new Audio("audio/" + s + ".mp3");
+  a.playbackRate = 0.65;
+  a.onerror = () => speakTTS(text, true);
+  a.play().catch(() => speakTTS(text, true));
+  currentAudio = a;
+}
+function speakTTS(text, slow = false) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (nlVoice) u.voice = nlVoice;
+  u.lang = "nl-NL";
+  u.rate = slow ? 0.55 : 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const norm = s => s.trim().toLowerCase().replace(/[.?!,;:'"„”]/g, "").replace(/\s+/g, " ").trim();
+const toks = s => norm(s).split(" ").filter(Boolean);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+function speakBtn(text) {
+  const t = text.replace(/'/g, "\\'");
+  return `<button class="speak" onclick="speak('${t}')" aria-label="Pronounce ${esc(text)}">▶</button>` +
+         `<button class="speak" onclick="speak('${t}', true)" aria-label="Pronounce ${esc(text)} slowly">🐢</button>`;
+}
+function editDistance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+// A no-repeat deck: draws every item once (shuffled) before starting over.
+function makeDeck(getItems) {
+  let deck = [], total = 0;
+  return {
+    draw() { if (!deck.length) { deck = shuffle(getItems()); total = deck.length; } return { item: deck.pop(), pos: total - deck.length, total }; },
+    reset() { deck = []; },
+  };
+}
+
+/* ================= PARTICIPLE LOGIC ================= */
+const isVowel = c => "aeiou".includes(c);
+const KETCHUP = ["s", "f", "t", "k", "ch", "p", "x"];
+function doubleLastVowel(w) {
+  for (let i = w.length - 1; i >= 0; i--) if (isVowel(w[i])) return w.slice(0, i + 1) + w.slice(i);
+  return w;
+}
+// The letter before -en in the infinitive (the soft-ketchup letter).
+function letterBefore(inf) { const s = inf.slice(0, -2); return s.endsWith("ch") ? "ch" : s.slice(-1); }
+function regEnding(v) {
+  if (/[td]$/.test(v.base)) return "";
+  return KETCHUP.includes(letterBefore(v.inf)) ? "t" : "d";
+}
+const regPart = v => (v.pre ? "" : "ge") + v.base + regEnding(v);
+
+// Infinitive → base, step by step (Les 2): drop a double letter, z/v → s/f, double the vowel.
+// schwa: unstressed -el/-er (wandelen, luisteren) — never doubled (Les 2).
+function baseOps(inf, schwa = false) {
+  const raw = inf.slice(0, -2), ops = [];
+  let w = raw;
+  if (/([^aeiou])\1$/.test(w)) { ops.push("single"); w = w.slice(0, -1); }
+  else if (!schwa && /(^|[^aeiou])[aeou][^aeiou]$/.test(w.replace(/[zv]$/, "x"))) ops.push("double");
+  if (/[zv]$/.test(w)) ops.push("zv");
+  return { raw, ops };
+}
+function applyOps(raw, ops) {
+  let w = raw;
+  if (ops.includes("single")) w = w.slice(0, -1);
+  if (ops.includes("zv")) w = w.slice(0, -1) + (w.endsWith("z") ? "s" : "f");
+  if (ops.includes("double")) w = doubleLastVowel(w);
+  return w;
+}
+// The base a learner would build with the Les 2 rules (used for verbs from the list).
+function guessBase(inf) {
+  if (!inf.endsWith("en")) { const w = inf.slice(0, -1); return w.length > 1 && isVowel(w.slice(-1)) && w.slice(-1) === w.slice(-2, -1) ? w.slice(0, -1) : w; }
+  const { raw, ops } = baseOps(inf);
+  return applyOps(raw, ops);
+}
+const OP_NOTE = { single: "one letter dropped", zv: "z/v → s/f", double: "vowel doubled" };
+
+/* ================= ALL VERBS ================= */
+const VERB_BY = {};
+REG.forEach(v => { v.irr = false; v.lesson = true; VERB_BY[v.inf] = v; });
+const LISTED = LIST.trim().split("\n").map(line => {
+  const [inf, impS, impP, part, aux, en] = line.split("|");
+  const known = VERB_BY[inf];
+  if (known) { Object.assign(known, { impS, impP, listed: true }); return known; }
+  const v = { inf, impS, impP, part, aux, en, listed: true, sep: SEPARABLE.includes(inf), core: CORE.includes(inf) };
+  if (part && !v.sep && (!part.startsWith("ge") || (inf.startsWith("ge") && !part.startsWith("gege"))))
+    v.pre = PREFIXES.find(p => inf.startsWith(p));
+  v.base = guessBase(inf);
+  v.regGuess = (v.pre ? "" : "ge") + v.base + (/[td]$/.test(v.base) ? "" : KETCHUP.includes(letterBefore(inf)) ? "t" : "d");
+  v.irr = !!part && v.regGuess !== part;
+  VERB_BY[inf] = v;
+  return v;
+});
+// Self-checks: regular participles must follow from the rule; the drills' verbs must exist.
+REG.forEach(v => {
+  if (regPart(v) !== v.part) console.error(`regPart(${v.inf}) = ${regPart(v)}, expected ${v.part}`);
+  const { raw, ops } = baseOps(v.inf, v.schwa);
+  if (applyOps(raw, ops) !== v.base) console.error(`base(${v.inf}) = ${applyOps(raw, ops)}, expected ${v.base}`);
+});
+CORE.forEach(inf => { if (!VERB_BY[inf]) console.error(`CORE verb missing from the list: ${inf}`); });
+[...HW, ...CHANGE].forEach(it => {
+  const v = VERB_BY[it.v];
+  if (!v) console.error(`unknown verb ${it.v}`);
+  else if (v.aux.includes("/") && !it.aux && it.set !== "pers") console.error(`${it.v}: sentence needs an explicit aux`);
+});
+
+// Irregular vowel patterns: drinken → gedronken is "i→o", like vinden → gevonden.
+const vowelOf = w => (w.match(/ij|[aeiou]+/) || [""])[0];
+function patternKey(v) {
+  if (!v.irr || IRR_NOTE[v.inf]) return null;
+  if (v.part.endsWith("cht")) return "cht";
+  if (!v.part.endsWith("n")) return null;
+  const pre = v.pre || "";
+  const a = vowelOf(v.inf.slice(pre.length)), b = vowelOf(v.part.slice((pre || "ge").length));
+  return a === b ? "same" : `${a}→${b}`;
+}
+function patternText(v) {
+  if (IRR_NOTE[v.inf]) return `${v.inf} → <b>${v.part}</b>: ${IRR_NOTE[v.inf]}.`;
+  const key = patternKey(v);
+  if (!key) return "";
+  const label = key === "cht" ? "ends in -cht" : key === "same" ? "keeps the vowel of the infinitive + -en" : `vowel ${key.replace("→", " → ")} + -en`;
+  const like = LISTED.filter(o => o !== v && o.core && patternKey(o) === key).slice(0, 3).map(o => `${o.inf} → ${o.part}`);
+  return `Pattern: <b>${label}</b>${like.length ? ` — like ${like.join(", ")}` : ""}.`;
+}
+
+/* ================= HEBBEN / ZIJN FORMS ================= */
+// key: ik · je · jeInv (je/jij after the verb) · u · 3 · pl
+const AUXF = {
+  heb: { ik: ["heb"], je: ["hebt"], jeInv: ["heb"], u: ["hebt", "heeft"], 3: ["heeft"], pl: ["hebben"] },
+  ben: { ik: ["ben"], je: ["bent"], jeInv: ["ben"], u: ["bent"], 3: ["is"], pl: ["zijn"] },
+};
+const AUX_WHO = {
+  heb: { heb: "ik (and je/jij after the verb)", hebt: "jij/je and u", heeft: "u and hij/zij/het", hebben: "wij/jullie/zij (they)" },
+  ben: { ben: "ik (and je/jij after the verb)", bent: "jij/je and u", is: "hij/zij/het", zijn: "wij/jullie/zij (they)" },
+};
+const HEB_FORMS = ["heb", "hebt", "heeft", "hebben"], BEN_FORMS = ["ben", "bent", "is", "zijn"];
+const AUX_ALL = [...HEB_FORMS, ...BEN_FORMS];
+const auxFamily = t => HEB_FORMS.includes(t) ? "heb" : BEN_FORMS.includes(t) ? "ben" : null;
+const auxOf = it => it.aux || VERB_BY[it.v].aux.split("/")[0];
+const auxKey = it => it.p === "je" && it.inv ? "jeInv" : it.p;
+const auxForms = it => AUXF[auxOf(it)][auxKey(it)];
+const PERSON_LABEL = { ik: "ik", je: "jij/je", jeInv: "jij/je after the verb", u: "u", 3: "a singular subject (hij/zij/het, a name, a thing)", pl: "a plural subject" };
+
+/* ================= MISTAKES =================
+   id → the rule it violates + a sentence about what the learner typed.
+   c = { g: typed word, v: verb, it: sentence item, answer } */
+const hl = (inf, i) => `${inf.slice(0, i)}<b>${inf.slice(i, -2)}</b>en`;
+const MISTAKES = {
+  "missing-ge":  { rule: "ge",      text: c => `The participle starts with <b>ge-</b>: <b>${c.v.part}</b>.` },
+  "extra-ge":    { rule: "prefix",  text: c => `<b>${c.v.inf}</b> starts with unstressed <b>${c.v.pre}-</b>, so there's no extra ge-: <b>${c.v.part}</b>.` },
+  "td":          { rule: "ketchup", text: c => { const L = letterBefore(c.v.inf); return `The letter before -en in ${hl(c.v.inf, c.v.inf.length - 2 - L.length)} is <b>${L}</b> — ${KETCHUP.includes(L) ? "it <i>is</i> in soft ketchup → <b>t</b>" : "not in soft ketchup → <b>d</b>"}.`; } },
+  "zv-td":       { rule: "ketchup", text: c => `You looked at the base (<i>${c.v.base}</i> ends in ${c.v.base.slice(-1)}), but the rule looks at the infinitive: ${hl(c.v.inf, c.v.inf.length - 3)} — <b>${letterBefore(c.v.inf)}</b> is not in soft ketchup → <b>d</b>. The ${c.v.base.slice(-1)} in the base is only spelling.` },
+  "base-td":     { rule: "baseTD",  text: c => `The base <b>${c.v.base}</b> already ends in ${c.v.base.slice(-1)} — nothing is added: <b>${c.v.part}</b>.` },
+  "no-ending":   { rule: "ketchup", text: c => `You left off the ending: after the base <b>${c.v.base}</b> comes -${regEnding(c.v)}.` },
+  "reg-en":      { rule: "ge",      text: c => `Regular verbs end in <b>-t or -d</b>, not -en. Only irregular verbs (gegeten, gedronken) end in -en.` },
+  "skip-double": { rule: "double",  text: c => `You didn't double the vowel in the base. In <b>${c.v.inf}</b> the vowel is long — in a closed syllable that needs two letters: <b>${c.v.base}</b>.` },
+  "skip-single": { rule: "single",  text: c => `Your base ends in a double letter. The base never does — drop one: <b>${c.v.base}</b>.` },
+  "skip-zv":     { rule: "zv",      text: c => `Your base ends in ${c.v.inf.slice(-3, -2)}. At the end of the base that becomes ${c.v.inf.slice(-3, -2) === "v" ? "f" : "s"}: <b>${c.v.base}</b>.` },
+  "over-double": { rule: "double",  text: c => `You doubled a vowel that isn't long here — the base is <b>${c.v.base}</b>.` },
+  "irr-reg":     { rule: "irr",     text: c => `<b>${c.v.inf}</b> is irregular — the soft-ketchup rule gives <i>${esc(c.g)}</i>, but that word doesn't exist. The participle is <b>${c.v.part}</b>. ${patternText(c.v)}` },
+  "irr-vowel":   { rule: "irr",     text: c => `Right idea (-en ending), but the vowel changes: <b>${c.v.part}</b>. ${patternText(c.v)}` },
+  "irr-other":   { rule: "irr",     text: c => `<b>${c.v.inf}</b> is irregular — memorize <b>${c.v.part}</b>. ${patternText(c.v)}` },
+  "irr-cht":     { rule: "irr",     text: c => `This one belongs to the <b>-cht</b> group: <b>${c.v.part}</b>. ${patternText(c.v)}` },
+  "aux-zijn":    { rule: "zijnList", text: c => `<b>${c.v.inf}</b> takes <b>zijn</b>, not hebben — it's a change of place or state.` },
+  "aux-heb":     { rule: "hebZijn", text: c => `<b>${c.v.inf}</b> takes <b>hebben</b> — it's an activity, not a change of place or state.` },
+  "motion-zijn": { rule: "motion",  text: c => `Here there is a destination, so <b>${c.v.inf}</b> takes <b>zijn</b>${c.it.why ? ` (${c.it.why})` : ""}.` },
+  "motion-heb":  { rule: "motion",  text: c => `There's no destination here, so <b>${c.v.inf}</b> takes <b>hebben</b>${c.it.why ? ` (${c.it.why})` : ""}.` },
+  "aux-form":    { rule: null,      text: c => `<b>${c.g}</b> is the form for ${c.who}. Here the subject is ${PERSON_LABEL[auxKey(c.it)]} → <b>${c.answer}</b>.` },
+  "jij-t":       { rule: "jijT",    text: c => `jij/je comes <i>after</i> the helping verb here, so the -t drops: <b>${c.answer}</b>, not ${c.g}.` },
+  "jij-needs-t": { rule: "jijT",    text: c => `je comes <i>before</i> the helping verb here, so it keeps the -t: je <b>${c.answer}</b>.` },
+  "no-aux":      { rule: "perf",    text: c => `There's no helping verb in your answer — the perfectum needs a form of <b>${auxOf(c.it) === "heb" ? "hebben" : "zijn"}</b>: <b>${c.answer}</b>.` },
+  "kept-present": { rule: "perf",   text: c => `You kept the present form <i>${esc(c.g)}</i>. In the perfectum the main verb becomes a participle: <b>${c.v.part}</b>.` },
+  "swap":        { rule: "perf",    text: c => `Right words, wrong gaps: the helping verb goes in the first gap, the participle in the second (at the end).` },
+  "pp-end":      { rule: "ppEnd",   text: c => `The participle <b>${c.v.part}</b> must be the <b>last</b> word of the sentence.` },
+  "aux-place":   { rule: "auxPlace", text: c => c.orderText },
+  "typo":        { rule: null,      text: c => `One letter off — probably a typo. Compare: you typed <b>${esc(c.g)}</b>, correct is <b>${c.answer}</b>.` },
+  "snd":         { rule: null,      text: c => c.sndText },
+};
+const KIND_LABEL = {
+  RULE: "Rule · you can work this out",
+  EXCEPTION: "Exception · memorize it",
+  IRREGULAR: "Irregular · memorize it",
+  SOUND: "Sound · you heard it right, the spelling differs",
+  TYPO: "Typo",
+};
+// mk(id, ctx, rule?) → a mistake record the feedback renderer understands
+function mk(id, c, rule) {
+  const r = rule || MISTAKES[id].rule;
+  return { id, rule: r, kind: id === "typo" ? "TYPO" : RULES[r] ? RULES[r].kind : "RULE", text: MISTAKES[id].text(c) };
+}
+
+/* ================= DIAGNOSIS ================= */
+// The wrong bases a learner builds by forgetting a Les 2 spelling rule → [{ form, ids }]
+function wrongBases(v) {
+  const { raw, ops } = baseOps(v.inf, v.schwa), out = [];
+  if (applyOps(raw, ops) !== v.base) return out;
+  for (let mask = 1; mask < (1 << ops.length); mask++) {
+    const skip = ops.filter((_, i) => mask & (1 << i));
+    const form = applyOps(raw, ops.filter(o => !skip.includes(o)));
+    if (form !== v.base) out.push({ form, ids: skip.map(o => "skip-" + o) });
+  }
+  if (!ops.includes("double")) { const d = doubleLastVowel(v.base); if (d !== v.base) out.push({ form: d, ids: ["over-double"] }); }
+  return out;
+}
+// What went wrong in a typed participle g for verb v?
+function diagnosePart(g, v) {
+  const c = { g, v, answer: v.part };
+  if (!g) return [];
+  const pre = v.pre ? "" : "ge";
+  if (v.pre && g === "ge" + v.part) return [mk("extra-ge", c)];
+  if (!v.pre && g === v.part.slice(2)) return [mk("missing-ge", c)];
+  if (v.irr) {
+    if (v.pre && g.startsWith("ge") && !v.inf.startsWith("ge") && g.slice(2) !== v.part) {
+      const rest = diagnosePart(g.slice(2), v);
+      return [mk("extra-ge", c), ...rest.filter(m => m.id !== "typo")];
+    }
+    if (/[td]$/.test(g) && (g === v.regGuess || editDistance(g, v.regGuess) <= 1 || g === pre + v.base + "d" || g === pre + v.base + "t"))
+      return [mk(v.part.endsWith("cht") ? "irr-cht" : "irr-reg", c)];
+    if (g.endsWith("en") && g !== v.part && (g === pre + v.inf || editDistance(g, v.part) <= 3)) return [mk("irr-vowel", c)];
+    if (editDistance(g, v.part) === 1) return [mk("typo", c)];
+    return [mk("irr-other", c)];
+  }
+  const end = regEnding(v), base = v.base;
+  if (end && (g === pre + base + (end === "t" ? "d" : "t")))
+    return [mk(end === "d" && /[zv]/.test(letterBefore(v.inf)) ? "zv-td" : "td", c)];
+  if (!end && (g === pre + base + "t" || g === pre + base + "d")) return [mk("base-td", c)];
+  if (end && g === pre + base) return [mk("no-ending", c)];
+  if (g === pre + v.inf || g === pre + base + "en") return [mk("reg-en", c)];
+  for (const wb of wrongBases(v)) {
+    for (const suf of ["t", "d", ""]) {
+      if (g !== pre + wb.form + suf) continue;
+      const ms = wb.ids.map(id => mk(id, c));
+      if (suf !== end) ms.push(mk(end ? "td" : "base-td", c));
+      return ms;
+    }
+  }
+  // right participle but ge- missing as well as something else
+  if (!v.pre && !g.startsWith("ge")) { const rest = diagnosePart("ge" + g, v); if (rest.length && rest[0].id !== "typo") return [mk("missing-ge", c), ...rest]; }
+  if (editDistance(g, v.part) === 1) return [mk("typo", c)];
+  return [];
+}
+// What went wrong in a typed helping verb g for sentence it?
+function diagnoseAux(g, it) {
+  const v = VERB_BY[it.v], want = auxOf(it), forms = auxForms(it);
+  const c = { g, v, it, answer: forms[0] };
+  if (!g) return [mk("no-aux", c)];
+  const fam = auxFamily(g);
+  if (!fam) return editDistance(g, forms[0]) === 1 ? [mk("typo", c)] : [mk("no-aux", c)];
+  if (fam !== want) {
+    if (v.aux.includes("/")) return [mk(want === "ben" ? "motion-zijn" : "motion-heb", c)];
+    return [mk(want === "ben" ? "aux-zijn" : "aux-heb", c)];
+  }
+  if (it.p === "je" && it.inv && g === AUXF[want].je[0]) return [mk("jij-t", c)];
+  if (it.p === "je" && !it.inv && g === AUXF[want].jeInv[0]) return [mk("jij-needs-t", c)];
+  return [mk("aux-form", { ...c, who: AUX_WHO[want][g] }, want === "heb" ? "hebben" : "zijn")];
+}
+
+/* ================= STEPS ================= */
+function partSteps(v) {
+  if (!v.part) return [];
+  if (v.irr) {
+    const s = [`<b>${v.inf}</b> is irregular — the participle comes from the list (p.125–127): <b>${v.part}</b>`];
+    const p = patternText(v); if (p) s.push(p);
+    if (v.pre) s.push(`it starts with unstressed <b>${v.pre}-</b> → no extra ge-`);
+    s.push(`the regular rule would give <i>${v.regGuess}</i> — that word doesn't exist`);
+    return s;
+  }
+  const s = [];
+  if (v.listed && !v.lesson) s.push(`${v.inf} is on the irregular list (for the past form <i>${v.impS}</i>), but its participle follows the normal rule:`);
+  const { raw, ops } = baseOps(v.inf, v.schwa);
+  const notes = ops.filter(o => applyOps(raw, ops.filter(x => x !== o)) !== v.base).map(o => OP_NOTE[o]);
+  s.push(`${v.inf} → remove -en → base <b>${v.base}</b>${notes.length ? ` (${notes.join(", ")})` : ""}`);
+  if (v.pre) s.push(`starts with unstressed <b>${v.pre}-</b> → <b>no ge-</b>`);
+  else s.push(`put <b>ge-</b> in front → ge${v.base}`);
+  const L = letterBefore(v.inf), end = regEnding(v);
+  if (!end) s.push(`the base already ends in <b>${v.base.slice(-1)}</b> → nothing is added`);
+  else s.push(`letter before -en in the infinitive: <b>${L}</b> → ${end === "t" ? "in" : "not in"} <i>soft ketchup</i> → <b>-${end}</b>`);
+  s.push(`${v.pre ? "" : "ge + "}${v.base}${end ? " + " + end : ""} = <b>${v.part}</b>`);
+  return s;
+}
+function auxSteps(it) {
+  const v = VERB_BY[it.v], want = auxOf(it), forms = auxForms(it);
+  const verbAux = want === "heb" ? "hebben" : "zijn";
+  let why;
+  if (it.why) why = `${v.inf} + <b>${verbAux}</b>: ${it.why}`;
+  else if (v.aux.includes("/")) why = `${v.inf} → <b>${verbAux}</b> here`;
+  else if (want === "ben") why = `${v.inf} takes <b>zijn</b> (a change of place or state)`;
+  else why = `${v.inf} takes <b>hebben</b> (like most verbs)`;
+  const key = auxKey(it);
+  let who = `subject: ${PERSON_LABEL[key]} → <b>${forms.join("</b> or <b>")}</b>`;
+  if (key === "jeInv") who += ` (jij/je after the verb → no -t)`;
+  return [why, who];
+}
+
+/* ================= FEEDBACK RENDERING ================= */
+function exampleHtml(ex) {
+  const word = t => `<span class="exw">${speakBtn(t)}${t}</span>`;
+  return `<div class="ex">${ex.map(e => Array.isArray(e) ? `<span class="exw">${word(e[0])} → ${word(e[1])}</span>` : word(e)).join("")}</div>`;
+}
+function ruleHow(id) {
+  const r = RULES[id];
+  return `<details class="how"><summary>How does <b>${r.name}</b> work?</summary><div class="how-body"><span class="tag k-${r.kind}">${r.kind}</span> ${r.how}${exampleHtml(r.ex)}</div></details>`;
+}
+// res: { ok, correct, say, mistakes: [mk()], rules: [ids], steps: [html] }
+function renderFeedback(res) {
+  let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
+  if (res.say) h += ` ${speakBtn(res.say)}`;
+  if (!res.ok) {
+    if (res.mistakes.length) {
+      h += res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("");
+    } else {
+      h += `<div class="mistake"><span class="what"><b>Your mistake:</b> not one of the usual patterns — compare your answer with the steps below.</span></div>`;
+    }
+  }
+  if (res.steps && res.steps.length) {
+    h += `<details class="steps"${res.ok ? "" : " open"}><summary>${res.ok ? "Why is this right?" : "How we get there"}</summary><ol>${res.steps.map(s => `<li>${s}</li>`).join("")}</ol></details>`;
+  }
+  // Explain the rules behind the mistakes first; on a right answer, the rules used.
+  const ids = [...new Set([...res.mistakes.map(m => m.rule), ...(res.ok || !res.mistakes.length ? res.rules : [])].filter(r => RULES[r]))];
+  h += ids.map(ruleHow).join("");
+  h += `<span class="why">Press Enter for the next one.</span>`;
+  return h;
+}
+
+/* ================= DRILL ENGINE ================= */
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
+  const input = $(inputId), fb = $(feedbackId);
+  let right = 0, wrong = 0, streak = 0, answered = false, current = null;
+  const tally = {}; // rule id → times missed this session
+  function newQuestion() {
+    current = next();
+    answered = false;
+    fb.innerHTML = "";
+    input.value = "";
+    input.focus();
+  }
+  function renderTally() {
+    const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
+    $(tallyId).innerHTML = ids.length
+      ? `<div class="tally-head">Your mistakes this session — tap to review the rule</div>` +
+        ids.map(id => ruleHow(id).replace(`How does <b>${RULES[id].name}</b> work?`, `<b>${RULES[id].name}</b> ×${tally[id]}`)).join("")
+      : "";
+  }
+  function doCheck() {
+    if (answered) { newQuestion(); return; }
+    if (!norm(input.value)) return;
+    const res = check(current, input.value);
+    res.mistakes = res.mistakes || []; res.rules = res.rules || [];
+    answered = true;
+    if (res.ok) { right++; streak++; }
+    else {
+      wrong++; streak = 0;
+      const missed = res.mistakes.map(m => m.rule).filter(r => RULES[r]);
+      [...new Set(missed.length ? missed : res.rules.slice(-1))].forEach(r => { tally[r] = (tally[r] || 0) + 1; });
+      renderTally();
+    }
+    $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    fb.innerHTML = renderFeedback(res);
+    if (res.say) speak(res.say);
+  }
+  input.addEventListener("keydown", e => { if (e.key === "Enter") doCheck(); });
+  $(checkId).addEventListener("click", doCheck);
+  // Tapping a ▶ or opening an explanation must not steal Enter from the answer box.
+  fb.addEventListener("click", e => { if (e.target.closest("button, summary")) setTimeout(() => input.focus({ preventScroll: true }), 0); });
+  return { newQuestion, get current() { return current; } };
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", "false"));
+    btn.setAttribute("aria-selected", "true");
+    document.querySelectorAll("section.panel").forEach(p => p.classList.remove("active"));
+    $("panel-" + btn.dataset.panel).classList.add("active");
+  });
+});
+
+/* ================= LEARN PANEL ================= */
+// "ik heb gewerkt" / "ik ben gegaan" — the phrase used for audio in tables and flashcards.
+const ikPhrase = v => v.part ? `ik ${v.aux.startsWith("ben") ? "ben" : "heb"} ${v.part}` : "";
+const fullHw = it => cap(it.s.replace("_", auxForms(it)[0]).replace("_", VERB_BY[it.v].part));
+const exLines = rows => rows.map(([nl, en]) => `<div>${speakBtn(nl)}${esc(nl)} <span class="en">· ${esc(en)}</span></div>`).join("");
+const pairLine = v => `<div>${speakBtn(v.inf)}${v.inf}<span class="arrow">→</span>${speakBtn(ikPhrase(v))}${v.part}</div>`;
+$("ex-perf").innerHTML = exLines(EX_PERF);
+$("ex-regular").innerHTML = ["werken", "studeren", "reizen", "proeven", "fietsen", "wonen", "mailen", "gooien", "maken", "kennen", "leven", "bellen"].map(i => pairLine(VERB_BY[i])).join("");
+$("ex-zv").innerHTML = exLines(EX_ZV);
+$("ex-td").innerHTML = exLines(EX_TD);
+$("ex-prefix-pairs").innerHTML = ["beantwoorden", "gebruiken", "verhuizen", "herhalen", "erkennen", "geloven", "ontdekken", "herinneren", "herkennen", "veranderen", "vertellen", "betalen"].map(i => pairLine(VERB_BY[i])).join("");
+$("ex-prefix").innerHTML = exLines(EX_PREFIX);
+$("ex-zijn").innerHTML = exLines(EX_ZIJN);
+$("ex-motion").innerHTML = exLines(EX_MOTION);
+$("ex-irr").innerHTML = exLines(EX_IRR);
+$("order-table").innerHTML = `<tr><th></th><th>1st</th><th>helping verb</th><th>subject</th><th>rest (t-o-m-p)</th><th>participle</th></tr>` +
+  ORDER.map(([type, c, en]) => {
+    const say = c.filter(Boolean).join(" ");
+    return `<tr><td>${speakBtn(say)}<span style="font-family:var(--body);font-size:12px">${type}</span></td><td>${c[0]}</td><td class="aux">${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td class="pp">${c[4]}</td></tr>`;
+  }).join("");
+
+function refCard(title, subtitle, rows, colorClass) {
+  const trs = rows.map(r => {
+    if (r.label) return `<tr><td class="lbl" colspan="2">${r.label}</td></tr>`;
+    return `<tr><td>${speakBtn(r[0])}${r[0]}</td><td class="en">${r[1]}</td></tr>`;
+  }).join("");
+  return `<div class="card ${colorClass}"><div class="head">${title}<small>${subtitle}</small></div><table>${trs}</table></div>`;
+}
+const persRows = verb => {
+  const items = HW.filter(it => it.set === "pers" && it.v === verb);
+  const row = it => [fullHw(it), it.en];
+  return [{ label: "singular" }, ...items.slice(0, 6).map(row), { label: "plural" }, ...items.slice(6).map(row)];
+};
+$("pers-cols").innerHTML =
+  refCard("werken + hebben", "the lesson's table · u hebt or u heeft", persRows("werken"), "blue") +
+  refCard("gaan + zijn", "the lesson's table", persRows("gaan"), "red");
+
+function renderIrr() {
+  const q = norm($("irr-search").value);
+  const rows = LISTED.filter(v => !q || [v.inf, v.part, v.en, v.impS, v.impP].some(f => (f || "").toLowerCase().includes(q)));
+  $("irr-count").textContent = `${rows.length} / ${LISTED.length}`;
+  $("irr-table").innerHTML = rows.map(v => `<tr class="${v.core || v.lesson ? "core" : ""}">` +
+    `<td>${speakBtn(v.inf)}${v.inf}</td>` +
+    `<td>${v.part ? speakBtn(ikPhrase(v)) + v.part : "—"}</td>` +
+    `<td class="aux">${v.aux.replace("heb", "hebben").replace("ben", "zijn")}</td>` +
+    `<td class="imp">${v.impS} / ${v.impP}</td><td class="en">${v.en}</td></tr>`).join("");
+}
+$("irr-search").addEventListener("input", renderIrr);
+renderIrr();
+
+/* ================= FLASHCARDS ================= */
+const DRILL_IRR = LISTED.filter(v => v.core && v.part);
+const DRILL_REG = REG;
+const FLASH_DECKS = {
+  irr: () => DRILL_IRR,
+  reg: () => DRILL_REG,
+  all: () => LISTED.filter(v => v.part),
+};
+let flashDeck = [], flashIdx = 0, flashFlipped = false, flashKnown = 0, flashTotal = 0;
+function flashInit() {
+  const src = FLASH_DECKS[$("flash-deck").value]();
+  flashDeck = shuffle(src);
+  flashIdx = 0; flashFlipped = false; flashKnown = 0; flashTotal = src.length;
+  flashRender();
+}
+function flashCurrent() { return flashDeck[flashIdx]; }
+function flashRender() {
+  const card = $("flashcard");
+  if (!flashDeck.length) {
+    card.classList.remove("back");
+    $("flash-side").textContent = "✓";
+    $("flash-word").textContent = "Alles gekend! 🎉";
+    $("flash-sub").textContent = "";
+    $("flash-progress").textContent = `${flashKnown}/${flashTotal} known — press "Nog niet" to restart`;
+    return;
+  }
+  const v = flashCurrent();
+  card.classList.toggle("back", flashFlipped);
+  $("flash-side").textContent = flashFlipped ? "Perfectum" : "NL";
+  $("flash-word").textContent = flashFlipped ? ikPhrase(v) : v.inf;
+  $("flash-sub").textContent = flashFlipped ? `${v.en}${v.aux.includes("/") ? " · hebben or zijn (movement)" : ""}${v.irr ? " · irregular" : ""}` : "";
+  $("flash-progress").textContent = `${flashKnown}/${flashTotal} known · ${flashDeck.length} to go`;
+}
+function flashFlip() { if (!flashDeck.length) return; flashFlipped = !flashFlipped; flashRender(); }
+function flashAnswer(knew) {
+  if (!flashDeck.length) { flashInit(); return; }
+  const v = flashDeck.splice(flashIdx, 1)[0];
+  if (knew) flashKnown++; else flashDeck.push(v);
+  if (flashIdx >= flashDeck.length) flashIdx = 0;
+  flashFlipped = false;
+  flashRender();
+}
+const flashSay = () => flashFlipped ? ikPhrase(flashCurrent()) : flashCurrent().inf;
+$("flashcard").addEventListener("click", flashFlip);
+$("flashcard").addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flashFlip(); } });
+$("flash-yes").addEventListener("click", () => flashAnswer(true));
+$("flash-no").addEventListener("click", () => flashAnswer(false));
+$("flash-audio").addEventListener("click", () => { if (flashDeck.length) speak(flashSay()); });
+$("flash-slow").addEventListener("click", () => { if (flashDeck.length) speak(flashSay(), true); });
+$("flash-deck").addEventListener("change", flashInit);
+flashInit();
+
+/* ================= PARTICIPLE DRILL ================= */
+const partDeck = makeDeck(() => {
+  const m = $("part-mode").value;
+  return m === "reg" ? DRILL_REG : m === "irr" ? DRILL_IRR : [...DRILL_REG, ...DRILL_IRR];
+});
+const partDrill = makeDrill({
+  inputId: "part-input", checkId: "part-check", feedbackId: "part-feedback",
+  rightId: "part-right", wrongId: "part-wrong", streakId: "part-streak", tallyId: "part-tally",
+  next() {
+    const { item: v } = partDeck.draw();
+    $("part-prompt").innerHTML = `${speakBtn(v.inf)}${v.inf}`;
+    $("part-hint").textContent = v.en;
+    return v;
+  },
+  check(v, given) {
+    // Accept "gewerkt" as well as "heb gewerkt" / "ik heb gewerkt": only the last word counts.
+    const g = toks(given).slice(-1)[0];
+    const rules = v.irr ? ["irr"] : ["ge", ...(v.pre ? ["prefix"] : []), regEnding(v) ? "ketchup" : "baseTD"];
+    const res = { ok: g === v.part, correct: v.part, say: ikPhrase(v), steps: [...partSteps(v), `perfectum: <b>${ikPhrase(v)}</b>${v.aux.includes("/") ? " (or <b>ik ben " + v.part + "</b> with a destination)" : ""}`], rules, mistakes: [] };
+    if (!res.ok) res.mistakes = diagnosePart(g, v);
+    return res;
+  },
+});
+$("part-mode").addEventListener("change", () => { partDeck.reset(); partDrill.newQuestion(); });
+
+/* ================= HOMEWORK DRILL ================= */
+const SET_NAME = { o9: "Oefening 9 · p.98", o10: "Oefening 10 · p.100", klas: "Les-oefening · p.117–118", pers: "Personen" };
+const hwDeck = makeDeck(() => { const s = $("hw-set").value; return HW.filter(it => s === "all" || it.set === s); });
+const gapHtml = s => esc(s).replace(/_/g, '<span class="gap">?</span>');
+const hwDrill = makeDrill({
+  inputId: "hw-input", checkId: "hw-check", feedbackId: "hw-feedback",
+  rightId: "hw-right", wrongId: "hw-wrong", streakId: "hw-streak", tallyId: "hw-tally",
+  next() {
+    const { item: it, pos, total } = hwDeck.draw();
+    $("hw-prompt").innerHTML = `<span class="verb">(${it.v})</span> ${gapHtml(it.s)}`;
+    $("hw-task").textContent = `${SET_NAME[it.set]}${it.n ? " · " + it.n : ""}`;
+    $("hw-hint").textContent = `${pos}/${total} · ${VERB_BY[it.v].en}`;
+    return it;
+  },
+  check(it, given) {
+    const v = VERB_BY[it.v], forms = auxForms(it), full = fullHw(it);
+    let gt = toks(given);
+    // A whole sentence typed in: pick out the helping verb and the last word.
+    if (gt.length > 2) gt = [gt.find(t => auxFamily(t)) || "", gt[gt.length - 1]];
+    let [ga = "", gp = ""] = gt;
+    const ok = forms.includes(ga) && gp === v.part;
+    const steps = [...partSteps(v), ...auxSteps(it), `<b>${esc(full)}</b> — <em>${esc(it.en)}</em>`];
+    if (forms.length > 1) steps.push(`Also correct: ${cap(it.s.replace("_", forms[1]).replace("_", v.part))}`);
+    if (it.note) steps.push(it.note);
+    const res = { ok, correct: `${forms[0]} … ${v.part}`, say: full, steps,
+                  rules: ["perf", v.irr ? "irr" : regEnding(v) ? "ketchup" : "baseTD", ...(auxOf(it) === "ben" ? ["zijnList"] : [])], mistakes: [] };
+    if (ok) return res;
+    if (gt.length < 2) { res.mistakes = [mk("no-aux", { it, v, answer: forms[0] })]; return res; }
+    if (auxFamily(gp) && !auxFamily(ga)) { res.mistakes = [mk("swap", {})]; return res; }
+    if (!forms.includes(ga)) res.mistakes.push(...diagnoseAux(ga, it));
+    if (gp !== v.part) {
+      const pm = diagnosePart(gp, v);
+      res.mistakes.push(...(pm.length ? pm : []));
+      if (!pm.length && gp === norm(v.inf)) res.mistakes.push(mk("kept-present", { g: gp, v }));
+    }
+    return res;
+  },
+});
+$("hw-set").addEventListener("change", () => { hwDeck.reset(); hwDrill.newQuestion(); });
+
+/* ================= OMZETTEN DRILL ================= */
+const STRUCT = {
+  hoofd: "Hoofdzin: subject – <b>helping verb</b> – rest – <b>participle</b>",
+  open: "Open vraag: vraagwoord – <b>helping verb</b> – subject – rest – <b>participle</b>",
+  gesl: "Gesloten vraag: <b>helping verb</b> – subject – rest – <b>participle</b>",
+};
+// Every accepted answer: the model sentence with each allowed form of the helping verb (u hebt / u heeft).
+function changeAnswers(it) {
+  const at = toks(it.to), ai = at.findIndex(t => auxFamily(t));
+  return auxForms(it).map(f => { const a = [...at]; a[ai] = f; return a; });
+}
+function diagnoseChange(given, it) {
+  const v = VERB_BY[it.v], at = toks(it.to), ai = at.findIndex(t => auxFamily(t)), part = v.part;
+  let gt = toks(given);
+  const out = [];
+  const c = { v, it, answer: at[ai] };
+  // 1 · the participle
+  if (!gt.includes(part)) {
+    const vt = norm(it.vt);
+    const cand = gt.includes(vt) && !at.includes(vt) ? vt
+      : gt.filter(t => !at.includes(t) && !auxFamily(t)).sort((a, b) => editDistance(a, part) - editDistance(b, part))[0];
+    if (cand === vt || cand === v.inf) out.push(mk("kept-present", { ...c, g: cand }));
+    else if (cand && editDistance(cand, part) <= Math.max(3, part.length / 2)) {
+      const pm = diagnosePart(cand, v);
+      out.push(...(pm.length ? pm : [mk("irr-other", { ...c, g: cand })]));
+    }
+    if (cand) gt = gt.map(t => t === cand ? part : t);
+  }
+  // 2 · the helping verb
+  const gi = gt.findIndex(t => auxFamily(t));
+  if (gi === -1) out.push(mk("no-aux", c));
+  else if (!auxForms(it).includes(gt[gi])) { out.push(...diagnoseAux(gt[gi], it)); gt[gi] = at[ai]; }
+  // 3 · word order
+  const sameBag = [...gt].sort().join(" ") === [...at].sort().join(" ");
+  if (sameBag && gt.join(" ") !== at.join(" ")) {
+    const gai = gt.indexOf(at[ai]);
+    if (gt[gt.length - 1] !== part) out.push(mk("pp-end", c));
+    else if (gai !== ai) {
+      const orderText = it.type === "gesl" ? `In a ja/nee vraag the helping verb comes <b>first</b>: <b>${cap(at.slice(0, 2).join(" "))}</b> …`
+        : it.type === "open" ? `Open vraag: vraagwoord – helping verb – subject: <b>${cap(at.slice(0, ai + 2).join(" "))}</b> …`
+        : `Hoofdzin: the helping verb comes right after the subject (2nd place): <b>${cap(at.slice(0, ai + 1).join(" "))}</b> …`;
+      out.push(mk("aux-place", { ...c, orderText }));
+    } else out.push(mk("aux-place", { ...c, orderText: `The middle part is in a different order — it stays as in the present sentence: <b>${at.slice(ai + 1, -1).join(" ")}</b>.` }));
+  } else if (!out.length && gt.length === at.length) {
+    const diff = gt.map((t, i) => [t, at[i]]).filter(([t, a]) => t !== a);
+    if (diff.length === 1 && editDistance(diff[0][0], diff[0][1]) <= 2) out.push(mk("typo", { g: diff[0][0], answer: diff[0][1] }));
+  }
+  return out;
+}
+const changeDeck = makeDeck(() => CHANGE);
+const changeDrill = makeDrill({
+  inputId: "change-input", checkId: "change-check", feedbackId: "change-feedback",
+  rightId: "change-right", wrongId: "change-wrong", streakId: "change-streak", tallyId: "change-tally",
+  next() {
+    const { item: it, pos, total } = changeDeck.draw();
+    $("change-prompt").innerHTML = `${speakBtn(it.from)}${esc(it.from)}`;
+    $("change-hint").textContent = `${pos}/${total} · ${it.en.replace(/\.$/, "")} (${VERB_BY[it.v].en})`;
+    return it;
+  },
+  check(it, given) {
+    const v = VERB_BY[it.v], gt = toks(given);
+    const ok = changeAnswers(it).some(a => a.join(" ") === gt.join(" "));
+    const steps = [`the verb <b>${it.vt}</b> (${v.inf}) becomes a participle at the end:`, ...partSteps(v), ...auxSteps(it), STRUCT[it.type], `<em>${esc(it.en)}</em>`];
+    const alts = auxForms(it);
+    if (alts.length > 1) steps.push(`Also correct with <b>${alts[1]}</b>.`);
+    const res = { ok, correct: esc(it.to), say: it.to, steps, rules: ["auxPlace", "ppEnd"], mistakes: [] };
+    if (!ok) res.mistakes = diagnoseChange(given, it);
+    return res;
+  },
+});
+
+/* ================= LISTENING DRILL ================= */
+const LISTEN_ITEMS = [
+  ...[...DRILL_REG, ...DRILL_IRR].map(ikPhrase),
+  ...HW.filter(it => it.set === "pers").map(fullHw),
+];
+// [what the answer has, what the learner may write instead, rule, explanation]
+const SOUND_SWAPS = [
+  ["ij", "ei", "eij", () => `<b>ij</b> and <b>ei</b> sound exactly the same — this word is spelled with <b>ij</b>.`],
+  ["ei", "ij", "eij", () => `<b>ei</b> and <b>ij</b> sound exactly the same — this word is spelled with <b>ei</b>.`],
+  ["z", "s", "zs", () => `You wrote s, but it's a voiced <b>z</b> (a buzz). Play it slowly and listen for it.`],
+  ["s", "z", "zs", () => `You wrote z, but it's a sharp <b>s</b> — no buzz.`],
+  ["v", "f", "vf", () => `You wrote f, but this word is spelled with <b>v</b>.`],
+  ["f", "v", "vf", () => `You wrote v, but this word is spelled with <b>f</b>.`],
+  ["g", "ch", "gch", () => `g and ch sound the same — this word is spelled with <b>g</b>.`],
+  ["ch", "g", "gch", () => `g and ch sound the same — this word is spelled with <b>ch</b>.`],
+  ["aa", "a", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>aa</b>.`],
+  ["ee", "e", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>ee</b>.`],
+  ["oo", "o", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>oo</b>.`],
+  ["uu", "u", "vowelLen", () => `The vowel is long — in a closed syllable that's written <b>uu</b>.`],
+];
+function diagnoseListen(c) {
+  const { g, answer: a } = c;
+  // Final d / t: you can't hear it — soft ketchup decides.
+  const at = a.split(" "), gt = g.split(" ");
+  if (at.length === gt.length) {
+    const diff = at.map((w, i) => [w, gt[i]]).filter(([w, x]) => w !== x);
+    if (diff.length === 1) {
+      const [w, x] = diff[0];
+      if (w.slice(0, -1) === x.slice(0, -1) && /[td]$/.test(w) && /[td]$/.test(x)) {
+        const v = Object.values(VERB_BY).find(o => o.part === w);
+        const why = v && !v.irr ? (regEnding(v) ? ` The letter before -en in <b>${v.inf}</b> is <b>${letterBefore(v.inf)}</b> → ${KETCHUP.includes(letterBefore(v.inf)) ? "t" : "d"}.` : "") : "";
+        return [mk("snd", { ...c, sndText: `At the end of a word d and t sound the same — it's written <b>${w}</b>.${why}` }, "tdSound")];
+      }
+    }
+  }
+  for (const [from, to, rule, why] of SOUND_SWAPS) {
+    for (let i = a.indexOf(from); i !== -1; i = a.indexOf(from, i + 1)) {
+      if (a.slice(0, i) + to + a.slice(i + from.length) === g) return [mk("snd", { ...c, sndText: why() }, rule)];
+    }
+  }
+  // Long vowel written double where it should be single (open syllable): gegeeten for gegeten
+  for (let i = 0; i < a.length; i++) {
+    if ("aeou".includes(a[i]) && a[i + 1] !== a[i] && a[i - 1] !== a[i] && a.slice(0, i + 1) + a.slice(i) === g)
+      return [mk("snd", { ...c, sndText: `The vowel ends its syllable here (open syllable), so one letter is already long — no doubling.` }, "vowelLen")];
+  }
+  // Single vs double consonant (begonen / begonnen)
+  for (let i = 0; i < a.length; i++) {
+    const ch = a[i];
+    if (isVowel(ch) || ch === " ") continue;
+    if (a[i + 1] === ch && a.slice(0, i) + a.slice(i + 1) === g)
+      return [mk("snd", { ...c, sndText: `You can't hear a double consonant. It's written <b>${ch}${ch}</b> because the vowel before it is short.` }, "consLen")];
+    if (a[i + 1] !== ch && a[i - 1] !== ch && a.slice(0, i + 1) + a.slice(i) === g)
+      return [mk("snd", { ...c, sndText: `Only one <b>${ch}</b> here. A consonant is doubled only between two vowels, right after a <i>short</i> vowel (be-gon-nen).` }, "consLen")];
+  }
+  // Wrong helping verb heard
+  const ai = at.findIndex(t => auxFamily(t));
+  if (ai !== -1 && gt.length === at.length && gt[ai] !== at[ai] && gt.every((t, i) => i === ai || t === at[i]))
+    return [mk("snd", { ...c, sndText: `Listen again for the helping verb: <b>${at[ai]}</b>.` }, auxFamily(at[ai]) === "heb" ? "hebben" : "zijn")];
+  return [];
+}
+const listenDeck = makeDeck(() => LISTEN_ITEMS);
+const listenDrill = makeDrill({
+  inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
+  rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
+  next() {
+    const { item: text } = listenDeck.draw();
+    $("listen-hint").textContent = "";
+    return { text };
+  },
+  check(cur, given) {
+    const g = norm(given), a = norm(cur.text);
+    const res = { ok: g === a, correct: cur.text, say: cur.text, mistakes: [] };
+    if (res.ok) return res;
+    const c = { g, answer: a };
+    res.mistakes = diagnoseListen(c);
+    if (!res.mistakes.length && editDistance(g, a) === 1) res.mistakes = [mk("typo", c)];
+    return res;
+  },
+});
+$("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
+$("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
+
+/* Every static phrase the page can pronounce — the list for the audio generator. */
+window.audioManifest = () => {
+  const out = new Set();
+  const add = t => t && out.add(t);
+  LISTED.forEach(v => { add(v.inf); add(ikPhrase(v)); });
+  REG.forEach(v => { add(v.inf); add(ikPhrase(v)); });
+  HW.forEach(it => { add(fullHw(it)); const f = auxForms(it); if (f[1]) add(cap(it.s.replace("_", f[1]).replace("_", VERB_BY[it.v].part))); });
+  CHANGE.forEach(it => { add(it.from); add(it.to); });
+  [EX_PERF, EX_ZV, EX_TD, EX_PREFIX, EX_ZIJN, EX_MOTION, EX_IRR].forEach(rows => rows.forEach(([nl]) => add(nl)));
+  ORDER.forEach(([, c]) => add(c.filter(Boolean).join(" ")));
+  Object.values(RULES).forEach(r => r.ex.flat().forEach(add));
+  return [...out];
+};
+
+/* Start drills */
+partDrill.newQuestion();
+hwDrill.newQuestion();
+changeDrill.newQuestion();
+listenDrill.newQuestion();
+</script>
+<script src="../offline.js"></script>
+</body>
+</html>

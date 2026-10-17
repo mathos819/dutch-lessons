@@ -17,6 +17,8 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
     for name in sorted(filenames):
         if name in SKIP_FILES or name.startswith("."):  # Pages doesn't serve dotfiles
             continue
+        if name.endswith(".pdf"):  # course PDFs stay local (gitignored), never published
+            continue
         full = os.path.join(dirpath, name)
         rel = os.path.relpath(full, ROOT).replace(os.sep, "/")
         # Pages request accented names in NFC (é as one code point); macOS may store them decomposed.
