@@ -163,6 +163,8 @@
   .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
   .feedback .ok { color: #1e7a1e; font-weight: 600; }
   .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .translation { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; padding: 8px 12px; border-left: 3px solid var(--blue); background: #fff; font-family: var(--body); font-size: 16px; }
+  .feedback .translation .en { display: block; color: #4a4940; font-style: italic; }
   .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
   .feedback .why b { color: var(--ink); }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
@@ -181,6 +183,15 @@
   .how-body .tag { margin-right: 4px; }
   .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
   .exw { white-space: nowrap; }
+  .done { margin-bottom: 18px; }
+  .done .head { background: var(--yellow); }
+  .done.perfect .head { background: var(--blue); color: var(--paper); }
+  .done .body { padding: 16px 18px; font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .done .score { font-family: var(--display); font-size: 28px; line-height: 1.1; margin-bottom: 6px; }
+  .done ul { list-style: none; padding: 0; margin: 10px 0 0; }
+  .done li { border-top: 2px solid var(--ink); padding: 8px 0; font-family: var(--mono); font-size: 14px; }
+  .done li .en { display: block; color: #6a685c; font-family: var(--body); font-size: 13px; }
+  .done .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .tally { margin-top: 14px; }
   .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
@@ -283,10 +294,17 @@
   <!-- ================= GAP DRILL ================= -->
   <section class="panel" id="panel-gap">
     <h2>Invullen — kies het goede pronomen</h2>
-    <p class="note">Grammatica <strong>4</strong> and grammatica <strong>14</strong> from the lesson: type the pronoun that belongs in the gap. The choices from the book are shown underneath. Capitals and punctuation are ignored. Press Enter to check, Enter again for the next one.</p>
+    <p class="note">Grammatica <strong>4</strong> and grammatica <strong>14</strong> from the lesson: type the pronoun that belongs in the gap. The choices from the book are shown underneath. Capitals and punctuation are ignored. Press Enter to check, Enter again for the next one. Every sentence comes once per round; the ones you get wrong come back at the end until you get them right.</p>
     <div class="drill">
+      <div class="toolbar"><label for="gap-order">Volgorde</label>
+        <select id="gap-order">
+          <option value="shuffle">Door elkaar</option>
+          <option value="book">Zoals in het boek</option>
+        </select>
+      </div>
+      <div id="gap-play">
       <div class="prompt-box">
-        <div class="task">Kies het goede pronomen</div>
+        <div class="task" id="gap-task">Kies het goede pronomen</div>
         <div class="ctx" id="gap-ctx"></div>
         <div class="big" id="gap-sentence">—</div>
         <div class="parts" id="gap-opts"></div>
@@ -297,6 +315,8 @@
         <button class="btn primary" id="gap-check">Check</button>
       </div>
       <div class="feedback" id="gap-feedback"></div>
+      </div>
+      <div class="done card" id="gap-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="gap-right">0</b></span><span>Fout <b id="gap-wrong">0</b></span><span>Reeks <b id="gap-streak">0</b></span></div>
       <div class="tally" id="gap-tally"></div>
     </div>
@@ -328,8 +348,9 @@
     <h2>Luisteren — dictation</h2>
     <p class="note">Play the audio and type exactly what you hear — a word, a pronoun, or a whole sentence from the exercises. Punctuation and capitals are ignored.</p>
     <div class="drill">
+      <div id="dictee-play">
       <div class="prompt-box">
-        <div class="task">Listen and type</div>
+        <div class="task" id="listen-task">Listen and type</div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <button class="btn primary" id="listen-play">▶ Speel af</button>
           <button class="btn" id="listen-slow">🐢 Langzaam</button>
@@ -341,6 +362,8 @@
         <button class="btn primary" id="listen-check">Check</button>
       </div>
       <div class="feedback" id="listen-feedback"></div>
+      </div>
+      <div class="done card" id="dictee-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
       <div class="tally" id="listen-tally"></div>
     </div>
@@ -499,100 +522,100 @@ const WORDS = [
    opts = the two or three choices printed in the book
    a    = the correct answer, alts = other forms that are also right          */
 const GAPS = [
-  { set: 4, n: "voorbeeld", ctx: "Peter geeft een feest.", s: "___ feest is zondag.",
+  { set: 4, n: "voorbeeld", ctx: "Peter geeft een feest.", s: "___ feest is zondag.", en: "Peter is giving a party. His party is on Sunday.",
     opts: ["Zijn", "Hun"], a: "zijn",
     why: "Peter is <b>one</b> man, so the possessive is <b>zijn</b> (his). <b>hun</b> = their, for more than one owner." },
 
-  { set: 4, n: "1a", ctx: "", s: "Waar komt ___ vandaan?",
+  { set: 4, n: "1a", ctx: "", s: "Waar komt ___ vandaan?", en: "Where are you from?",
     opts: ["u", "uw"], a: "u",
     why: "This is the <b>subject</b> of komt, so you need <b>u</b>. <b>uw</b> is the possessive and only stands before a noun: <em>uw postcode</em>." },
 
-  { set: 4, n: "1b", ctx: "Waar komt u vandaan?", s: "___ kom uit Frankrijk.",
+  { set: 4, n: "1b", ctx: "Waar komt u vandaan?", s: "___ kom uit Frankrijk.", en: "Where are you from? I'm from France.",
     opts: ["Ik", "Wij"], a: "ik",
     why: "The verb is <b>kom</b> — the ik-form without -t. With <b>wij</b> it would have to be <em>wij komen</em>." },
 
-  { set: 4, n: "2", ctx: "Wij hebben twee kinderen.", s: "___ kinderen zijn 3 en 5 jaar.",
+  { set: 4, n: "2", ctx: "Wij hebben twee kinderen.", s: "___ kinderen zijn 3 en 5 jaar.", en: "We have two children. Our children are 3 and 5 years old.",
     opts: ["Ons", "Onze"], a: "onze",
     why: "<b>ons</b> only goes with a het-word (<em>ons huis</em>). <em>kinderen</em> is a plural, and every plural is a de-word, so it is <b>onze</b>." },
 
-  { set: 4, n: "3a", ctx: "", s: "Petra, is dit ___ fiets?",
+  { set: 4, n: "3a", ctx: "", s: "Petra, is dit ___ fiets?", en: "Petra, is this your bike?",
     opts: ["jij", "jouw"], a: "jouw", alts: ["je"],
     why: "Before a noun you need the <b>possessive</b>: <b>jouw</b> fiets (or the unstressed <em>je fiets</em>). <b>jij</b> is the subject form." },
 
-  { set: 4, n: "3b", ctx: "Petra, is dit jouw fiets?", s: "Ja, dit is ___ fiets.",
+  { set: 4, n: "3b", ctx: "Petra, is dit jouw fiets?", s: "Ja, dit is ___ fiets.", en: "Petra, is this your bike? Yes, this is my bike.",
     opts: ["mijn", "ons"], a: "mijn",
     why: "Petra answers about herself alone, so <b>mijn</b> (my). <b>ons/onze</b> means <em>our</em>, more than one owner." },
 
-  { set: 4, n: "4", ctx: "Carla en Peter wonen in Utrecht.", s: "___ hebben een leuk huis.",
+  { set: 4, n: "4", ctx: "Carla en Peter wonen in Utrecht.", s: "___ hebben een leuk huis.", en: "Carla and Peter live in Utrecht. They have a nice house.",
     opts: ["Ze", "Hun"], a: "ze", alts: ["zij"],
     why: "This is the <b>subject</b> of hebben: <b>ze</b> (zij). <b>hun</b> is the possessive <em>their</em> — <em>hun huis</em>." },
 
-  { set: 4, n: "5", ctx: "Marco woont in Tilburg.", s: "___ adres is Stationsweg 24.",
+  { set: 4, n: "5", ctx: "Marco woont in Tilburg.", s: "___ adres is Stationsweg 24.", en: "Marco lives in Tilburg. His address is Stationsweg 24.",
     opts: ["Hij", "Zijn"], a: "zijn",
     why: "<em>adres</em> is a noun, so you need the <b>possessive</b> <b>zijn</b> (his). <b>hij</b> is the subject." },
 
-  { set: 4, n: "6", ctx: "", s: "Wat is ___ postcode? Dat is 3513 ZK.",
+  { set: 4, n: "6", ctx: "", s: "Wat is ___ postcode? Dat is 3513 ZK.", en: "What is your postcode? It's 3513 ZK.",
     opts: ["u", "uw"], a: "uw",
     why: "Before the noun <em>postcode</em> the formal possessive is <b>uw</b>. <b>u</b> is the subject and the object form." },
 
-  { set: 4, n: "7", ctx: "", s: "Jullie moeten op dit formulier ___ naam en adres invullen.",
+  { set: 4, n: "7", ctx: "", s: "Jullie moeten op dit formulier ___ naam en adres invullen.", en: "You have to fill in your name and address on this form.",
     opts: ["jullie", "jouw"], a: "jullie", alts: ["je"],
     why: "More than one owner, so <b>jullie</b> (jouw = your, one person). Because the subject is already <em>jullie</em>, the book's own rule also allows the shorter <b>je naam</b>." },
 
-  { set: 4, n: "8", ctx: "De vriendin van Willem komt uit Peru", s: "en ___ naam is Mila.",
+  { set: 4, n: "8", ctx: "De vriendin van Willem komt uit Peru", s: "en ___ naam is Mila.", en: "Willem's girlfriend is from Peru and her name is Mila.",
     opts: ["ze", "haar"], a: "haar",
     why: "Before the noun <em>naam</em> you need the possessive <b>haar</b> (her). <b>ze</b> is the subject form." },
 
   /* ---- Grammatica 14: kies het goede personaal pronomen (object) ---- */
-  { set: 14, n: "voorbeeld", ctx: "Karim en Astrid gaan zaterdag trouwen.", s: "Ik koop een mooi cadeau voor ___.",
+  { set: 14, n: "voorbeeld", ctx: "Karim en Astrid gaan zaterdag trouwen.", s: "Ik koop een mooi cadeau voor ___.", en: "Karim and Astrid are getting married on Saturday. I'm buying a nice present for them.",
     opts: ["haar", "hem", "ze"], a: "ze", alts: ["hen"],
     why: "Karim <em>and</em> Astrid = two people, so the object is <b>ze</b> (or <em>hen</em>). <b>haar</b> is one woman, <b>hem</b> one man." },
 
-  { set: 14, n: "1", ctx: "Mijn neefje is vandaag jarig.", s: "Ik feliciteer ___ met zijn zesde verjaardag.",
+  { set: 14, n: "1", ctx: "Mijn neefje is vandaag jarig.", s: "Ik feliciteer ___ met zijn zesde verjaardag.", en: "My little nephew has his birthday today. I congratulate him on his sixth birthday.",
     opts: ["hij", "hem", "zijn"], a: "hem",
     why: "He <em>receives</em> the verb feliciteren, so it is the <b>object</b> form <b>hem</b>. <b>hij</b> is the subject, <b>zijn</b> the possessive." },
 
-  { set: 14, n: "2", ctx: "Mila ziet haar familie maar één keer per jaar.", s: "Ze mist ___.",
+  { set: 14, n: "2", ctx: "Mila ziet haar familie maar één keer per jaar.", s: "Ze mist ___.", en: "Mila sees her family only once a year. She misses them.",
     opts: ["jullie", "hen", "hem"], a: "hen", alts: ["ze"],
     why: "<em>haar familie</em> is more than one person, so <b>hen</b> (or <em>ze</em>). <b>jullie</b> would mean the people she is talking to." },
 
-  { set: 14, n: "3", ctx: "Ik ga vaak met mijn zus winkelen.", s: "Vanmiddag ga ik met ___ schoenen kopen.",
+  { set: 14, n: "3", ctx: "Ik ga vaak met mijn zus winkelen.", s: "Vanmiddag ga ik met ___ schoenen kopen.", en: "I often go shopping with my sister. This afternoon I'm going to buy shoes with her.",
     opts: ["ze", "haar", "je"], a: "haar",
     why: "One sister, and after the preposition <b>met</b> you use the full object form <b>haar</b> — not the unstressed <em>ze</em>." },
 
-  { set: 14, n: "4", ctx: "Johan is mijn broer.", s: "Ik ga met ___ naar het feest.",
+  { set: 14, n: "4", ctx: "Johan is mijn broer.", s: "Ik ga met ___ naar het feest.", en: "Johan is my brother. I'm going to the party with him.",
     opts: ["jou", "ze", "hem"], a: "hem",
     why: "Johan = one man, and after <b>met</b> the object form is <b>hem</b>." },
 
-  { set: 14, n: "5", ctx: "", s: "Kunt u ___ helpen? We zoeken het station.",
+  { set: 14, n: "5", ctx: "", s: "Kunt u ___ helpen? We zoeken het station.", en: "Can you help us? We're looking for the station.",
     opts: ["we", "ons", "je"], a: "ons",
     why: "The object form of <b>wij/we</b> is <b>ons</b>. <b>we</b> can only be a subject." },
 
-  { set: 14, n: "6", ctx: "Anne zit in de trein.", s: "Mila praat met ___.",
+  { set: 14, n: "6", ctx: "Anne zit in de trein.", s: "Mila praat met ___.", en: "Anne is on the train. Mila is talking with her.",
     opts: ["haar", "ze", "je"], a: "haar",
     why: "Anne is one woman and <b>met</b> is a preposition, so use the full form <b>haar</b>." },
 
-  { set: 14, n: "7", ctx: "Ik heb een paar leuke studievrienden.", s: "Dit jaar vier ik Sinterklaas met ___.",
+  { set: 14, n: "7", ctx: "Ik heb een paar leuke studievrienden.", s: "Dit jaar vier ik Sinterklaas met ___.", en: "I have a few nice study friends. This year I'm celebrating Sinterklaas with them.",
     opts: ["ons", "jullie", "ze"], a: "ze", alts: ["hen"],
     why: "The friends are <em>them</em>: <b>ze</b> (or <em>hen</em>). <b>ons</b> = us, <b>jullie</b> = you plural." },
 
-  { set: 14, n: "8", ctx: "Alexander heeft een Italiaanse vriendin.", s: "Hij kent ___ nu zes maanden.",
+  { set: 14, n: "8", ctx: "Alexander heeft een Italiaanse vriendin.", s: "Hij kent ___ nu zes maanden.", en: "Alexander has an Italian girlfriend. He has known her for six months now.",
     opts: ["ze", "je", "haar"], a: "haar",
     why: "One woman as the object of kennen → <b>haar</b>. <b>ze</b> is the unstressed form and is not used here for a person you point out." },
 
-  { set: 14, n: "9", ctx: "", s: "Pardon meneer, mogen we ___ iets vragen?",
+  { set: 14, n: "9", ctx: "", s: "Pardon meneer, mogen we ___ iets vragen?", en: "Excuse me, sir, may we ask you something?",
     opts: ["je", "u", "me"], a: "u",
     why: "You address a <em>meneer</em> politely, so the formal <b>u</b> — which is subject and object at the same time." },
 
-  { set: 14, n: "10", ctx: "Carlijn heeft leuke collega's.", s: "In de pauze drinkt ze koffie met ___.",
+  { set: 14, n: "10", ctx: "Carlijn heeft leuke collega's.", s: "In de pauze drinkt ze koffie met ___.", en: "Carlijn has nice colleagues. During the break she drinks coffee with them.",
     opts: ["hem", "haar", "ze"], a: "ze", alts: ["hen"],
     why: "<em>collega's</em> is a plural, so <em>them</em>: <b>ze</b> (or <em>hen</em>)." },
 
-  { set: 14, n: "11", ctx: "Mijn opa woont in Breda.", s: "Ik bezoek ___ vaak.",
+  { set: 14, n: "11", ctx: "Mijn opa woont in Breda.", s: "Ik bezoek ___ vaak.", en: "My grandpa lives in Breda. I visit him often.",
     opts: ["hem", "u", "ze"], a: "hem",
     why: "Opa = one man and he is the object of bezoeken → <b>hem</b>." },
 
-  { set: 14, n: "12", ctx: "Ik heb twee docenten.", s: "Ze helpen ___ met de oefening.",
+  { set: 14, n: "12", ctx: "Ik heb twee docenten.", s: "Ze helpen ___ met de oefening.", en: "I have two teachers. They help me with the exercise.",
     opts: ["ik", "mijn", "me"], a: "me", alts: ["mij"],
     why: "I <em>receive</em> the help, so the object form <b>me</b> (mij). <b>ik</b> is the subject, <b>mijn</b> the possessive." },
 ];
@@ -700,6 +723,62 @@ const $ = id => document.getElementById(id);
 const norm = s => s.trim().toLowerCase().replace(/[.?!,;:]/g, "").replace(/\s+/g, " ");
 const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+// A round over a fixed list (book exercises, homework): every item once — shuffled, or
+// in book order when the page has a #<id>-order select — misses come back at the end
+// until right, then a "Klaar!" card (#<id>-done replaces #<id>-play) with the
+// first-try score and the missed items. Wire it up with drill.next → round.draw()
+// and onResult → round.result(res.ok), then set round.drill.
+//   getItems() → the list · title() → card subtitle · say(it) → Dutch to show/play
+//   en(it) → its meaning · label(it) → optional, e.g. "Oefening 9 · 4"
+function makeRound(id, { getItems, title, say, en, label = () => "" }) {
+  const $id = k => $(`${id}-${k}`);
+  const r = {
+    drill: null, items: [], queue: [], retry: [], missed: new Set(), seen: 0, redo: false, last: null,
+    start(items) {
+      r.items = items || getItems();
+      r.queue = $id("order") && $id("order").value === "book" ? [...r.items] : shuffle(r.items);
+      r.retry = []; r.missed = new Set(); r.seen = 0; r.redo = false;
+      $id("done").hidden = true; $id("play").hidden = false;
+    },
+    restart(items) { r.start(items); r.drill.newQuestion(); },
+    // The next item, or null (and the done card) when the round is over.
+    draw() {
+      if (!r.queue.length && r.retry.length) { r.queue = r.retry; r.retry = []; r.redo = true; }
+      if (!r.queue.length) { r.showDone(); return (r.last = null); }
+      if (!r.redo) r.seen++;
+      return (r.last = r.queue.shift());
+    },
+    result(ok) {
+      if (ok || !r.last) return;
+      if (!r.redo) r.missed.add(r.last);
+      r.retry.push(r.last);
+    },
+    // "5/11 · 1 to redo" — or, in the redo part, "2 still to get right".
+    progress() {
+      return r.redo ? `${r.queue.length + r.retry.length + 1} still to get right`
+        : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "");
+    },
+    redoTag() { return r.redo ? "↻ Opnieuw · " : ""; },
+    showDone() {
+      const missed = r.items.filter(it => r.missed.has(it)), total = r.items.length, el = $id("done");
+      el.className = "done card" + (missed.length ? "" : " perfect");
+      el.innerHTML = `<div class="head">Klaar!<small>${esc(title())}</small></div><div class="body">` +
+        `<div class="score">${total - missed.length}/${total} goed in één keer</div>` +
+        (missed.length
+          ? `You got these wrong the first time (and then right). Read them out loud once more:<ul>` +
+            missed.map(it => `<li>${speakBtn(say(it))}${esc(say(it))}<span class="en">${esc([label(it), en(it)].filter(Boolean).join(" · "))}</span></li>`).join("") + `</ul>`
+          : `Everything right on the first try. Goed gedaan!`) +
+        `<div class="actions"><button class="btn primary" id="${id}-again">Nog een keer</button>` +
+        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
+      el.hidden = false; $id("play").hidden = true;
+      $id("again").addEventListener("click", () => r.restart());
+      if (missed.length) $id("missed").addEventListener("click", () => r.restart(missed));
+      $id("again").focus();
+    },
+  };
+  if ($id("order")) $id("order").addEventListener("change", () => r.restart());
+  return r;
+}
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 function speakBtn(text) {
   const t = text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
@@ -986,10 +1065,12 @@ function ruleHow(id) {
   const r = RULES[id];
   return `<details class="how"><summary>How does <b>${r.name}</b> work?</summary><div class="how-body"><span class="tag k-${r.kind}">${r.kind}</span> ${r.how}${exampleHtml(r.ex)}</div></details>`;
 }
-// res: { ok, correct, say, note, mistakes: [mk()], rules: [ids], steps: [html] }
+// res: { ok, correct, say, en, note, mistakes: [mk()], rules: [ids], steps: [html] }
 function renderFeedback(res) {
   let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
   if (res.say) h += ` ${speakBtn(res.say)}`;
+  // The whole sentence with its meaning, right or wrong — so the vocabulary sticks too.
+  if (res.en) h += `<div class="translation">${speakBtn(res.say)}<span><b>${esc(res.say)}</b><span class="en">${esc(res.en)}</span></span></div>`;
   if (!res.ok) {
     h += res.mistakes.length
       ? res.mistakes.map(m => `<div class="mistake">${m.kind ? `<span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span>` : ""}<span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("")
@@ -1007,7 +1088,7 @@ function renderFeedback(res) {
 }
 
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check, onResult }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
   const tally = {}; // rule id → times missed this session
@@ -1016,7 +1097,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
     answered = false;
     fb.innerHTML = "";
     input.value = "";
-    input.focus();
+    if (current) input.focus();
   }
   function renderTally() {
     const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
@@ -1026,6 +1107,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       : "";
   }
   function doCheck() {
+    if (!current) return;
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
@@ -1039,6 +1121,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       renderTally();
     }
     $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    if (onResult) onResult(current, res);
     fb.innerHTML = renderFeedback(res);
     if (res.say) speak(res.say);
   }
@@ -1068,15 +1151,22 @@ function pronounSteps(need, answers) {
 }
 
 /* ================= INVULLEN DRILL ================= */
+const gapLabel = g => `grammatica ${g.set} · ${g.n}`;
+const gapRound = makeRound("gap", {
+  getItems: () => GAPS, title: () => "Grammatica 4 & 14",
+  say: g => gapFull(g, g.a), en: g => g.en, label: gapLabel,
+});
 const gapDrill = makeDrill({
   inputId: "gap-input", checkId: "gap-check", feedbackId: "gap-feedback",
   rightId: "gap-right", wrongId: "gap-wrong", streakId: "gap-streak", tallyId: "gap-tally",
   next() {
-    const g = pick(GAPS);
+    const g = gapRound.draw();
+    if (!g) return null;
+    $("gap-task").textContent = gapRound.redoTag() + "Kies het goede pronomen";
     $("gap-ctx").innerHTML = g.ctx ? `${speakBtn(g.ctx)}${esc(g.ctx)}` : "";
     $("gap-sentence").innerHTML = esc(g.s).replace("___", '<span class="gap">___</span>');
     $("gap-opts").innerHTML = shuffle(g.opts).map(o => `<span>${esc(o)}</span>`).join("");
-    $("gap-hint").textContent = `grammatica ${g.set} · ${g.n}`;
+    $("gap-hint").textContent = `${gapRound.progress()} · ${gapLabel(g)}`;
     const full = gapFull(g, g.a);
     const need = GAP_NEED[`${g.set}-${g.n}`];
     return { g, need, answers: [g.a, ...(g.alts || [])], say: full, full, ...pronounSteps(need, [g.a, ...(g.alts || [])]) };
@@ -1089,8 +1179,8 @@ const gapDrill = makeDrill({
     const res = {
       ok,
       correct: cur.answers[0],
-      note: `${cur.g.why}${alt}<br>Hele zin: <b>${esc(cur.full)}</b>`,
-      say: cur.say, steps: cur.steps, rules: cur.rules, mistakes: [],
+      note: `${cur.g.why}${alt}`,
+      say: cur.say, en: cur.g.en, steps: cur.steps, rules: cur.rules, mistakes: [],
     };
     if (ok) return res;
     const c = { g: gv, need: cur.need, answer: cur.answers[0], accepted: cur.answers, mode: "gap" };
@@ -1098,7 +1188,9 @@ const gapDrill = makeDrill({
     if (!res.mistakes.length && cur.answers.some(a => editDistance(gv, a) === 1)) res.mistakes = [mk("typo", c)];
     return res;
   },
+  onResult(cur, res) { gapRound.result(res.ok); },
 });
+gapRound.drill = gapDrill;
 
 /* ================= VORMEN DRILL ================= */
 const TYPE_NOTE = {
@@ -1123,7 +1215,7 @@ const formDrill = makeDrill({
       const word = it.a.split(" ")[0];
       const need = { cat: "possessive", per: "1pl", art: it.art, noun: it.noun, plural: it.plural };
       // "onze" alone is enough — the noun is already given.
-      return { answers: [it.a, word], shown: it.a, say: it.a, why, need, mode: "table", ...pronounSteps(need, [word]) };
+      return { answers: [it.a, word], shown: it.a, say: it.a, en: it.en, why, need, mode: "table", ...pronounSteps(need, [word]) };
     }
     if (r < 0.35) {
       const it = pick(JULLIE_ITEMS);
@@ -1135,7 +1227,7 @@ const formDrill = makeDrill({
         ? `The subject is already <b>jullie</b>, so the possessive is better as <b>je</b>.`
         : `The subject is <b>${esc(it.subj)}</b>, not jullie, so the possessive has to be <b>jullie</b>.`;
       const need = { cat: "possessive", per: "2pl", subj: it.subj };
-      return { answers: [it.a], shown: it.a, say: full, why: `${why}<br>Hele zin: <b>${esc(full)}</b>`, need, mode: "table", ...pronounSteps(need, [it.a]) };
+      return { answers: [it.a], shown: it.a, say: full, en: it.en, why, need, mode: "table", ...pronounSteps(need, [it.a]) };
     }
     const f = pick(FORMS);
     $("form-prompt").innerHTML = esc(f.en);
@@ -1152,7 +1244,7 @@ const formDrill = makeDrill({
   check(cur, given) {
     const gv = norm(given);
     const ok = cur.answers.some(a => norm(a) === gv);
-    const res = { ok, correct: cur.shown, note: cur.why, say: cur.say, steps: cur.steps, rules: cur.rules, mistakes: [] };
+    const res = { ok, correct: cur.shown, note: cur.why, say: cur.say, en: cur.en, steps: cur.steps, rules: cur.rules, mistakes: [] };
     if (ok) return res;
     // For "our + noun" rounds the learner may type the whole phrase: judge the pronoun.
     const g = cur.need.art ? gv.split(" ")[0] : gv;
@@ -1175,6 +1267,18 @@ const LISTEN_ITEMS = [...new Set([
   ...GAPS.map(g => gapFull(g, g.a)),
   ...ONS_ITEMS.map(i => i.a),
 ])];
+// What each listening item means, from the tables, examples and exercises above.
+const LISTEN_EN = {};
+const addEn = (nl, en) => { if (!LISTEN_EN[nl]) LISTEN_EN[nl] = en; else if (!LISTEN_EN[nl].split(" / ").includes(en)) LISTEN_EN[nl] += " / " + en; };
+WORDS.forEach(w => addEn(w.nl, w.en));
+[SUBJECT, POSSESSIVE, OBJECT].forEach(t => t.filter(r => r.nl).forEach(r => addEn(r.nl, r.en)));
+[...EX_UVORM, ...EX_ONS, ...EX_JULLIE].forEach(([nl, en]) => addEn(nl, en.split(" — ")[0]));
+GAPS.forEach(g => addEn(gapFull(g, g.a), g.en));
+ONS_ITEMS.forEach(i => addEn(i.a, i.en));
+const dicteeRound = makeRound("dictee", {
+  getItems: () => LISTEN_ITEMS, title: () => "Luisteren — dictation",
+  say: t => t, en: t => LISTEN_EN[t] || "",
+});
 const isVowel = ch => "aeiou".includes(ch);
 const STRESS_PAIRS = { zij: "ze", wij: "we", mij: "me", jij: "je" };
 // [what the answer has, what the learner may write instead, rule, explanation]
@@ -1236,26 +1340,30 @@ const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
   rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
-    const text = pick(LISTEN_ITEMS);
+    const text = dicteeRound.draw();
+    if (!text) return null;
     const n = text.split(" ").length;
-    $("listen-hint").textContent = n > 1 ? `${n} woorden` : "1 woord";
+    $("listen-task").textContent = dicteeRound.redoTag() + "Listen and type";
+    $("listen-hint").textContent = `${dicteeRound.progress()} · ` + (n > 1 ? `${n} woorden` : "1 woord");
     return { text };
   },
   check(cur, given) {
     const g = norm(given);
-    const res = { ok: g === norm(cur.text), correct: cur.text, say: cur.text, mistakes: [] };
+    const res = { ok: g === norm(cur.text), correct: cur.text, say: cur.text, en: LISTEN_EN[cur.text], mistakes: [] };
     if (res.ok) return res;
     res.mistakes = diagnoseListen({ g, answer: cur.text });
     return res;
   },
+  onResult(cur, res) { dicteeRound.result(res.ok); },
 });
+dicteeRound.drill = listenDrill;
 $("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
 $("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
 
 /* Start drills */
-gapDrill.newQuestion();
+gapRound.restart();
 formDrill.newQuestion();
-listenDrill.newQuestion();
+dicteeRound.restart();
 </script>
 <script src="../offline.js"></script>
 </body>

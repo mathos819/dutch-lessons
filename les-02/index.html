@@ -145,6 +145,8 @@
   .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
   .feedback .ok { color: #1e7a1e; font-weight: 600; }
   .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .translation { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; padding: 8px 12px; border-left: 3px solid var(--blue); background: #fff; font-family: var(--body); font-size: 16px; }
+  .feedback .translation .en { display: block; color: #4a4940; font-style: italic; }
   .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
   .scorebar b { font-size: 18px; }
@@ -162,6 +164,15 @@
   .how-body .tag { margin-right: 4px; }
   .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
   .exw { white-space: nowrap; }
+  .done { margin-bottom: 18px; }
+  .done .head { background: var(--yellow); }
+  .done.perfect .head { background: var(--blue); color: var(--paper); }
+  .done .body { padding: 16px 18px; font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .done .score { font-family: var(--display); font-size: 28px; line-height: 1.1; margin-bottom: 6px; }
+  .done ul { list-style: none; padding: 0; margin: 10px 0 0; }
+  .done li { border-top: 2px solid var(--ink); padding: 8px 0; font-family: var(--mono); font-size: 14px; }
+  .done li .en { display: block; color: #6a685c; font-family: var(--body); font-size: 13px; }
+  .done .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .tally { margin-top: 14px; }
   .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
@@ -282,10 +293,11 @@
     <h2>Luisteren — dictation</h2>
     <p class="note">Play the audio and type exactly what you hear (a pronoun, a conjugated form of hebben/zijn, or a verb).</p>
     <div class="drill">
+      <div id="listen-play">
       <div class="prompt-box">
-        <div class="task">Listen and type</div>
+        <div class="task" id="listen-task">Listen and type</div>
         <div style="display:flex; gap:10px; align-items:center;">
-          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn primary" id="listen-speak">▶ Speel af</button>
           <button class="btn" id="listen-slow">🐢 Langzaam</button>
         </div>
         <div class="hint" id="listen-hint"></div>
@@ -295,6 +307,8 @@
         <button class="btn primary" id="listen-check">Check</button>
       </div>
       <div class="feedback" id="listen-feedback"></div>
+      </div>
+      <div class="done card" id="listen-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
       <div class="tally" id="listen-tally"></div>
     </div>
@@ -330,7 +344,7 @@ const VERBS = [
   { inf: "verhuizen", base: "verhuis", en: "to move (house)", rules: ["digraph", "zv"] },
   { inf: "blazen",    base: "blaas",   en: "to blow",      rules: ["double", "zv"] },
   { inf: "geven",     base: "geef",    en: "to give",      rules: ["double", "zv"] },
-  { inf: "leven",     base: "leef",    en: "to live (be alive)", rules: ["double", "zv"] },
+  { inf: "leven",     base: "leef",    en: "to live (alive)", rules: ["double", "zv"] },
   { inf: "proeven",   base: "proef",   en: "to try / taste", rules: ["digraph", "zv"] },
   { inf: "houden",    base: "houd",    en: "to hold",      rules: ["digraph", "dEnd"] },
   { inf: "beuken",    base: "beuk",    en: "to hit hard",  rules: ["digraph"] },
@@ -691,6 +705,8 @@ function ruleHow(id) {
 function renderFeedback(res) {
   let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
   if (res.say) h += ` ${speakBtn(res.say)}`;
+  // The whole sentence with its meaning, right or wrong — so the vocabulary sticks too.
+  if (res.en) h += `<div class="translation">${speakBtn(res.say)}<span><b>${esc(res.say)}</b><span class="en">${esc(res.en)}</span></span></div>`;
   if (!res.ok) {
     if (res.mistakes.length) {
       h += res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("");
@@ -708,8 +724,65 @@ function renderFeedback(res) {
   return h;
 }
 
+// A round over a fixed list (book exercises, homework): every item once — shuffled, or
+// in book order when the page has a #<id>-order select — misses come back at the end
+// until right, then a "Klaar!" card (#<id>-done replaces #<id>-play) with the
+// first-try score and the missed items. Wire it up with drill.next → round.draw()
+// and onResult → round.result(res.ok), then set round.drill.
+//   getItems() → the list · title() → card subtitle · say(it) → Dutch to show/play
+//   en(it) → its meaning · label(it) → optional, e.g. "Oefening 9 · 4"
+function makeRound(id, { getItems, title, say, en, label = () => "" }) {
+  const $id = k => $(`${id}-${k}`);
+  const r = {
+    drill: null, items: [], queue: [], retry: [], missed: new Set(), seen: 0, redo: false, last: null,
+    start(items) {
+      r.items = items || getItems();
+      r.queue = $id("order") && $id("order").value === "book" ? [...r.items] : shuffle(r.items);
+      r.retry = []; r.missed = new Set(); r.seen = 0; r.redo = false;
+      $id("done").hidden = true; $id("play").hidden = false;
+    },
+    restart(items) { r.start(items); r.drill.newQuestion(); },
+    // The next item, or null (and the done card) when the round is over.
+    draw() {
+      if (!r.queue.length && r.retry.length) { r.queue = r.retry; r.retry = []; r.redo = true; }
+      if (!r.queue.length) { r.showDone(); return (r.last = null); }
+      if (!r.redo) r.seen++;
+      return (r.last = r.queue.shift());
+    },
+    result(ok) {
+      if (ok || !r.last) return;
+      if (!r.redo) r.missed.add(r.last);
+      r.retry.push(r.last);
+    },
+    // "5/11 · 1 to redo" — or, in the redo part, "2 still to get right".
+    progress() {
+      return r.redo ? `${r.queue.length + r.retry.length + 1} still to get right`
+        : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "");
+    },
+    redoTag() { return r.redo ? "↻ Opnieuw · " : ""; },
+    showDone() {
+      const missed = r.items.filter(it => r.missed.has(it)), total = r.items.length, el = $id("done");
+      el.className = "done card" + (missed.length ? "" : " perfect");
+      el.innerHTML = `<div class="head">Klaar!<small>${esc(title())}</small></div><div class="body">` +
+        `<div class="score">${total - missed.length}/${total} goed in één keer</div>` +
+        (missed.length
+          ? `You got these wrong the first time (and then right). Read them out loud once more:<ul>` +
+            missed.map(it => `<li>${speakBtn(say(it))}${esc(say(it))}<span class="en">${esc([label(it), en(it)].filter(Boolean).join(" · "))}</span></li>`).join("") + `</ul>`
+          : `Everything right on the first try. Goed gedaan!`) +
+        `<div class="actions"><button class="btn primary" id="${id}-again">Nog een keer</button>` +
+        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
+      el.hidden = false; $id("play").hidden = true;
+      $id("again").addEventListener("click", () => r.restart());
+      if (missed.length) $id("missed").addEventListener("click", () => r.restart(missed));
+      $id("again").focus();
+    },
+  };
+  if ($id("order")) $id("order").addEventListener("change", () => r.restart());
+  return r;
+}
+
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check, onResult }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
   const tally = {}; // rule id → times missed this session
@@ -718,7 +791,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
     answered = false;
     fb.innerHTML = "";
     input.value = "";
-    input.focus();
+    if (current) input.focus();
   }
   function renderTally() {
     const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
@@ -728,6 +801,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       : "";
   }
   function doCheck() {
+    if (!current) return;
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
@@ -741,6 +815,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       renderTally();
     }
     $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    if (onResult) onResult(current, res);
     fb.innerHTML = renderFeedback(res);
     if (res.say) speak(res.say);
   }
@@ -753,21 +828,41 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
 
 /* ================= CONJUGATION DRILL ================= */
 const SUBJECTS = [
-  { p: "ik", group: "ik", form: v => v.base, heb: "heb", ben: "ben" },
-  { p: "jij", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
-  { p: "je", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
-  { p: "u", group: "sing", form: v => tForm(v), heb: "hebt", hebAlt: "heeft", ben: "bent" },
-  { p: "hij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
-  { p: "zij (she)", pnl: "zij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
-  { p: "het", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
-  { p: "wij", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
-  { p: "we", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
-  { p: "jullie", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
-  { p: "zij (they)", pnl: "zij", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "ik", en: "I", group: "ik", form: v => v.base, heb: "heb", ben: "ben" },
+  { p: "jij", en: "you", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "je", en: "you", group: "sing", form: v => tForm(v), heb: "hebt", ben: "bent" },
+  { p: "u", en: "you (formal)", group: "sing", form: v => tForm(v), heb: "hebt", hebAlt: "heeft", ben: "bent" },
+  { p: "hij", en: "he", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "zij (she)", en: "she", pnl: "zij", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "het", en: "it", group: "sing", form: v => tForm(v), heb: "heeft", ben: "is" },
+  { p: "wij", en: "we", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "we", en: "we", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "jullie", en: "you (plural)", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
+  { p: "zij (they)", en: "they", pnl: "zij", group: "pl", form: v => v.inf, heb: "hebben", ben: "zijn" },
 ];
 function tForm(v) {
   if (v.tform) return v.tform;
   return v.base.endsWith("t") ? v.base : v.base + "t";
+}
+// "ik werk" → "I work", "hij gaat" → "he goes": the English of a conjugated form,
+// built from the verb's gloss ("to try / taste" → "tries / tastes").
+const EN_THIRD = ["he", "she", "it"];
+function enVerb(word, subjEn) {
+  const third = EN_THIRD.includes(subjEn);
+  if (word === "be") return subjEn === "I" ? "am" : third ? "is" : "are";
+  if (!third) return word;
+  if (word === "have") return "has";
+  if (/[^aeiou]y$/.test(word)) return word.slice(0, -1) + "ies";
+  if (/(s|sh|ch|x|z|o)$/.test(word)) return word + "es";
+  return word + "s";
+}
+function enPhrase(subj, gloss) {
+  const verb = gloss.replace(/^to /, "").split(" / ").map(part => {
+    const [w, ...rest] = part.split(" ");
+    return [enVerb(w, subj.en), ...rest].join(" ");
+  }).join(" / ");
+  const [who, ...note] = subj.en.split(" ");
+  return [who, verb, ...note].join(" ");
 }
 // The base -> conjugated-form step (on top of derive(), which covers infinitive -> base).
 function conjStepText(subj, verb) {
@@ -841,7 +936,7 @@ const conjDrill = makeDrill({
     // Accept the answer with or without the pronoun.
     if (g.startsWith(cur.pnl + " ")) g = g.slice(cur.pnl.length + 1);
     const answer = cur.answers[0], full = `${cur.pnl} ${answer}`;
-    const res = { ok: cur.answers.includes(g), correct: full, say: full, steps: cur.steps, rules: cur.rules, mistakes: [] };
+    const res = { ok: cur.answers.includes(g), correct: full, say: full, en: enPhrase(cur.subj, cur.verb.en), steps: cur.steps, rules: cur.rules, mistakes: [] };
     if (res.ok) { res.say = `${cur.pnl} ${g}`; return res; }
     const c = { g, v: cur.verb, subj: cur.subj, answer };
     if (cur.verb.irr) {
@@ -886,10 +981,10 @@ const baseDrill = makeDrill({
 
 /* ================= LISTENING DRILL ================= */
 const LISTEN_ITEMS = [
-  ...PRONOUNS.map(p => p.nl),
-  ...HEBBEN.map(h => h[0]),
-  ...ZIJN.map(z => z[0]),
-  ...VERBS.map(v => v.inf),
+  ...PRONOUNS.map(p => ({ text: p.nl, en: p.en })),
+  ...HEBBEN.map(([text, en]) => ({ text, en })),
+  ...ZIJN.map(([text, en]) => ({ text, en })),
+  ...VERBS.map(v => ({ text: v.inf, en: v.en })),
 ];
 // [what the answer has, what the learner may write instead, rule, explanation]
 const SOUND_SWAPS = [
@@ -932,18 +1027,26 @@ function diagnoseListen(c) {
   return [];
 }
 let listenPlayed = false;
+const listenRound = makeRound("listen", {
+  getItems: () => LISTEN_ITEMS,
+  title: () => "Luisteren — dictation",
+  say: it => it.text, en: it => it.en,
+});
 const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
   rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
-    const text = pick(LISTEN_ITEMS);
+    const it = listenRound.draw();
+    if (!it) return null;
     listenPlayed = false;
-    $("listen-hint").textContent = "";
-    return { text };
+    $("listen-task").textContent = listenRound.redoTag() + "Listen and type";
+    $("listen-hint").textContent = listenRound.progress();
+    return it;
   },
+  onResult(cur, res) { listenRound.result(res.ok); },
   check(cur, given) {
     const g = norm(given), a = cur.text;
-    const res = { ok: g === a, correct: a, say: a, mistakes: [] };
+    const res = { ok: g === a, correct: a, say: a, en: cur.en, mistakes: [] };
     if (res.ok) return res;
     const c = { g, answer: a };
     res.mistakes = diagnoseListen(c);
@@ -951,13 +1054,14 @@ const listenDrill = makeDrill({
     return res;
   },
 });
-$("listen-play").addEventListener("click", () => { speak(listenDrill.current.text); listenPlayed = true; });
-$("listen-slow").addEventListener("click", () => { speak(listenDrill.current.text, true); listenPlayed = true; });
+listenRound.drill = listenDrill;
+$("listen-speak").addEventListener("click", () => { if (listenDrill.current) { speak(listenDrill.current.text); listenPlayed = true; } });
+$("listen-slow").addEventListener("click", () => { if (listenDrill.current) { speak(listenDrill.current.text, true); listenPlayed = true; } });
 
 /* Start drills */
 conjDrill.newQuestion();
 baseDrill.newQuestion();
-listenDrill.newQuestion();
+listenRound.restart();
 </script>
 <script src="../offline.js"></script>
 </body>

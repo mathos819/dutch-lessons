@@ -940,6 +940,62 @@ function makeDeck(getItems) {
     reset() { deck = []; },
   };
 }
+// A round over a fixed list (book exercises, homework): every item once — shuffled, or
+// in book order when the page has a #<id>-order select — misses come back at the end
+// until right, then a "Klaar!" card (#<id>-done replaces #<id>-play) with the
+// first-try score and the missed items. Wire it up with drill.next → round.draw()
+// and onResult → round.result(res.ok), then set round.drill.
+//   getItems() → the list · title() → card subtitle · say(it) → Dutch to show/play
+//   en(it) → its meaning · label(it) → optional, e.g. "Oefening 9 · 4"
+function makeRound(id, { getItems, title, say, en, label = () => "" }) {
+  const $id = k => $(`${id}-${k}`);
+  const r = {
+    drill: null, items: [], queue: [], retry: [], missed: new Set(), seen: 0, redo: false, last: null,
+    start(items) {
+      r.items = items || getItems();
+      r.queue = $id("order") && $id("order").value === "book" ? [...r.items] : shuffle(r.items);
+      r.retry = []; r.missed = new Set(); r.seen = 0; r.redo = false;
+      $id("done").hidden = true; $id("play").hidden = false;
+    },
+    restart(items) { r.start(items); r.drill.newQuestion(); },
+    // The next item, or null (and the done card) when the round is over.
+    draw() {
+      if (!r.queue.length && r.retry.length) { r.queue = r.retry; r.retry = []; r.redo = true; }
+      if (!r.queue.length) { r.showDone(); return (r.last = null); }
+      if (!r.redo) r.seen++;
+      return (r.last = r.queue.shift());
+    },
+    result(ok) {
+      if (ok || !r.last) return;
+      if (!r.redo) r.missed.add(r.last);
+      r.retry.push(r.last);
+    },
+    // "5/11 · 1 to redo" — or, in the redo part, "2 still to get right".
+    progress() {
+      return r.redo ? `${r.queue.length + r.retry.length + 1} still to get right`
+        : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "");
+    },
+    redoTag() { return r.redo ? "↻ Opnieuw · " : ""; },
+    showDone() {
+      const missed = r.items.filter(it => r.missed.has(it)), total = r.items.length, el = $id("done");
+      el.className = "done card" + (missed.length ? "" : " perfect");
+      el.innerHTML = `<div class="head">Klaar!<small>${esc(title())}</small></div><div class="body">` +
+        `<div class="score">${total - missed.length}/${total} goed in één keer</div>` +
+        (missed.length
+          ? `You got these wrong the first time (and then right). Read them out loud once more:<ul>` +
+            missed.map(it => `<li>${speakBtn(say(it))}${esc(say(it))}<span class="en">${esc([label(it), en(it)].filter(Boolean).join(" · "))}</span></li>`).join("") + `</ul>`
+          : `Everything right on the first try. Goed gedaan!`) +
+        `<div class="actions"><button class="btn primary" id="${id}-again">Nog een keer</button>` +
+        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
+      el.hidden = false; $id("play").hidden = true;
+      $id("again").addEventListener("click", () => r.restart());
+      if (missed.length) $id("missed").addEventListener("click", () => r.restart(missed));
+      $id("again").focus();
+    },
+  };
+  if ($id("order")) $id("order").addEventListener("change", () => r.restart());
+  return r;
+}
 
 /* ================= PARTICIPLE LOGIC ================= */
 const isVowel = c => "aeiou".includes(c);
@@ -1414,65 +1470,25 @@ $("part-mode").addEventListener("change", () => { partDeck.reset(); partDrill.ne
 
 /* ================= HOMEWORK DRILL ================= */
 const SET_NAME = { o9: "Oefening 9 · p.98", o10: "Oefening 10 · p.100", klas: "Les-oefening · p.117–118", pers: "Personen" };
-// A round: every sentence once (shuffled or in book order); misses come back at the
-// end until right, then a "done" card with the first-try score and the missed sentences.
-const hwRound = {
-  start(items = null) {
-    const s = $("hw-set").value;
-    this.items = items || HW.filter(it => s === "all" || it.set === s);
-    this.queue = $("hw-order").value === "book" ? [...this.items] : shuffle(this.items);
-    this.retry = []; this.missed = new Set(); this.seen = 0; this.redo = false;
-  },
-  draw() {
-    if (!this.queue.length && this.retry.length) { this.queue = this.retry; this.retry = []; this.redo = true; }
-    if (!this.queue.length) return null;
-    if (!this.redo) this.seen++;
-    return this.queue.shift();
-  },
-  result(it, ok) {
-    if (ok) return;
-    if (!this.redo) this.missed.add(it);
-    this.retry.push(it);
-  },
-};
 const hwLabel = it => `${SET_NAME[it.set]}${it.n ? " · " + it.n : ""}`;
-function hwShowDone() {
-  const r = hwRound, total = r.items.length, missed = r.items.filter(it => r.missed.has(it));
-  const firstTry = total - missed.length, el = $("hw-done");
-  const name = $("hw-set").selectedOptions[0].textContent;
-  el.className = "done card" + (missed.length ? "" : " perfect");
-  el.innerHTML = `<div class="head">Klaar!<small>${esc(name)}</small></div><div class="body">` +
-    `<div class="score">${firstTry}/${total} goed in één keer</div>` +
-    (missed.length
-      ? `You got these wrong the first time (and then right). Read them out loud once more:<ul>` +
-        missed.map(it => `<li>${speakBtn(fullHw(it))}${esc(fullHw(it))}<span class="en">${esc(hwLabel(it))} · ${esc(it.en)}</span></li>`).join("") + `</ul>`
-      : `Every sentence right on the first try. Goed gedaan!`) +
-    `<div class="actions"><button class="btn primary" id="hw-again">Nog een keer</button>` +
-    (missed.length ? `<button class="btn" id="hw-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
-  el.hidden = false; $("hw-play").hidden = true;
-  $("hw-again").addEventListener("click", () => hwRestart());
-  if (missed.length) $("hw-missed").addEventListener("click", () => hwRestart(missed));
-  $("hw-again").focus();
-}
-function hwRestart(items) {
-  hwRound.start(items);
-  $("hw-done").hidden = true; $("hw-play").hidden = false;
-  hwDrill.newQuestion();
-}
+const hwRound = makeRound("hw", {
+  getItems: () => { const s = $("hw-set").value; return HW.filter(it => s === "all" || it.set === s); },
+  title: () => $("hw-set").selectedOptions[0].textContent,
+  say: fullHw, en: it => it.en, label: hwLabel,
+});
 const gapHtml = s => esc(s).replace(/_/g, '<span class="gap">?</span>');
 const hwDrill = makeDrill({
   inputId: "hw-input", checkId: "hw-check", feedbackId: "hw-feedback",
   rightId: "hw-right", wrongId: "hw-wrong", streakId: "hw-streak", tallyId: "hw-tally",
   next() {
-    const it = hwRound.draw(), r = hwRound;
-    if (!it) { hwShowDone(); return null; }
+    const it = hwRound.draw();
+    if (!it) return null;
     $("hw-prompt").innerHTML = `<span class="verb">(${it.v})</span> ${gapHtml(it.s)}`;
-    $("hw-task").textContent = (r.redo ? "↻ Opnieuw · " : "") + hwLabel(it);
-    const left = r.queue.length + r.retry.length + 1;
-    $("hw-hint").textContent = (r.redo ? `${left} still to get right` : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "")) + ` · ${VERB_BY[it.v].en}`;
+    $("hw-task").textContent = hwRound.redoTag() + hwLabel(it);
+    $("hw-hint").textContent = `${hwRound.progress()} · ${VERB_BY[it.v].en}`;
     return it;
   },
-  onResult(it, res) { hwRound.result(it, res.ok); },
+  onResult(it, res) { hwRound.result(res.ok); },
   check(it, given) {
     const v = VERB_BY[it.v], forms = auxForms(it), full = fullHw(it);
     let gt = toks(given);
@@ -1497,8 +1513,8 @@ const hwDrill = makeDrill({
     return res;
   },
 });
-$("hw-set").addEventListener("change", () => hwRestart());
-$("hw-order").addEventListener("change", () => hwRestart());
+hwRound.drill = hwDrill;
+$("hw-set").addEventListener("change", () => hwRound.restart());
 
 /* ================= OMZETTEN DRILL ================= */
 const STRUCT = {
@@ -1669,7 +1685,7 @@ window.audioManifest = () => {
 
 /* Start drills */
 partDrill.newQuestion();
-hwRestart();
+hwRound.restart();
 changeDrill.newQuestion();
 listenDrill.newQuestion();
 </script>

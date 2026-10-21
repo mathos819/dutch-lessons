@@ -188,6 +188,8 @@
   .feedback { min-height: 60px; font-family: var(--mono); font-size: 16px; padding: 4px 2px 14px; }
   .feedback .ok { color: #1e7a1e; font-weight: 600; }
   .feedback .no { color: var(--red); font-weight: 600; }
+  .feedback .translation { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; padding: 8px 12px; border-left: 3px solid var(--blue); background: #fff; font-family: var(--body); font-size: 16px; }
+  .feedback .translation .en { display: block; color: #4a4940; font-style: italic; }
   .feedback .why { display:block; font-size: 13.5px; color: #6a685c; margin-top: 6px; }
   .feedback .why b { color: var(--ink); }
   .scorebar { display: flex; gap: 20px; font-family: var(--mono); font-size: 14px; border-top: 2px solid var(--ink); padding-top: 12px; }
@@ -207,6 +209,17 @@
   .how-body .tag { margin-right: 4px; }
   .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
   .exw { white-space: nowrap; }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+  .toolbar select { font-family: var(--mono); font-size: 14px; padding: 8px 10px; border: var(--rule); background: #fff; color: var(--ink); text-transform: none; letter-spacing: 0; max-width: 100%; }
+  .done { margin-bottom: 18px; }
+  .done .head { background: var(--yellow); }
+  .done.perfect .head { background: var(--blue); color: var(--paper); }
+  .done .body { padding: 16px 18px; font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .done .score { font-family: var(--display); font-size: 28px; line-height: 1.1; margin-bottom: 6px; }
+  .done ul { list-style: none; padding: 0; margin: 10px 0 0; }
+  .done li { border-top: 2px solid var(--ink); padding: 8px 0; font-family: var(--mono); font-size: 14px; }
+  .done li .en { display: block; color: #6a685c; font-family: var(--body); font-size: 13px; }
+  .done .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .tally { margin-top: 14px; }
   .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
@@ -350,10 +363,17 @@
   <!-- ================= CHOOSE DRILL (grammatica 18) ================= -->
   <section class="panel" id="panel-choose">
     <h2>Kiezen — kies het goede verbum</h2>
-    <p class="note">Grammatica <strong>18</strong> from the lesson: type the modal verb that belongs in the gap — pick from the two the book gives you. Think about the <em>meaning</em>: want, can, may, must or shall. Capitals are ignored.</p>
+    <p class="note">Grammatica <strong>18</strong> from the lesson: type the modal verb that belongs in the gap — pick from the two the book gives you. Think about the <em>meaning</em>: want, can, may, must or shall. Capitals are ignored. Every sentence comes once per round; the ones you get wrong come back at the end until you get them right.</p>
     <div class="drill">
+      <div class="toolbar"><label for="choose-order">Volgorde</label>
+        <select id="choose-order">
+          <option value="shuffle">Door elkaar</option>
+          <option value="book">Zoals in het boek</option>
+        </select>
+      </div>
+      <div id="choose-play">
       <div class="prompt-box">
-        <div class="task">Kies het goede verbum</div>
+        <div class="task" id="choose-task">Kies het goede verbum</div>
         <div class="big" id="choose-sentence">—</div>
         <div class="parts" id="choose-opts"></div>
         <div class="hint" id="choose-hint"></div>
@@ -363,6 +383,8 @@
         <button class="btn primary" id="choose-check">Check</button>
       </div>
       <div class="feedback" id="choose-feedback"></div>
+      </div>
+      <div class="done card" id="choose-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="choose-right">0</b></span><span>Fout <b id="choose-wrong">0</b></span><span>Reeks <b id="choose-streak">0</b></span></div>
       <div class="tally" id="choose-tally"></div>
     </div>
@@ -371,10 +393,17 @@
   <!-- ================= CHANGE DRILL (grammatica 20) ================= -->
   <section class="panel" id="panel-change">
     <h2>Omzetten — maak een combinatie met een modaal verbum</h2>
-    <p class="note">Grammatica <strong>20</strong>: rewrite the sentence with a modal verb. The English line tells you which modal to use. The modal takes the verb's place; the old verb goes to the <strong>end</strong> as an infinitive. Rounds marked <em>extra</em> reuse sentences from Les 3. Punctuation and capitals are ignored.</p>
+    <p class="note">Grammatica <strong>20</strong>: rewrite the sentence with a modal verb. The English line tells you which modal to use. The modal takes the verb's place; the old verb goes to the <strong>end</strong> as an infinitive. Sentences marked <em>extra</em> reuse sentences from Les 3. Punctuation and capitals are ignored. Every sentence comes once per round; the ones you get wrong come back at the end until you get them right.</p>
     <div class="drill">
+      <div class="toolbar"><label for="change-order">Volgorde</label>
+        <select id="change-order">
+          <option value="shuffle">Door elkaar</option>
+          <option value="book">Zoals in het boek</option>
+        </select>
+      </div>
+      <div id="change-play">
       <div class="prompt-box">
-        <div class="task">Verander de zin</div>
+        <div class="task" id="change-task">Verander de zin</div>
         <div class="big" id="change-base">—</div>
         <div class="target" id="change-target"></div>
         <div class="hint" id="change-hint"></div>
@@ -384,6 +413,8 @@
         <button class="btn primary" id="change-check">Check</button>
       </div>
       <div class="feedback" id="change-feedback"></div>
+      </div>
+      <div class="done card" id="change-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="change-right">0</b></span><span>Fout <b id="change-wrong">0</b></span><span>Reeks <b id="change-streak">0</b></span></div>
       <div class="tally" id="change-tally"></div>
     </div>
@@ -413,10 +444,11 @@
   <!-- ================= LISTENING ================= -->
   <section class="panel" id="panel-listen">
     <h2>Luisteren — dictation</h2>
-    <p class="note">Play the audio and type exactly what you hear — a word, a modal form, or a whole sentence from the lesson. Punctuation and capitals are ignored.</p>
+    <p class="note">Play the audio and type exactly what you hear — a word, a modal form, or a whole sentence from the lesson. Punctuation and capitals are ignored. Every item comes once per round; the ones you get wrong come back at the end until you get them right.</p>
     <div class="drill">
+      <div id="listen-play">
       <div class="prompt-box">
-        <div class="task">Listen and type</div>
+        <div class="task" id="listen-task">Listen and type</div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <button class="btn primary" id="listen-play">▶ Speel af</button>
           <button class="btn" id="listen-slow">🐢 Langzaam</button>
@@ -428,6 +460,8 @@
         <button class="btn primary" id="listen-check">Check</button>
       </div>
       <div class="feedback" id="listen-feedback"></div>
+      </div>
+      <div class="done card" id="listen-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
       <div class="tally" id="listen-tally"></div>
     </div>
@@ -680,136 +714,136 @@ const CHANGE = [
 /* ---- Vervoegen, zin-rounds: fill in the modal in a real sentence ----
    key = CONJ row for the subject; use = the form the lesson's sentence uses. */
 const CONJ_GAPS = [
-  { s: "Je ___ om 8 uur naar werk komen.",       v: "zullen", key: "jij" },
-  { s: "Om 8 uur ___ je naar werk komen.",       v: "zullen", key: "jijInv" },
-  { s: "Hoe laat ___ je naar werk komen?",       v: "zullen", key: "jijInv" },
-  { s: "___ je om 8 uur naar werk komen?",       v: "zullen", key: "jijInv" },
-  { s: "Je ___ op vakantie gaan.",               v: "willen", key: "jij" },
-  { s: "Op vakantie ___ je gaan.",               v: "willen", key: "jijInv" },
-  { s: "Wanneer ___ je op vakantie gaan?",       v: "willen", key: "jijInv" },
-  { s: "Je ___ heel goed zwemmen.",              v: "kunnen", key: "jij" },
-  { s: "Heel goed ___ je zwemmen.",              v: "kunnen", key: "jijInv" },
-  { s: "Hoe ___ je zwemmen?",                    v: "kunnen", key: "jijInv" },
-  { s: "___ ik hier roken?",                     v: "kunnen", key: "ik" },
-  { s: "Je ___ hier niet roken.",                v: "mogen",  key: "jij" },
-  { s: "Ik ___ morgen de kinderen met de auto naar school brengen.", v: "zullen", key: "ik" },
-  { s: "Morgen ___ ik de kinderen met de auto naar school brengen.", v: "zullen", key: "ik" },
-  { s: "Hij ___ geen boek kopen.",               v: "willen", key: "hij" },
-  { s: "Mijn oma ___ niet goed horen.",          v: "kunnen", key: "hij" },
-  { s: "Maria ___ op zaterdag acht flessen water kopen.", v: "moeten", key: "hij" },
-  { s: "Hij ___ de rekening op tijd betalen.",   v: "moeten", key: "hij" },
-  { s: "Alfred ___ spaghetti met tomaten koken.", v: "zullen", key: "hij" },
-  { s: "___ u goed Nederlands spreken?",         v: "kunnen", key: "uInv" },
-  { s: "___ u een kopje thee?",                  v: "willen", key: "uInv" },
-  { s: "De kinderen ___ om half negen op school zijn.", v: "moeten", key: "pl" },
-  { s: "Jullie ___ niet in een café roken.",     v: "mogen",  key: "pl" },
-  { s: "We ___ in de pauze naar de kantine gaan.", v: "kunnen", key: "pl" },
-  { s: "Mijn ouders ___ elke week naar de bioscoop lopen.", v: "willen", key: "pl" },
-  { s: "Wat ___ jij drinken?",                   v: "willen", key: "jijInv" },
-  { s: "___ jij de deur dichtdoen?",             v: "kunnen", key: "jijInv" },
-  { s: "___ ik even naar de wc gaan?",           v: "mogen",  key: "ik" },
+  { s: "Je ___ om 8 uur naar werk komen.",       v: "zullen", key: "jij", en: "You will come to work at 8." },
+  { s: "Om 8 uur ___ je naar werk komen.",       v: "zullen", key: "jijInv", en: "At 8 you will come to work." },
+  { s: "Hoe laat ___ je naar werk komen?",       v: "zullen", key: "jijInv", en: "What time will you come to work?" },
+  { s: "___ je om 8 uur naar werk komen?",       v: "zullen", key: "jijInv", en: "Will you come to work at 8?" },
+  { s: "Je ___ op vakantie gaan.",               v: "willen", key: "jij", en: "You want to go on holiday." },
+  { s: "Op vakantie ___ je gaan.",               v: "willen", key: "jijInv", en: "You want to go on holiday." },
+  { s: "Wanneer ___ je op vakantie gaan?",       v: "willen", key: "jijInv", en: "When do you want to go on holiday?" },
+  { s: "Je ___ heel goed zwemmen.",              v: "kunnen", key: "jij", en: "You can swim very well." },
+  { s: "Heel goed ___ je zwemmen.",              v: "kunnen", key: "jijInv", en: "You can swim very well." },
+  { s: "Hoe ___ je zwemmen?",                    v: "kunnen", key: "jijInv", en: "How can you swim?" },
+  { s: "___ ik hier roken?",                     v: "kunnen", key: "ik", en: "Can I smoke here?" },
+  { s: "Je ___ hier niet roken.",                v: "mogen",  key: "jij", en: "You are not allowed to smoke here." },
+  { s: "Ik ___ morgen de kinderen met de auto naar school brengen.", v: "zullen", key: "ik", en: "I will bring the kids to school by car tomorrow." },
+  { s: "Morgen ___ ik de kinderen met de auto naar school brengen.", v: "zullen", key: "ik", en: "Tomorrow I will bring the kids to school by car." },
+  { s: "Hij ___ geen boek kopen.",               v: "willen", key: "hij", en: "He doesn't want to buy a book." },
+  { s: "Mijn oma ___ niet goed horen.",          v: "kunnen", key: "hij", en: "My grandmother can't hear well." },
+  { s: "Maria ___ op zaterdag acht flessen water kopen.", v: "moeten", key: "hij", en: "Maria has to buy eight bottles of water on Saturday." },
+  { s: "Hij ___ de rekening op tijd betalen.",   v: "moeten", key: "hij", en: "He has to pay the bill on time." },
+  { s: "Alfred ___ spaghetti met tomaten koken.", v: "zullen", key: "hij", en: "Alfred will cook spaghetti with tomatoes." },
+  { s: "___ u goed Nederlands spreken?",         v: "kunnen", key: "uInv", en: "Can you speak Dutch well? (formal)" },
+  { s: "___ u een kopje thee?",                  v: "willen", key: "uInv", en: "Would you like a cup of tea? (formal)" },
+  { s: "De kinderen ___ om half negen op school zijn.", v: "moeten", key: "pl", en: "The children have to be at school at half past eight." },
+  { s: "Jullie ___ niet in een café roken.",     v: "mogen",  key: "pl", en: "You are not allowed to smoke in a café." },
+  { s: "We ___ in de pauze naar de kantine gaan.", v: "kunnen", key: "pl", en: "We can go to the canteen during the break." },
+  { s: "Mijn ouders ___ elke week naar de bioscoop lopen.", v: "willen", key: "pl", en: "My parents want to walk to the cinema every week." },
+  { s: "Wat ___ jij drinken?",                   v: "willen", key: "jijInv", en: "What do you want to drink?" },
+  { s: "___ jij de deur dichtdoen?",             v: "kunnen", key: "jijInv", en: "Can you close the door?" },
+  { s: "___ ik even naar de wc gaan?",           v: "mogen",  key: "ik", en: "May I go to the toilet for a moment?" },
 ];
 
 /* ---- Zinsbouw: loose parts → hoofdzin / inversie ----
    parts[] holds the modal as an infinitive (marked with modal:).           */
 const BUILD = [
   { src: "les", modal: "zullen", parts: ["ik","morgen","de kinderen","met de auto","naar school","brengen"],
-    hoofd: "Ik zal morgen de kinderen met de auto naar school brengen.",
+    hoofd: "Ik zal morgen de kinderen met de auto naar school brengen.", en: "I will bring the kids to school by car tomorrow.",
     inv: [ { start: "morgen",      s: "Morgen zal ik de kinderen met de auto naar school brengen." },
            { start: "de kinderen", s: "De kinderen zal ik morgen met de auto naar school brengen." },
            { start: "met de auto", s: "Met de auto zal ik morgen de kinderen naar school brengen." },
            { start: "naar school", s: "Naar school zal ik morgen de kinderen met de auto brengen." } ] },
   { src: "les", modal: "zullen", parts: ["je","om 8 uur","naar werk","komen"],
-    hoofd: "Je zult om 8 uur naar werk komen.", hoofdAlt: ["Je zal om 8 uur naar werk komen."],
+    hoofd: "Je zult om 8 uur naar werk komen.", en: "You will come to work at 8.", hoofdAlt: ["Je zal om 8 uur naar werk komen."],
     inv: [ { start: "om 8 uur", s: "Om 8 uur zul je naar werk komen.", alts: ["Om 8 uur zal je naar werk komen."],
              note: "je comes after the verb, so zult loses its -t: <b>zul je</b>." } ] },
   { src: "les", modal: "willen", parts: ["je","op vakantie","gaan"],
-    hoofd: "Je wilt op vakantie gaan.", hoofdAlt: ["Je wil op vakantie gaan."],
+    hoofd: "Je wilt op vakantie gaan.", en: "You want to go on holiday.", hoofdAlt: ["Je wil op vakantie gaan."],
     inv: [ { start: "op vakantie", s: "Op vakantie wil je gaan.", note: "je after the verb → <b>wil je</b>, not wilt je." } ] },
   { src: "les", modal: "kunnen", parts: ["je","heel goed","zwemmen"],
-    hoofd: "Je kunt heel goed zwemmen.", hoofdAlt: ["Je kan heel goed zwemmen."],
+    hoofd: "Je kunt heel goed zwemmen.", en: "You can swim very well.", hoofdAlt: ["Je kan heel goed zwemmen."],
     inv: [ { start: "heel goed", s: "Heel goed kun je zwemmen.", alts: ["Heel goed kan je zwemmen."],
              note: "je after the verb → <b>kun je</b>, not kunt je." } ] },
   { src: "Les 3", modal: "willen", parts: ["mijn ouders","elke week","naar de bioscoop","lopen"],
-    hoofd: "Mijn ouders willen elke week naar de bioscoop lopen.",
+    hoofd: "Mijn ouders willen elke week naar de bioscoop lopen.", en: "My parents want to walk to the cinema every week.",
     inv: [ { start: "elke week", s: "Elke week willen mijn ouders naar de bioscoop lopen." },
            { start: "naar de bioscoop", s: "Naar de bioscoop willen mijn ouders elke week lopen." } ] },
   { src: "Les 3", modal: "mogen", parts: ["mijn zus","in de tuin","slapen"],
-    hoofd: "Mijn zus mag in de tuin slapen.",
+    hoofd: "Mijn zus mag in de tuin slapen.", en: "My sister is allowed to sleep in the garden.",
     inv: [ { start: "in de tuin", s: "In de tuin mag mijn zus slapen." } ] },
   { src: "Les 3", modal: "moeten", parts: ["hij","met de lerares","in het lokaal","spreken"],
-    hoofd: "Hij moet met de lerares in het lokaal spreken.",
+    hoofd: "Hij moet met de lerares in het lokaal spreken.", en: "He has to speak with the teacher in the classroom.",
     inv: [ { start: "in het lokaal", s: "In het lokaal moet hij met de lerares spreken." },
            { start: "met de lerares", s: "Met de lerares moet hij in het lokaal spreken." } ],
     note: "In the rest, manner (met de lerares) comes before place (in het lokaal)." },
   { src: "Les 3", modal: "kunnen", parts: ["mijn oma","niet goed","horen"],
-    hoofd: "Mijn oma kan niet goed horen.", inv: [] },
+    hoofd: "Mijn oma kan niet goed horen.", en: "My grandmother can't hear well.", inv: [] },
   { src: "Les 3", modal: "willen", parts: ["Alfred","twee keer per week","spaghetti met tomaten","koken"],
-    hoofd: "Alfred wil twee keer per week spaghetti met tomaten koken.",
+    hoofd: "Alfred wil twee keer per week spaghetti met tomaten koken.", en: "Alfred wants to cook spaghetti with tomatoes twice a week.",
     inv: [ { start: "twee keer per week", s: "Twee keer per week wil Alfred spaghetti met tomaten koken." } ],
     note: "Alfred = hij → wil, never wilt." },
   { src: "Les 3", modal: "moeten", parts: ["Maria","op zaterdag","acht flessen water","bij de HEMA","kopen"],
-    hoofd: "Maria moet op zaterdag acht flessen water bij de HEMA kopen.",
+    hoofd: "Maria moet op zaterdag acht flessen water bij de HEMA kopen.", en: "Maria has to buy eight bottles of water at the HEMA on Saturday.",
     inv: [ { start: "op zaterdag", s: "Op zaterdag moet Maria acht flessen water bij de HEMA kopen." },
            { start: "bij de HEMA", s: "Bij de HEMA moet Maria op zaterdag acht flessen water kopen." } ] },
   { src: "Les 3", modal: "zullen", parts: ["mijn moeder","een lekkere cake","in de oven","bakken"],
-    hoofd: "Mijn moeder zal een lekkere cake in de oven bakken.",
+    hoofd: "Mijn moeder zal een lekkere cake in de oven bakken.", en: "My mother will bake a tasty cake in the oven.",
     inv: [ { start: "in de oven", s: "In de oven zal mijn moeder een lekkere cake bakken." },
            { start: "een lekkere cake", s: "Een lekkere cake zal mijn moeder in de oven bakken." } ] },
   { src: "grammatica 18", modal: "moeten", parts: ["de kinderen","om half negen","op school","zijn"],
-    hoofd: "De kinderen moeten om half negen op school zijn.",
+    hoofd: "De kinderen moeten om half negen op school zijn.", en: "The children have to be at school at half past eight.",
     inv: [ { start: "om half negen", s: "Om half negen moeten de kinderen op school zijn." } ] },
   { src: "grammatica 20", modal: "moeten", parts: ["ik","elke dag","mijn huiswerk","maken"],
-    hoofd: "Ik moet elke dag mijn huiswerk maken.",
+    hoofd: "Ik moet elke dag mijn huiswerk maken.", en: "I have to do my homework every day.",
     inv: [ { start: "elke dag", s: "Elke dag moet ik mijn huiswerk maken." } ] },
   { src: "grammatica 20", modal: "kunnen", parts: ["we","in de pauze","naar de kantine","gaan"],
-    hoofd: "We kunnen in de pauze naar de kantine gaan.", hoofdAlt: ["Wij kunnen in de pauze naar de kantine gaan."],
+    hoofd: "We kunnen in de pauze naar de kantine gaan.", en: "We can go to the canteen during the break.", hoofdAlt: ["Wij kunnen in de pauze naar de kantine gaan."],
     inv: [ { start: "in de pauze", s: "In de pauze kunnen we naar de kantine gaan.", alts: ["In de pauze kunnen wij naar de kantine gaan."] } ] },
 ];
 
 /* ---- Zinsbouw: sentence → gesloten / open vraag ---- */
 const ASK = [
-  { base: "Je zult om 8 uur naar werk komen.",
+  { base: "Je zult om 8 uur naar werk komen.", geslEn: "Will you come to work at 8?",
     gesloten: ["Zul je om 8 uur naar werk komen?", "Zal je om 8 uur naar werk komen?"],
-    open: [ { q: "hoe laat", s: ["Hoe laat zul je naar werk komen?", "Hoe laat zal je naar werk komen?"] } ],
+    open: [ { q: "hoe laat", en: "What time will you come to work?", s: ["Hoe laat zul je naar werk komen?", "Hoe laat zal je naar werk komen?"] } ],
     note: "je after the verb → zult loses its -t: <b>zul je</b>." },
-  { base: "Je wilt op vakantie gaan.",
+  { base: "Je wilt op vakantie gaan.", geslEn: "Do you want to go on holiday?",
     gesloten: ["Wil je op vakantie gaan?"],
-    open: [ { q: "wanneer", s: ["Wanneer wil je op vakantie gaan?"] } ],
+    open: [ { q: "wanneer", en: "When do you want to go on holiday?", s: ["Wanneer wil je op vakantie gaan?"] } ],
     note: "je after the verb → <b>wil je</b>, not wilt je." },
-  { base: "Je kunt heel goed zwemmen.",
+  { base: "Je kunt heel goed zwemmen.", geslEn: "Can you swim very well?",
     gesloten: ["Kun je heel goed zwemmen?", "Kan je heel goed zwemmen?"],
-    open: [ { q: "hoe", s: ["Hoe kun je zwemmen?", "Hoe kan je zwemmen?"] } ],
+    open: [ { q: "hoe", en: "How can you swim?", s: ["Hoe kun je zwemmen?", "Hoe kan je zwemmen?"] } ],
     note: "je after the verb → <b>kun je</b>, not kunt je." },
-  { base: "Je zult morgen de kinderen naar school brengen.",
+  { base: "Je zult morgen de kinderen naar school brengen.", geslEn: "Will you bring the kids to school tomorrow?",
     gesloten: ["Zul je morgen de kinderen naar school brengen?", "Zal je morgen de kinderen naar school brengen?"],
-    open: [ { q: "wanneer", s: ["Wanneer zul je de kinderen naar school brengen?", "Wanneer zal je de kinderen naar school brengen?"] } ] },
-  { base: "Je zult de kinderen met de auto naar school brengen.",
+    open: [ { q: "wanneer", en: "When will you bring the kids to school?", s: ["Wanneer zul je de kinderen naar school brengen?", "Wanneer zal je de kinderen naar school brengen?"] } ] },
+  { base: "Je zult de kinderen met de auto naar school brengen.", geslEn: "Will you bring the kids to school by car?",
     gesloten: ["Zul je de kinderen met de auto naar school brengen?", "Zal je de kinderen met de auto naar school brengen?"],
-    open: [ { q: "hoe", s: ["Hoe zul je de kinderen naar school brengen?", "Hoe zal je de kinderen naar school brengen?"] } ] },
-  { base: "Jullie willen een kopje thee drinken.",
+    open: [ { q: "hoe", en: "How will you bring the kids to school?", s: ["Hoe zul je de kinderen naar school brengen?", "Hoe zal je de kinderen naar school brengen?"] } ] },
+  { base: "Jullie willen een kopje thee drinken.", geslEn: "Do you want to drink a cup of tea?",
     gesloten: ["Willen jullie een kopje thee drinken?"],
-    open: [ { q: "wat", s: ["Wat willen jullie drinken?"] } ] },
-  { base: "U kunt goed Nederlands spreken.",
+    open: [ { q: "wat", en: "What do you want to drink?", s: ["Wat willen jullie drinken?"] } ] },
+  { base: "U kunt goed Nederlands spreken.", geslEn: "Can you speak Dutch well? (formal)",
     gesloten: ["Kunt u goed Nederlands spreken?", "Kan u goed Nederlands spreken?"],
-    open: [ { q: "wat", s: ["Wat kunt u goed spreken?", "Wat kan u goed spreken?"] } ],
+    open: [ { q: "wat", en: "What can you speak well? (formal)", s: ["Wat kunt u goed spreken?", "Wat kan u goed spreken?"] } ],
     note: "With <b>u</b> the -t can stay: kunt u. Only je/jij loses it." },
-  { base: "Ik kan hier roken.",
+  { base: "Ik kan hier roken.", geslEn: "Can I smoke here?",
     gesloten: ["Kan ik hier roken?"],
-    open: [ { q: "waar", s: ["Waar kan ik roken?"] } ] },
-  { base: "Hij moet de rekening op tijd betalen.",
+    open: [ { q: "waar", en: "Where can I smoke?", s: ["Waar kan ik roken?"] } ] },
+  { base: "Hij moet de rekening op tijd betalen.", geslEn: "Does he have to pay the bill on time?",
     gesloten: ["Moet hij de rekening op tijd betalen?"],
-    open: [ { q: "wat", s: ["Wat moet hij op tijd betalen?"] } ] },
-  { base: "We zullen vanavond naar de bioscoop gaan.",
+    open: [ { q: "wat", en: "What does he have to pay on time?", s: ["Wat moet hij op tijd betalen?"] } ] },
+  { base: "We zullen vanavond naar de bioscoop gaan.", geslEn: "Shall we go to the cinema tonight?",
     gesloten: ["Zullen we vanavond naar de bioscoop gaan?"],
-    open: [ { q: "wanneer", s: ["Wanneer zullen we naar de bioscoop gaan?"] } ] },
-  { base: "Mijn ouders willen elke week naar de bioscoop lopen.",
+    open: [ { q: "wanneer", en: "When shall we go to the cinema?", s: ["Wanneer zullen we naar de bioscoop gaan?"] } ] },
+  { base: "Mijn ouders willen elke week naar de bioscoop lopen.", geslEn: "Do my parents want to walk to the cinema every week?",
     gesloten: ["Willen mijn ouders elke week naar de bioscoop lopen?"],
-    open: [ { q: "wie", s: ["Wie wil elke week naar de bioscoop lopen?"], note: "wie is the subject, so the modal takes the hij/zij-form: <b>wil</b> (Les 3 rule)." },
-            { q: "wanneer", s: ["Wanneer willen mijn ouders naar de bioscoop lopen?"] } ] },
-  { base: "Je moet elke dag je huiswerk maken.",
+    open: [ { q: "wie", en: "Who wants to walk to the cinema every week?", s: ["Wie wil elke week naar de bioscoop lopen?"], note: "wie is the subject, so the modal takes the hij/zij-form: <b>wil</b> (Les 3 rule)." },
+            { q: "wanneer", en: "When do my parents want to walk to the cinema?", s: ["Wanneer willen mijn ouders naar de bioscoop lopen?"] } ] },
+  { base: "Je moet elke dag je huiswerk maken.", geslEn: "Do you have to do your homework every day?",
     gesloten: ["Moet je elke dag je huiswerk maken?"],
-    open: [ { q: "wat", s: ["Wat moet je elke dag maken?"] } ] },
+    open: [ { q: "wat", en: "What do you have to do every day?", s: ["Wat moet je elke dag maken?"] } ] },
 ];
 /* ==== DATA END ==== */
 
@@ -1069,6 +1103,8 @@ function ruleHow(id) {
 function renderFeedback(res) {
   let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${res.correct}</span>`;
   if (res.say) h += ` ${speakBtn(res.say)}`;
+  // The whole sentence with its meaning, right or wrong — so the vocabulary sticks too.
+  if (res.en) h += `<div class="translation">${speakBtn(res.say)}<span><b>${esc(res.say)}</b><span class="en">${esc(res.en)}</span></span></div>`;
   if (!res.ok) {
     h += res.mistakes.length
       ? res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("")
@@ -1085,7 +1121,64 @@ function renderFeedback(res) {
 }
 
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
+// A round over a fixed list (book exercises, homework): every item once — shuffled, or
+// in book order when the page has a #<id>-order select — misses come back at the end
+// until right, then a "Klaar!" card (#<id>-done replaces #<id>-play) with the
+// first-try score and the missed items. Wire it up with drill.next → round.draw()
+// and onResult → round.result(res.ok), then set round.drill.
+//   getItems() → the list · title() → card subtitle · say(it) → Dutch to show/play
+//   en(it) → its meaning · label(it) → optional, e.g. "Oefening 9 · 4"
+function makeRound(id, { getItems, title, say, en, label = () => "" }) {
+  const $id = k => $(`${id}-${k}`);
+  const r = {
+    drill: null, items: [], queue: [], retry: [], missed: new Set(), seen: 0, redo: false, last: null,
+    start(items) {
+      r.items = items || getItems();
+      r.queue = $id("order") && $id("order").value === "book" ? [...r.items] : shuffle(r.items);
+      r.retry = []; r.missed = new Set(); r.seen = 0; r.redo = false;
+      $id("done").hidden = true; $id("play").hidden = false;
+    },
+    restart(items) { r.start(items); r.drill.newQuestion(); },
+    // The next item, or null (and the done card) when the round is over.
+    draw() {
+      if (!r.queue.length && r.retry.length) { r.queue = r.retry; r.retry = []; r.redo = true; }
+      if (!r.queue.length) { r.showDone(); return (r.last = null); }
+      if (!r.redo) r.seen++;
+      return (r.last = r.queue.shift());
+    },
+    result(ok) {
+      if (ok || !r.last) return;
+      if (!r.redo) r.missed.add(r.last);
+      r.retry.push(r.last);
+    },
+    // "5/11 · 1 to redo" — or, in the redo part, "2 still to get right".
+    progress() {
+      return r.redo ? `${r.queue.length + r.retry.length + 1} still to get right`
+        : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "");
+    },
+    redoTag() { return r.redo ? "↻ Opnieuw · " : ""; },
+    showDone() {
+      const missed = r.items.filter(it => r.missed.has(it)), total = r.items.length, el = $id("done");
+      el.className = "done card" + (missed.length ? "" : " perfect");
+      el.innerHTML = `<div class="head">Klaar!<small>${esc(title())}</small></div><div class="body">` +
+        `<div class="score">${total - missed.length}/${total} goed in één keer</div>` +
+        (missed.length
+          ? `You got these wrong the first time (and then right). Read them out loud once more:<ul>` +
+            missed.map(it => `<li>${speakBtn(say(it))}${esc(say(it))}<span class="en">${esc([label(it), en(it)].filter(Boolean).join(" · "))}</span></li>`).join("") + `</ul>`
+          : `Everything right on the first try. Goed gedaan!`) +
+        `<div class="actions"><button class="btn primary" id="${id}-again">Nog een keer</button>` +
+        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
+      el.hidden = false; $id("play").hidden = true;
+      $id("again").addEventListener("click", () => r.restart());
+      if (missed.length) $id("missed").addEventListener("click", () => r.restart(missed));
+      $id("again").focus();
+    },
+  };
+  if ($id("order")) $id("order").addEventListener("change", () => r.restart());
+  return r;
+}
+
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check, onResult }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
   const tally = {}; // rule id → times missed this session
@@ -1094,7 +1187,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
     answered = false;
     fb.innerHTML = "";
     input.value = "";
-    input.focus();
+    if (current) input.focus();
   }
   function renderTally() {
     const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
@@ -1104,6 +1197,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       : "";
   }
   function doCheck() {
+    if (!current) return;
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
@@ -1117,6 +1211,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       renderTally();
     }
     $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    if (onResult) onResult(current, res);
     fb.innerHTML = renderFeedback(res);
     if (res.say) speak(res.say);
   }
@@ -1274,6 +1369,15 @@ function conjRule(verb, key) {
 // Rules that explain one subject row (shown on right answers).
 const KEY_RULES = { ik: ["noT", "singForms"], hij: ["noT", "singForms"], pl: ["plural"], jij: ["twoForms"], u: ["twoForms"], jijInv: ["invT"], uInv: ["uKeepsT"] };
 const PRONOUNS = new Set(["ik", "jij", "je", "u", "hij", "zij", "ze", "we", "wij", "jullie"]);
+// What a bare modal form means: "je kunt" → "you can", "zul je" → "will you …?".
+const PRON_EN = { ik: "I", je: "you", jij: "you", u: "you (formal)", hij: "he", zij: "she", we: "we", jullie: "you (plural)", ze: "they" };
+const MODAL_EN = { zullen: "will", willen: "want", kunnen: "can", mogen: "may", moeten: "must" };
+const MODAL_Q_EN = { zullen: "Will W", willen: "Do W want to", kunnen: "Can W", mogen: "Are W allowed to", moeten: "Do W have to" };
+function formEn(modal, pron, inv) {
+  const m = MODAL_EN[modal], who = PRON_EN[pron];
+  if (inv) return `${MODAL_Q_EN[modal].replace("W", who)} …?`;
+  return `${cap(who)} ${m === "want" && (pron === "hij" || pron === "zij") ? "wants" : m}`;
+}
 const conjDrill = makeDrill({
   inputId: "conj-input", checkId: "conj-check", feedbackId: "conj-feedback",
   rightId: "conj-right", wrongId: "conj-wrong", streakId: "conj-streak", tallyId: "conj-tally",
@@ -1288,7 +1392,7 @@ const conjDrill = makeDrill({
       $("conj-hint").textContent = m.en;
       const shown = forms.map(f => sub.inv ? `${f} ${sub.say}` : f);
       const say = sub.inv ? forms.map(f => `${f} ${sub.say}`).join(", ") : forms.map(f => `${sub.say} ${f}`).join(", ");
-      return { verb: m.nl, key: sub.key, forms, correct: shown.join(" / "), say, full: null };
+      return { verb: m.nl, key: sub.key, forms, correct: shown.join(" / "), say, full: null, en: formEn(m.nl, sub.say, sub.inv) };
     }
     // Sentence round.
     const g = pick(CONJ_GAPS);
@@ -1298,7 +1402,7 @@ const conjDrill = makeDrill({
     $("conj-prompt").innerHTML = esc(g.s).replace("___", '<span class="gap">___</span>');
     $("conj-target").innerHTML = g.v;
     $("conj-hint").textContent = MODALS.find(m => m.nl === g.v).en;
-    return { verb: g.v, key: g.key, forms, correct: forms.join(" / "), say: full, full };
+    return { verb: g.v, key: g.key, forms, correct: forms.join(" / "), say: full, full, en: g.en };
   },
   check(cur, given) {
     // Ignore any pronoun the user typed along with the verb.
@@ -1308,28 +1412,35 @@ const conjDrill = makeDrill({
     const ok = verbWords.length === 1 && cur.forms.includes(givenVerb);
     const steps = [conjRule(cur.verb, cur.key) + (cur.forms.length > 1 ? " Both forms are right." : "")];
     if (cur.full) steps.push(`Hele zin: <b>${esc(cur.full)}</b>`);
-    const res = { ok, correct: cur.correct, say: cur.say, steps, rules: KEY_RULES[cur.key], mistakes: [] };
+    const res = { ok, correct: cur.correct, say: cur.say, en: cur.en, steps, rules: KEY_RULES[cur.key], mistakes: [] };
     if (!ok && verbWords.length === 1) res.mistakes = diagnoseForm(cur.verb, cur.key, givenVerb);
     return res;
   },
 });
 
 /* ================= KIEZEN DRILL (grammatica 18) ================= */
+const chooseRound = makeRound("choose", {
+  getItems: () => CHOOSE, title: () => "Kiezen · grammatica 18",
+  say: c => fillGap(c.s, c.a), en: c => c.en, label: c => `grammatica 18 · ${c.n}`,
+});
 const chooseDrill = makeDrill({
   inputId: "choose-input", checkId: "choose-check", feedbackId: "choose-feedback",
   rightId: "choose-right", wrongId: "choose-wrong", streakId: "choose-streak", tallyId: "choose-tally",
   next() {
-    const c = pick(CHOOSE);
+    const c = chooseRound.draw();
+    if (!c) return null;
+    $("choose-task").textContent = chooseRound.redoTag() + "Kies het goede verbum";
     $("choose-sentence").innerHTML = esc(c.s).replace("___", '<span class="gap">___</span>');
     $("choose-opts").innerHTML = c.opts.map(o => `<span>${esc(o)}</span>`).join("");
-    $("choose-hint").textContent = `grammatica 18 · ${c.n}`;
+    $("choose-hint").textContent = `${chooseRound.progress()} · grammatica 18 · ${c.n}`;
     return { c, full: fillGap(c.s, c.a) };
   },
+  onResult(cur, res) { chooseRound.result(res.ok); },
   check(cur, given) {
     const c = cur.c, g = norm(given), a = norm(c.a);
     const want = verbOf(a);
-    const res = { ok: g === a, correct: c.a, say: cur.full, rules: ["m-" + want],
-                  steps: [c.why, `Hele zin: <b>${esc(cur.full)}</b>`, `<em>${esc(c.en)}</em>`], mistakes: [] };
+    const res = { ok: g === a, correct: c.a, say: cur.full, en: c.en, rules: ["m-" + want],
+                  steps: [c.why, `Hele zin: <b>${esc(cur.full)}</b>`], mistakes: [] };
     if (res.ok) return res;
     const got = verbOf(g);
     if (got && got !== want) {
@@ -1347,16 +1458,24 @@ const chooseDrill = makeDrill({
 });
 
 /* ================= OMZETTEN DRILL (grammatica 20) ================= */
+const changeLabel = c => c.n === "extra" ? "extra — zin uit Les 3" : `grammatica 20 · ${c.n}`;
+const changeRound = makeRound("change", {
+  getItems: () => CHANGE, title: () => "Omzetten · grammatica 20",
+  say: c => c.a, en: c => c.en, label: changeLabel,
+});
 const changeDrill = makeDrill({
   inputId: "change-input", checkId: "change-check", feedbackId: "change-feedback",
   rightId: "change-right", wrongId: "change-wrong", streakId: "change-streak", tallyId: "change-tally",
   next() {
-    const c = pick(CHANGE);
+    const c = changeRound.draw();
+    if (!c) return null;
+    $("change-task").textContent = changeRound.redoTag() + "Verander de zin";
     $("change-base").innerHTML = `${speakBtn(c.base)}${esc(c.base)}`;
     $("change-target").textContent = c.en;
-    $("change-hint").textContent = c.n === "extra" ? "extra — zin uit Les 3" : `grammatica 20 · ${c.n}`;
+    $("change-hint").textContent = `${changeRound.progress()} · ${changeLabel(c)}`;
     return { c };
   },
+  onResult(cur, res) { changeRound.result(res.ok); },
   check(cur, given) {
     const c = cur.c;
     const answers = [c.a, ...(c.alts || [])];
@@ -1369,7 +1488,7 @@ const changeDrill = makeDrill({
     ];
     if (c.note) steps.push(c.note);
     if (answers.length > 1) steps.push(`Also correct: ${answers.slice(1).map(esc).join(" · ")}`);
-    const res = { ok, correct: esc(c.a), say: c.a, steps, rules: ["verbSecond", "infEnd"], mistakes: [] };
+    const res = { ok, correct: esc(c.a), say: c.a, en: c.en, steps, rules: ["verbSecond", "infEnd"], mistakes: [] };
     if (!ok) res.mistakes = diagnoseSentence(given, answers, { old: norm(from) });
     return res;
   },
@@ -1391,14 +1510,14 @@ const orderDrill = makeDrill({
         const it = pick(b.inv);
         $("order-target").textContent = `Hoofdzin met inversie — begin met: „${it.start}”`;
         return {
-          answers: [it.s, ...(it.alts || [])], say: it.s, type: "inv", start: it.start, rules: ["verbSecond", "infEnd"],
+          answers: [it.s, ...(it.alts || [])], say: it.s, en: b.en, type: "inv", start: it.start, rules: ["verbSecond", "infEnd"],
           why: `<b>Inversie:</b> „${esc(it.start)}” – modal – subject – rest – <b>2nd verb</b>. The modal keeps 2nd place, the subject slides behind it.` +
                `${it.note ? " " + it.note : ""}${b.note ? " " + b.note : ""}<br>The plain hoofdzin: ${esc(b.hoofd)}`,
         };
       }
       $("order-target").textContent = "Hoofdzin";
       return {
-        answers: [b.hoofd, ...(b.hoofdAlt || [])], say: b.hoofd, type: "hoofd", rules: ["verbSecond", "restOrder", "infEnd"],
+        answers: [b.hoofd, ...(b.hoofdAlt || [])], say: b.hoofd, en: b.en, type: "hoofd", rules: ["verbSecond", "restOrder", "infEnd"],
         why: `<b>Hoofdzin:</b> subject – modal – rest (time – object – manner – place) – <b>2nd verb</b> at the end.${b.note ? " " + b.note : ""}`,
       };
     }
@@ -1411,13 +1530,13 @@ const orderDrill = makeDrill({
       const o = pick(q.open);
       $("order-target").textContent = `Open vraag met „${o.q}”`;
       return {
-        answers: o.s, say: o.s[0], type: "open", rules: ["verbSecond", "infEnd"],
+        answers: o.s, say: o.s[0], en: o.en, type: "open", rules: ["verbSecond", "infEnd"],
         why: `<b>Open vraag:</b> vraagwoord – modal – subject – rest – <b>2nd verb</b>.${o.note ? " " + o.note : ""}${q.note ? " " + q.note : ""}`,
       };
     }
     $("order-target").textContent = "Gesloten vraag";
     return {
-      answers: q.gesloten, say: q.gesloten[0], type: "gesl", rules: ["verbSecond", "infEnd"],
+      answers: q.gesloten, say: q.gesloten[0], en: q.geslEn, type: "gesl", rules: ["verbSecond", "infEnd"],
       why: `<b>Gesloten vraag:</b> modal – subject – rest – <b>2nd verb</b>. The answer is ja or nee.${q.note ? " " + q.note : ""}`,
     };
   },
@@ -1425,7 +1544,7 @@ const orderDrill = makeDrill({
     const ok = cur.answers.some(a => norm(a) === norm(given));
     const steps = cur.why.split("<br>");
     if (cur.answers.length > 1) steps.push(`Also correct: ${cur.answers.slice(1).map(esc).join(" · ")}`);
-    const res = { ok, correct: esc(cur.answers[0]), say: cur.say, steps, rules: cur.rules, mistakes: [] };
+    const res = { ok, correct: esc(cur.answers[0]), say: cur.say, en: cur.en, steps, rules: cur.rules, mistakes: [] };
     if (!ok) res.mistakes = diagnoseSentence(given, cur.answers, { type: cur.type, start: cur.start });
     return res;
   },
@@ -1446,6 +1565,26 @@ const LISTEN_ITEMS = [...new Set([
   ...CHOOSE.map(c => fillGap(c.s, c.a)),
   ...CHANGE.map(c => c.a),
 ])];
+// What each listening item means, from the lesson's own translations. The
+// inversion examples (EX_ORDER_INV) are described by structure, so they take their
+// meaning from the Zinsbouw data; modal forms (ik zal, je kunt …) have none.
+const strip = en => en.split(" — ")[0];
+const LISTEN_EN = new Map([
+  ...MODALS.map(m => [m.nl, m.en]),
+  ...WORDS.map(w => [w.nl, w.en]),
+  ...CONJ_GAPS.map(g => [fillGap(g.s, (g.key === "pl" ? [CONJ[g.v].pl] : CONJ[g.v][g.key])[0]), g.en]),
+  ...BUILD.flatMap(b => [[b.hoofd, b.en], ...b.inv.map(i => [i.s, b.en])]),
+  ...ASK.flatMap(q => [[q.gesloten[0], q.geslEn], ...q.open.map(o => [o.s[0], o.en])]),
+  ...[...EX_NOTHIRD, ...EX_MOGEN, ...EX_ORDER_HOOFD, ...EX_ORDER_OPEN, ...EX_ORDER_GESLOTEN].map(([nl, en]) => [nl, strip(en)]),
+  ...CHOOSE.map(c => [fillGap(c.s, c.a), c.en]),
+  ...CHANGE.map(c => [c.a, c.en]),
+].map(([nl, en]) => [norm(nl), en]));
+// Bare modal forms ("ze moeten") get their meaning from formEn.
+const listenEn = text => {
+  const [pron, form, ...rest] = norm(text).split(" "), v = form && !rest.length && PRON_EN[pron] && verbOf(form);
+  return LISTEN_EN.get(norm(text)) || (v ? formEn(v, pron) : undefined);
+};
+const listenRound = makeRound("listen", { getItems: () => LISTEN_ITEMS, title: () => "Luisteren", say: t => t, en: t => listenEn(t) || "" });
 // [what the answer has, what the learner may write instead, rule, explanation]
 const SOUND_SWAPS = [
   ["ij", "ei", "eij", () => `<b>ij</b> and <b>ei</b> sound exactly the same — this word is spelled with <b>ij</b>.`],
@@ -1514,20 +1653,23 @@ const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
   rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
-    const text = pick(LISTEN_ITEMS);
+    const text = listenRound.draw();
+    if (!text) return null;
     const n = text.split(" ").length;
-    $("listen-hint").textContent = n > 1 ? `${n} woorden` : "1 woord";
+    $("listen-task").textContent = listenRound.redoTag() + "Listen and type";
+    $("listen-hint").textContent = `${listenRound.progress()} · ` + (n > 1 ? `${n} woorden` : "1 woord");
     return { text };
   },
+  onResult(cur, res) { listenRound.result(res.ok); },
   check(cur, given) {
     const ok = norm(given) === norm(cur.text);
-    const res = { ok, correct: esc(cur.text), say: cur.text, mistakes: [] };
+    const res = { ok, correct: esc(cur.text), say: cur.text, en: listenEn(cur.text), mistakes: [] };
     if (!ok) res.mistakes = diagnoseListen(given, cur.text);
     return res;
   },
 });
-$("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
-$("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
+$("listen-play").addEventListener("click", () => { if (listenDrill.current) speak(listenDrill.current.text); });
+$("listen-slow").addEventListener("click", () => { if (listenDrill.current) speak(listenDrill.current.text, true); });
 
 /* Every phrase the page can speak — used to pre-generate the audio files. */
 function allSpeech() {
@@ -1546,10 +1688,10 @@ function allSpeech() {
 
 /* Start drills */
 conjDrill.newQuestion();
-chooseDrill.newQuestion();
-changeDrill.newQuestion();
+chooseRound.drill = chooseDrill; chooseRound.restart();
+changeRound.drill = changeDrill; changeRound.restart();
 orderDrill.newQuestion();
-listenDrill.newQuestion();
+listenRound.drill = listenDrill; listenRound.restart();
 </script>
 <script src="../offline.js"></script>
 </body>

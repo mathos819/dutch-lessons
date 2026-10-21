@@ -180,6 +180,19 @@
   .how-body .tag { margin-right: 4px; }
   .ex { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-family: var(--mono); font-size: 14px; }
   .exw { white-space: nowrap; }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+  .toolbar select { font-family: var(--mono); font-size: 14px; padding: 8px 10px; border: var(--rule); background: #fff; color: var(--ink); text-transform: none; letter-spacing: 0; max-width: 100%; }
+  .feedback .translation { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; padding: 8px 12px; border-left: 3px solid var(--blue); background: #fff; font-family: var(--body); font-size: 16px; }
+  .feedback .translation .en { display: block; color: #4a4940; font-style: italic; }
+  .done { margin-bottom: 18px; }
+  .done .head { background: var(--yellow); }
+  .done.perfect .head { background: var(--blue); color: var(--paper); }
+  .done .body { padding: 16px 18px; font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .done .score { font-family: var(--display); font-size: 28px; line-height: 1.1; margin-bottom: 6px; }
+  .done ul { list-style: none; padding: 0; margin: 10px 0 0; }
+  .done li { border-top: 2px solid var(--ink); padding: 8px 0; font-family: var(--mono); font-size: 14px; }
+  .done li .en { display: block; color: #6a685c; font-family: var(--body); font-size: 13px; }
+  .done .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .tally { margin-top: 14px; }
   .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
 
@@ -281,8 +294,21 @@
   <!-- ================= WORD ORDER DRILL ================= -->
   <section class="panel" id="panel-order">
     <h2>Zinsbouw — hoofdzin &amp; inversie</h2>
-    <p class="note">The exercise from the lesson and from the huiswerk: put the loose parts into a correct sentence. Sometimes a plain <strong>hoofdzin</strong> (TOMP), sometimes an <strong>inversie</strong> starting with the part shown in red. Punctuation and capitals are ignored. Press Enter to check, Enter again for the next one.</p>
+    <p class="note">The exercise from the lesson and from the huiswerk: put the loose parts into a correct sentence. Sometimes a plain <strong>hoofdzin</strong> (TOMP), sometimes an <strong>inversie</strong> starting with the part shown in red. Every sentence comes once per round; the ones you get wrong come back at the end until you get them right. Punctuation and capitals are ignored. Press Enter to check, Enter again for the next one.</p>
     <div class="drill">
+      <div class="toolbar"><label for="order-set">Zinnen</label>
+        <select id="order-set">
+          <option value="les">Uit de les · 12 + voorbeeld</option>
+          <option value="huiswerk">Huiswerk · 10</option>
+          <option value="all">Alles door elkaar</option>
+        </select>
+        <label for="order-order">Volgorde</label>
+        <select id="order-order">
+          <option value="shuffle">Door elkaar</option>
+          <option value="book">Zoals in de les</option>
+        </select>
+      </div>
+      <div id="order-play">
       <div class="prompt-box">
         <div class="task">Maak een zin</div>
         <div class="big"><div class="parts" id="order-parts"></div></div>
@@ -294,6 +320,8 @@
         <button class="btn primary" id="order-check">Check</button>
       </div>
       <div class="feedback" id="order-feedback"></div>
+      </div>
+      <div class="done card" id="order-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="order-right">0</b></span><span>Fout <b id="order-wrong">0</b></span><span>Reeks <b id="order-streak">0</b></span></div>
       <div class="tally" id="order-tally"></div>
     </div>
@@ -302,8 +330,21 @@
   <!-- ================= QUESTION DRILL ================= -->
   <section class="panel" id="panel-ask">
     <h2>Vragen — gesloten &amp; open vraag</h2>
-    <p class="note">The huiswerk: turn the sentence into a question. For an <strong>open vraag</strong> the vraagwoord you have to use is given in red. Punctuation and capitals are ignored.</p>
+    <p class="note">The huiswerk: turn the sentence into a question. For an <strong>open vraag</strong> the vraagwoord you have to use is given in red. Every question comes once per round; the ones you get wrong come back at the end until you get them right. Punctuation and capitals are ignored.</p>
     <div class="drill">
+      <div class="toolbar"><label for="ask-set">Zinnen</label>
+        <select id="ask-set">
+          <option value="les">Uit de les · 12 + voorbeeld</option>
+          <option value="huiswerk">Huiswerk · 10</option>
+          <option value="all">Alles door elkaar</option>
+        </select>
+        <label for="ask-order">Volgorde</label>
+        <select id="ask-order">
+          <option value="shuffle">Door elkaar</option>
+          <option value="book">Zoals in de les</option>
+        </select>
+      </div>
+      <div id="ask-play">
       <div class="prompt-box">
         <div class="task">Van deze zin…</div>
         <div class="big" id="ask-base">—</div>
@@ -315,6 +356,8 @@
         <button class="btn primary" id="ask-check">Check</button>
       </div>
       <div class="feedback" id="ask-feedback"></div>
+      </div>
+      <div class="done card" id="ask-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="ask-right">0</b></span><span>Fout <b id="ask-wrong">0</b></span><span>Reeks <b id="ask-streak">0</b></span></div>
       <div class="tally" id="ask-tally"></div>
     </div>
@@ -325,10 +368,20 @@
     <h2>Luisteren — dictation</h2>
     <p class="note">Play the audio and type exactly what you hear — a word, a vraagwoord, or a whole sentence. Punctuation and capitals are ignored.</p>
     <div class="drill">
+      <div class="toolbar"><label for="listen-set">Wat</label>
+        <select id="listen-set">
+          <option value="woorden">Woorden &amp; vraagwoorden</option>
+          <option value="voorbeelden">Voorbeeldvragen uit de les</option>
+          <option value="zinnen">Zinnen · hoofdzin &amp; inversie</option>
+          <option value="vragen">Zinnen · vragen</option>
+          <option value="all">Alles door elkaar</option>
+        </select>
+      </div>
+      <div id="listen-play">
       <div class="prompt-box">
         <div class="task">Listen and type</div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button class="btn primary" id="listen-play">▶ Speel af</button>
+          <button class="btn primary" id="listen-audio">▶ Speel af</button>
           <button class="btn" id="listen-slow">🐢 Langzaam</button>
         </div>
         <div class="hint" id="listen-hint"></div>
@@ -338,6 +391,8 @@
         <button class="btn primary" id="listen-check">Check</button>
       </div>
       <div class="feedback" id="listen-feedback"></div>
+      </div>
+      <div class="done card" id="listen-done" hidden></div>
       <div class="scorebar"><span>Goed <b id="listen-right">0</b></span><span>Fout <b id="listen-wrong">0</b></span><span>Reeks <b id="listen-streak">0</b></span></div>
       <div class="tally" id="listen-tally"></div>
     </div>
@@ -462,203 +517,226 @@ const EX_OPEN = [
 const SENTENCES = [
   { src: "les", parts: ["naar de bioscoop","mijn ouders","lopen","elke week"],
     hoofd: "Mijn ouders lopen elke week naar de bioscoop.",
+    en: "My parents walk to the cinema every week.",
     inv: [ { start: "elke week", s: "Elke week lopen mijn ouders naar de bioscoop." },
            { start: "naar de bioscoop", s: "Naar de bioscoop lopen mijn ouders elke week." } ],
-    gesloten: "Lopen mijn ouders elke week naar de bioscoop?",
-    open: [ { q: "wie", s: "Wie loopt elke week naar de bioscoop?", note: "wie is the subject here, so the verb takes the hij/zij-form: loopt." },
-            { q: "wanneer", s: "Wanneer lopen mijn ouders naar de bioscoop?" } ] },
+    gesloten: "Lopen mijn ouders elke week naar de bioscoop?", enQ: "Do my parents walk to the cinema every week?",
+    open: [ { q: "wie", s: "Wie loopt elke week naar de bioscoop?", en: "Who walks to the cinema every week?", note: "wie is the subject here, so the verb takes the hij/zij-form: loopt." },
+            { q: "wanneer", s: "Wanneer lopen mijn ouders naar de bioscoop?", en: "When do my parents walk to the cinema?" } ] },
 
   { src: "les", parts: ["in het huis van opa en oma","de kinderen","wonen"],
     hoofd: "De kinderen wonen in het huis van opa en oma.",
+    en: "The children live in grandpa and grandma's house.",
     inv: [ { start: "in het huis van opa en oma", s: "In het huis van opa en oma wonen de kinderen." } ],
-    gesloten: "Wonen de kinderen in het huis van opa en oma?",
-    open: [ { q: "wie", s: "Wie woont in het huis van opa en oma?", note: "wie takes the hij/zij-form: woont." },
-            { q: "waar", s: "Waar wonen de kinderen?" } ] },
+    gesloten: "Wonen de kinderen in het huis van opa en oma?", enQ: "Do the children live in grandpa and grandma's house?",
+    open: [ { q: "wie", s: "Wie woont in het huis van opa en oma?", en: "Who lives in grandpa and grandma's house?", note: "wie takes the hij/zij-form: woont." },
+            { q: "waar", s: "Waar wonen de kinderen?", en: "Where do the children live?" } ] },
 
   { src: "les", parts: ["slapen","mijn zus","in de tuin"],
     hoofd: "Mijn zus slaapt in de tuin.",
+    en: "My sister sleeps in the garden.",
     inv: [ { start: "in de tuin", s: "In de tuin slaapt mijn zus." } ],
-    gesloten: "Slaapt mijn zus in de tuin?",
-    open: [ { q: "wie", s: "Wie slaapt in de tuin?" },
-            { q: "waar", s: "Waar slaapt mijn zus?" } ],
+    gesloten: "Slaapt mijn zus in de tuin?", enQ: "Does my sister sleep in the garden?",
+    open: [ { q: "wie", s: "Wie slaapt in de tuin?", en: "Who sleeps in the garden?" },
+            { q: "waar", s: "Waar slaapt mijn zus?", en: "Where does my sister sleep?" } ],
     note: "slapen &rarr; base slaap &rarr; hij/zij slaapt (not <em>slapen</em>)." },
 
   { src: "les", parts: ["met de lerares","hij","in het lokaal","spreken"],
     hoofd: "Hij spreekt met de lerares in het lokaal.",
+    en: "He talks with the teacher in the classroom.",
     inv: [ { start: "in het lokaal", s: "In het lokaal spreekt hij met de lerares." },
            { start: "met de lerares", s: "Met de lerares spreekt hij in het lokaal." } ],
-    gesloten: "Spreekt hij met de lerares in het lokaal?",
-    open: [ { q: "wie", s: "Wie spreekt met de lerares in het lokaal?" },
-            { q: "waar", s: "Waar spreekt hij met de lerares?" } ],
+    gesloten: "Spreekt hij met de lerares in het lokaal?", enQ: "Does he talk with the teacher in the classroom?",
+    open: [ { q: "wie", s: "Wie spreekt met de lerares in het lokaal?", en: "Who talks with the teacher in the classroom?" },
+            { q: "waar", s: "Waar spreekt hij met de lerares?", en: "Where does he talk with the teacher?" } ],
     note: "In the rest, manner (met de lerares) comes before place (in het lokaal)." },
 
   { src: "les", parts: ["mijn vader","sturen","ik","een brief"],
     hoofd: "Ik stuur mijn vader een brief.",
+    en: "I send my father a letter.",
     inv: [ { start: "een brief", s: "Een brief stuur ik mijn vader." } ],
-    gesloten: "Stuur ik mijn vader een brief?",
-    open: [ { q: "wat", s: "Wat stuur ik mijn vader?" },
-            { q: "wie", s: "Wie stuurt mijn vader een brief?", note: "wie takes the hij/zij-form: stuurt." } ] },
+    gesloten: "Stuur ik mijn vader een brief?", enQ: "Do I send my father a letter?",
+    open: [ { q: "wat", s: "Wat stuur ik mijn vader?", en: "What do I send my father?" },
+            { q: "wie", s: "Wie stuurt mijn vader een brief?", en: "Who sends my father a letter?", note: "wie takes the hij/zij-form: stuurt." } ] },
 
   { src: "les", parts: ["iets","aan de leraar","de leerling","vragen"],
     hoofd: "De leerling vraagt aan de leraar iets.",
+    en: "The student asks the teacher something.",
     hoofdAlt: ["De leerling vraagt iets aan de leraar."],
     inv: [ { start: "iets", s: "Iets vraagt de leerling aan de leraar." } ],
-    gesloten: "Vraagt de leerling iets aan de leraar?",
-    open: [ { q: "wat", s: "Wat vraagt de leerling aan de leraar?" },
-            { q: "wie", s: "Wie vraagt iets aan de leraar?" } ] },
+    gesloten: "Vraagt de leerling iets aan de leraar?", enQ: "Does the student ask the teacher something?",
+    open: [ { q: "wat", s: "Wat vraagt de leerling aan de leraar?", en: "What does the student ask the teacher?" },
+            { q: "wie", s: "Wie vraagt iets aan de leraar?", en: "Who asks the teacher something?" } ] },
 
   { src: "les", parts: ["stelen","het boek","zij","uit de tas"],
     hoofd: "Zij steelt het boek uit de tas.",
+    en: "She steals the book from the bag.",
     inv: [ { start: "uit de tas", s: "Uit de tas steelt zij het boek." },
            { start: "het boek", s: "Het boek steelt zij uit de tas." } ],
-    gesloten: "Steelt zij het boek uit de tas?",
-    open: [ { q: "wat", s: "Wat steelt zij uit de tas?" },
-            { q: "wie", s: "Wie steelt het boek uit de tas?" } ],
+    gesloten: "Steelt zij het boek uit de tas?", enQ: "Does she steal the book from the bag?",
+    open: [ { q: "wat", s: "Wat steelt zij uit de tas?", en: "What does she steal from the bag?" },
+            { q: "wie", s: "Wie steelt het boek uit de tas?", en: "Who steals the book from the bag?" } ],
     note: "stelen &rarr; base steel &rarr; zij steelt." },
 
   { src: "les", parts: ["een kleine woning","huren","mijn oom en tante"],
     hoofd: "Mijn oom en tante huren een kleine woning.",
+    en: "My uncle and aunt rent a small home.",
     inv: [ { start: "een kleine woning", s: "Een kleine woning huren mijn oom en tante." } ],
-    gesloten: "Huren mijn oom en tante een kleine woning?",
-    open: [ { q: "wat", s: "Wat huren mijn oom en tante?" },
-            { q: "wie", s: "Wie huurt een kleine woning?", note: "wie takes the hij/zij-form: huurt." } ] },
+    gesloten: "Huren mijn oom en tante een kleine woning?", enQ: "Do my uncle and aunt rent a small home?",
+    open: [ { q: "wat", s: "Wat huren mijn oom en tante?", en: "What do my uncle and aunt rent?" },
+            { q: "wie", s: "Wie huurt een kleine woning?", en: "Who rents a small home?", note: "wie takes the hij/zij-form: huurt." } ] },
 
   { src: "les", parts: ["niet goed","mijn oma","horen"],
     hoofd: "Mijn oma hoort niet goed.",
+    en: "My grandma doesn't hear well.",
     inv: [ { start: "niet goed", s: "Niet goed hoort mijn oma." } ],
-    gesloten: "Hoort mijn oma niet goed?",
-    open: [ { q: "wie", s: "Wie hoort niet goed?" } ] },
+    gesloten: "Hoort mijn oma niet goed?", enQ: "Doesn't my grandma hear well?",
+    open: [ { q: "wie", s: "Wie hoort niet goed?", en: "Who doesn't hear well?" } ] },
 
   { src: "les", parts: ["geen boeken","kopen","mijn kleinkinderen"],
     hoofd: "Mijn kleinkinderen kopen geen boeken.",
+    en: "My grandchildren don't buy any books.",
     inv: [ { start: "geen boeken", s: "Geen boeken kopen mijn kleinkinderen." } ],
-    gesloten: "Kopen mijn kleinkinderen geen boeken?",
-    open: [ { q: "wat", s: "Wat kopen mijn kleinkinderen?" },
-            { q: "wie", s: "Wie koopt geen boeken?", note: "wie takes the hij/zij-form: koopt." } ] },
+    gesloten: "Kopen mijn kleinkinderen geen boeken?", enQ: "Don't my grandchildren buy any books?",
+    open: [ { q: "wat", s: "Wat kopen mijn kleinkinderen?", en: "What do my grandchildren buy?" },
+            { q: "wie", s: "Wie koopt geen boeken?", en: "Who doesn't buy any books?", note: "wie takes the hij/zij-form: koopt." } ] },
 
   { src: "les", parts: ["een mooie hoed","mijn moeder","dragen"],
     hoofd: "Mijn moeder draagt een mooie hoed.",
+    en: "My mother wears a beautiful hat.",
     inv: [ { start: "een mooie hoed", s: "Een mooie hoed draagt mijn moeder." } ],
-    gesloten: "Draagt mijn moeder een mooie hoed?",
-    open: [ { q: "wat", s: "Wat draagt mijn moeder?" },
-            { q: "wie", s: "Wie draagt een mooie hoed?" } ] },
+    gesloten: "Draagt mijn moeder een mooie hoed?", enQ: "Does my mother wear a beautiful hat?",
+    open: [ { q: "wat", s: "Wat draagt mijn moeder?", en: "What does my mother wear?" },
+            { q: "wie", s: "Wie draagt een mooie hoed?", en: "Who wears a beautiful hat?" } ] },
 
   { src: "les", parts: ["de oefening","niet goed","mijn neef","leren"],
     hoofd: "Mijn neef leert de oefening niet goed.",
+    en: "My cousin doesn't learn the exercise well.",
     inv: [ { start: "de oefening", s: "De oefening leert mijn neef niet goed." } ],
-    gesloten: "Leert mijn neef de oefening niet goed?",
-    open: [ { q: "wat", s: "Wat leert mijn neef niet goed?" },
-            { q: "wie", s: "Wie leert de oefening niet goed?" } ] },
+    gesloten: "Leert mijn neef de oefening niet goed?", enQ: "Doesn't my cousin learn the exercise well?",
+    open: [ { q: "wat", s: "Wat leert mijn neef niet goed?", en: "What doesn't my cousin learn well?" },
+            { q: "wie", s: "Wie leert de oefening niet goed?", en: "Who doesn't learn the exercise well?" } ] },
 
   { src: "model", parts: ["de kinderen","brengen","elke morgen","hij","met de auto","naar school"],
     hoofd: "Hij brengt elke morgen de kinderen met de auto naar school.",
+    en: "He brings the kids to school by car every morning.",
     inv: [ { start: "elke morgen", s: "Elke morgen brengt hij de kinderen met de auto naar school." },
            { start: "de kinderen", s: "De kinderen brengt hij elke morgen met de auto naar school." },
            { start: "met de auto", s: "Met de auto brengt hij elke morgen de kinderen naar school." },
            { start: "naar school", s: "Naar school brengt hij elke morgen de kinderen met de auto." } ],
-    gesloten: "Brengt hij elke morgen de kinderen met de auto naar school?",
-    open: [ { q: "wie", s: "Wie brengt de kinderen naar school?" },
-            { q: "hoe", s: "Hoe brengt hij elke morgen de kinderen naar school?" },
-            { q: "waar", s: "Waar brengt hij elke morgen de kinderen naartoe?" } ],
+    gesloten: "Brengt hij elke morgen de kinderen met de auto naar school?", enQ: "Does he bring the kids to school by car every morning?",
+    open: [ { q: "wie", s: "Wie brengt de kinderen naar school?", en: "Who brings the kids to school?" },
+            { q: "hoe", s: "Hoe brengt hij elke morgen de kinderen naar school?", en: "How does he bring the kids to school every morning?" },
+            { q: "waar", s: "Waar brengt hij elke morgen de kinderen naartoe?", en: "Where does he take the kids every morning?" } ],
     note: "The model sentence of the lesson: time (elke morgen) &ndash; object (de kinderen) &ndash; manner (met de auto) &ndash; place (naar school)." },
 
   { src: "huiswerk", parts: ["met tomaten","Alfred","koken","twee keer per week","spaghetti"],
     hoofd: "Alfred kookt twee keer per week spaghetti met tomaten.",
+    en: "Alfred cooks spaghetti with tomatoes twice a week.",
     inv: [ { start: "twee keer per week", s: "Twee keer per week kookt Alfred spaghetti met tomaten." },
            { start: "met tomaten", s: "Met tomaten kookt Alfred twee keer per week spaghetti." },
            { start: "spaghetti", s: "Spaghetti kookt Alfred twee keer per week met tomaten." } ],
-    gesloten: "Kookt Alfred twee keer per week spaghetti met tomaten?",
-    open: [ { q: "wat", s: "Wat kookt Alfred twee keer per week?" },
-            { q: "wie", s: "Wie kookt twee keer per week spaghetti met tomaten?" },
-            { q: "wanneer", s: "Wanneer kookt Alfred spaghetti met tomaten?" } ] },
+    gesloten: "Kookt Alfred twee keer per week spaghetti met tomaten?", enQ: "Does Alfred cook spaghetti with tomatoes twice a week?",
+    open: [ { q: "wat", s: "Wat kookt Alfred twee keer per week?", en: "What does Alfred cook twice a week?" },
+            { q: "wie", s: "Wie kookt twee keer per week spaghetti met tomaten?", en: "Who cooks spaghetti with tomatoes twice a week?" },
+            { q: "wanneer", s: "Wanneer kookt Alfred spaghetti met tomaten?", en: "When does Alfred cook spaghetti with tomatoes?" } ] },
 
   { src: "huiswerk", parts: ["het bestek","leggen","op tafel","naast de borden","de kinderen"],
     hoofd: "De kinderen leggen het bestek op tafel naast de borden.",
+    en: "The children lay the cutlery on the table next to the plates.",
     inv: [ { start: "op tafel naast de borden", s: "Op tafel naast de borden leggen de kinderen het bestek." },
            { start: "het bestek", s: "Het bestek leggen de kinderen op tafel naast de borden." } ],
-    gesloten: "Leggen de kinderen het bestek op tafel naast de borden?",
-    open: [ { q: "wat", s: "Wat leggen de kinderen op tafel naast de borden?" },
-            { q: "waar", s: "Waar leggen de kinderen het bestek?" },
-            { q: "wie", s: "Wie legt het bestek op tafel naast de borden?", note: "wie takes the hij/zij-form: legt." } ] },
+    gesloten: "Leggen de kinderen het bestek op tafel naast de borden?", enQ: "Do the children lay the cutlery on the table next to the plates?",
+    open: [ { q: "wat", s: "Wat leggen de kinderen op tafel naast de borden?", en: "What do the children lay on the table next to the plates?" },
+            { q: "waar", s: "Waar leggen de kinderen het bestek?", en: "Where do the children lay the cutlery?" },
+            { q: "wie", s: "Wie legt het bestek op tafel naast de borden?", en: "Who lays the cutlery on the table next to the plates?", note: "wie takes the hij/zij-form: legt." } ] },
 
   { src: "huiswerk", parts: ["in de oven","bakken","een lekkere cake","mijn moeder"],
     hoofd: "Mijn moeder bakt een lekkere cake in de oven.",
+    en: "My mother bakes a tasty cake in the oven.",
     inv: [ { start: "in de oven", s: "In de oven bakt mijn moeder een lekkere cake." },
            { start: "een lekkere cake", s: "Een lekkere cake bakt mijn moeder in de oven." } ],
-    gesloten: "Bakt mijn moeder een lekkere cake in de oven?",
-    open: [ { q: "wat", s: "Wat bakt mijn moeder in de oven?" },
-            { q: "waar", s: "Waar bakt mijn moeder een lekkere cake?" },
-            { q: "wie", s: "Wie bakt een lekkere cake in de oven?" } ] },
+    gesloten: "Bakt mijn moeder een lekkere cake in de oven?", enQ: "Does my mother bake a tasty cake in the oven?",
+    open: [ { q: "wat", s: "Wat bakt mijn moeder in de oven?", en: "What does my mother bake in the oven?" },
+            { q: "waar", s: "Waar bakt mijn moeder een lekkere cake?", en: "Where does my mother bake a tasty cake?" },
+            { q: "wie", s: "Wie bakt een lekkere cake in de oven?", en: "Who bakes a tasty cake in the oven?" } ] },
 
   { src: "huiswerk", parts: ["acht flessen water","kopen","Maria","op zaterdag","bij de HEMA"],
     hoofd: "Maria koopt op zaterdag acht flessen water bij de HEMA.",
+    en: "On Saturday Maria buys eight bottles of water at HEMA.",
     inv: [ { start: "op zaterdag", s: "Op zaterdag koopt Maria acht flessen water bij de HEMA." },
            { start: "bij de HEMA", s: "Bij de HEMA koopt Maria op zaterdag acht flessen water." },
            { start: "acht flessen water", s: "Acht flessen water koopt Maria op zaterdag bij de HEMA." } ],
-    gesloten: "Koopt Maria op zaterdag acht flessen water bij de HEMA?",
-    open: [ { q: "wat", s: "Wat koopt Maria op zaterdag bij de HEMA?" },
-            { q: "waar", s: "Waar koopt Maria op zaterdag acht flessen water?" },
-            { q: "hoeveel", s: "Hoeveel flessen water koopt Maria op zaterdag bij de HEMA?" },
-            { q: "wanneer", s: "Wanneer koopt Maria acht flessen water bij de HEMA?" } ] },
+    gesloten: "Koopt Maria op zaterdag acht flessen water bij de HEMA?", enQ: "Does Maria buy eight bottles of water at HEMA on Saturday?",
+    open: [ { q: "wat", s: "Wat koopt Maria op zaterdag bij de HEMA?", en: "What does Maria buy at HEMA on Saturday?" },
+            { q: "waar", s: "Waar koopt Maria op zaterdag acht flessen water?", en: "Where does Maria buy eight bottles of water on Saturday?" },
+            { q: "hoeveel", s: "Hoeveel flessen water koopt Maria op zaterdag bij de HEMA?", en: "How many bottles of water does Maria buy at HEMA on Saturday?" },
+            { q: "wanneer", s: "Wanneer koopt Maria acht flessen water bij de HEMA?", en: "When does Maria buy eight bottles of water at HEMA?" } ] },
 
   { src: "huiswerk", parts: ["Karel","de koekjes","in de trommel","doen"],
     hoofd: "Karel doet de koekjes in de trommel.",
+    en: "Karel puts the biscuits in the tin.",
     inv: [ { start: "in de trommel", s: "In de trommel doet Karel de koekjes." },
            { start: "de koekjes", s: "De koekjes doet Karel in de trommel." } ],
-    gesloten: "Doet Karel de koekjes in de trommel?",
-    open: [ { q: "wat", s: "Wat doet Karel in de trommel?" },
-            { q: "waar", s: "Waar doet Karel de koekjes?" },
-            { q: "wie", s: "Wie doet de koekjes in de trommel?" } ] },
+    gesloten: "Doet Karel de koekjes in de trommel?", enQ: "Does Karel put the biscuits in the tin?",
+    open: [ { q: "wat", s: "Wat doet Karel in de trommel?", en: "What does Karel put in the tin?" },
+            { q: "waar", s: "Waar doet Karel de koekjes?", en: "Where does Karel put the biscuits?" },
+            { q: "wie", s: "Wie doet de koekjes in de trommel?", en: "Who puts the biscuits in the tin?" } ] },
 
   { src: "huiswerk", parts: ["hebben","een koffiezetapparaat","de leraar","op zijn tafel"],
     hoofd: "De leraar heeft een koffiezetapparaat op zijn tafel.",
+    en: "The teacher has a coffee machine on his table.",
     inv: [ { start: "op zijn tafel", s: "Op zijn tafel heeft de leraar een koffiezetapparaat." },
            { start: "een koffiezetapparaat", s: "Een koffiezetapparaat heeft de leraar op zijn tafel." } ],
-    gesloten: "Heeft de leraar een koffiezetapparaat op zijn tafel?",
-    open: [ { q: "wat", s: "Wat heeft de leraar op zijn tafel?" },
-            { q: "wie", s: "Wie heeft een koffiezetapparaat op zijn tafel?" },
-            { q: "waar", s: "Waar heeft de leraar een koffiezetapparaat?" } ],
+    gesloten: "Heeft de leraar een koffiezetapparaat op zijn tafel?", enQ: "Does the teacher have a coffee machine on his table?",
+    open: [ { q: "wat", s: "Wat heeft de leraar op zijn tafel?", en: "What does the teacher have on his table?" },
+            { q: "wie", s: "Wie heeft een koffiezetapparaat op zijn tafel?", en: "Who has a coffee machine on his table?" },
+            { q: "waar", s: "Waar heeft de leraar een koffiezetapparaat?", en: "Where does the teacher have a coffee machine?" } ],
     note: "hebben is irregular: hij/zij <em>heeft</em>." },
 
   { src: "huiswerk", parts: ["John en Linda","een maaltijd","elke dag","in de magnetron","zetten"],
     hoofd: "John en Linda zetten elke dag een maaltijd in de magnetron.",
+    en: "John and Linda put a meal in the microwave every day.",
     inv: [ { start: "elke dag", s: "Elke dag zetten John en Linda een maaltijd in de magnetron." },
            { start: "in de magnetron", s: "In de magnetron zetten John en Linda elke dag een maaltijd." },
            { start: "een maaltijd", s: "Een maaltijd zetten John en Linda elke dag in de magnetron." } ],
-    gesloten: "Zetten John en Linda elke dag een maaltijd in de magnetron?",
-    open: [ { q: "wat", s: "Wat zetten John en Linda elke dag in de magnetron?" },
-            { q: "wanneer", s: "Wanneer zetten John en Linda een maaltijd in de magnetron?" },
-            { q: "waar", s: "Waar zetten John en Linda elke dag een maaltijd?" } ] },
+    gesloten: "Zetten John en Linda elke dag een maaltijd in de magnetron?", enQ: "Do John and Linda put a meal in the microwave every day?",
+    open: [ { q: "wat", s: "Wat zetten John en Linda elke dag in de magnetron?", en: "What do John and Linda put in the microwave every day?" },
+            { q: "wanneer", s: "Wanneer zetten John en Linda een maaltijd in de magnetron?", en: "When do John and Linda put a meal in the microwave?" },
+            { q: "waar", s: "Waar zetten John en Linda elke dag een maaltijd?", en: "Where do John and Linda put a meal every day?" } ] },
 
   { src: "huiswerk", parts: ["bewaren","het brood","altijd","mijn man","in de koelkast"],
     hoofd: "Mijn man bewaart altijd het brood in de koelkast.",
+    en: "My husband always keeps the bread in the fridge.",
     hoofdAlt: ["Mijn man bewaart het brood altijd in de koelkast."],
     inv: [ { start: "altijd", s: "Altijd bewaart mijn man het brood in de koelkast." },
            { start: "in de koelkast", s: "In de koelkast bewaart mijn man altijd het brood." },
            { start: "het brood", s: "Het brood bewaart mijn man altijd in de koelkast." } ],
-    gesloten: "Bewaart mijn man altijd het brood in de koelkast?",
-    open: [ { q: "wat", s: "Wat bewaart mijn man altijd in de koelkast?" },
-            { q: "waar", s: "Waar bewaart mijn man altijd het brood?" },
-            { q: "wie", s: "Wie bewaart altijd het brood in de koelkast?" } ],
+    gesloten: "Bewaart mijn man altijd het brood in de koelkast?", enQ: "Does my husband always keep the bread in the fridge?",
+    open: [ { q: "wat", s: "Wat bewaart mijn man altijd in de koelkast?", en: "What does my husband always keep in the fridge?" },
+            { q: "waar", s: "Waar bewaart mijn man altijd het brood?", en: "Where does my husband always keep the bread?" },
+            { q: "wie", s: "Wie bewaart altijd het brood in de koelkast?", en: "Who always keeps the bread in the fridge?" } ],
     note: "altijd is the <em>time</em> part, so in TOMP order it comes before the object het brood." },
 
   { src: "huiswerk", parts: ["je","peper en zout","doen","in de pan"],
     hoofd: "Je doet peper en zout in de pan.",
+    en: "You put pepper and salt in the pan.",
     inv: [ { start: "in de pan", s: "In de pan doe je peper en zout." },
            { start: "peper en zout", s: "Peper en zout doe je in de pan." } ],
-    gesloten: "Doe je peper en zout in de pan?",
-    open: [ { q: "wat", s: "Wat doe je in de pan?" },
-            { q: "waar", s: "Waar doe je peper en zout?" } ],
+    gesloten: "Doe je peper en zout in de pan?", enQ: "Do you put pepper and salt in the pan?",
+    open: [ { q: "wat", s: "Wat doe je in de pan?", en: "What do you put in the pan?" },
+            { q: "waar", s: "Waar doe je peper en zout?", en: "Where do you put pepper and salt?" } ],
     note: "When <b>je</b> comes after the verb, the -t disappears: je doet &rarr; doe je." },
 
   { src: "huiswerk", parts: ["snijden","met een mes","de vrouw","de cake"],
     hoofd: "De vrouw snijdt de cake met een mes.",
+    en: "The woman cuts the cake with a knife.",
     inv: [ { start: "met een mes", s: "Met een mes snijdt de vrouw de cake." },
            { start: "de cake", s: "De cake snijdt de vrouw met een mes." } ],
-    gesloten: "Snijdt de vrouw de cake met een mes?",
-    open: [ { q: "wat", s: "Wat snijdt de vrouw met een mes?" },
-            { q: "hoe", s: "Hoe snijdt de vrouw de cake?" },
-            { q: "wie", s: "Wie snijdt de cake met een mes?" } ],
+    gesloten: "Snijdt de vrouw de cake met een mes?", enQ: "Does the woman cut the cake with a knife?",
+    open: [ { q: "wat", s: "Wat snijdt de vrouw met een mes?", en: "What does the woman cut with a knife?" },
+            { q: "hoe", s: "Hoe snijdt de vrouw de cake?", en: "How does the woman cut the cake?" },
+            { q: "wie", s: "Wie snijdt de cake met een mes?", en: "Who cuts the cake with a knife?" } ],
     note: "snijden &rarr; base snijd &rarr; hij/zij snijdt (ij is not doubled)." },
 ];
 /* ==== DATA END ==== */
@@ -1141,6 +1219,8 @@ function ruleHow(id) {
 function renderFeedback(res) {
   let h = res.ok ? `<span class="ok">✓ Goed zo!</span>` : `<span class="no">✗ ${esc(res.correct)}</span>`;
   if (res.say) h += ` ${speakBtn(res.say)}`;
+  // The whole sentence with its meaning, right or wrong — so the vocabulary sticks too.
+  if (res.en) h += `<div class="translation">${speakBtn(res.say)}<span><b>${esc(res.say)}</b><span class="en">${esc(res.en)}</span></span></div>`;
   if (!res.ok) {
     if (res.mistakes.length) {
       h += res.mistakes.map(m => `<div class="mistake"><span class="tag k-${m.kind}">${KIND_LABEL[m.kind]}</span><span class="what"><b>Your mistake:</b> ${m.text}</span></div>`).join("");
@@ -1157,8 +1237,65 @@ function renderFeedback(res) {
   return h;
 }
 
+// A round over a fixed list (book exercises, homework): every item once — shuffled, or
+// in book order when the page has a #<id>-order select — misses come back at the end
+// until right, then a "Klaar!" card (#<id>-done replaces #<id>-play) with the
+// first-try score and the missed items. Wire it up with drill.next → round.draw()
+// and onResult → round.result(res.ok), then set round.drill.
+//   getItems() → the list · title() → card subtitle · say(it) → Dutch to show/play
+//   en(it) → its meaning · label(it) → optional, e.g. "Oefening 9 · 4"
+function makeRound(id, { getItems, title, say, en, label = () => "" }) {
+  const $id = k => $(`${id}-${k}`);
+  const r = {
+    drill: null, items: [], queue: [], retry: [], missed: new Set(), seen: 0, redo: false, last: null,
+    start(items) {
+      r.items = items || getItems();
+      r.queue = $id("order") && $id("order").value === "book" ? [...r.items] : shuffle(r.items);
+      r.retry = []; r.missed = new Set(); r.seen = 0; r.redo = false;
+      $id("done").hidden = true; $id("play").hidden = false;
+    },
+    restart(items) { r.start(items); r.drill.newQuestion(); },
+    // The next item, or null (and the done card) when the round is over.
+    draw() {
+      if (!r.queue.length && r.retry.length) { r.queue = r.retry; r.retry = []; r.redo = true; }
+      if (!r.queue.length) { r.showDone(); return (r.last = null); }
+      if (!r.redo) r.seen++;
+      return (r.last = r.queue.shift());
+    },
+    result(ok) {
+      if (ok || !r.last) return;
+      if (!r.redo) r.missed.add(r.last);
+      r.retry.push(r.last);
+    },
+    // "5/11 · 1 to redo" — or, in the redo part, "2 still to get right".
+    progress() {
+      return r.redo ? `${r.queue.length + r.retry.length + 1} still to get right`
+        : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "");
+    },
+    redoTag() { return r.redo ? "↻ Opnieuw · " : ""; },
+    showDone() {
+      const missed = r.items.filter(it => r.missed.has(it)), total = r.items.length, el = $id("done");
+      el.className = "done card" + (missed.length ? "" : " perfect");
+      el.innerHTML = `<div class="head">Klaar!<small>${esc(title())}</small></div><div class="body">` +
+        `<div class="score">${total - missed.length}/${total} goed in één keer</div>` +
+        (missed.length
+          ? `You got these wrong the first time (and then right). Read them out loud once more:<ul>` +
+            missed.map(it => `<li>${speakBtn(say(it))}${esc(say(it))}<span class="en">${esc([label(it), en(it)].filter(Boolean).join(" · "))}</span></li>`).join("") + `</ul>`
+          : `Everything right on the first try. Goed gedaan!`) +
+        `<div class="actions"><button class="btn primary" id="${id}-again">Nog een keer</button>` +
+        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
+      el.hidden = false; $id("play").hidden = true;
+      $id("again").addEventListener("click", () => r.restart());
+      if (missed.length) $id("missed").addEventListener("click", () => r.restart(missed));
+      $id("again").focus();
+    },
+  };
+  if ($id("order")) $id("order").addEventListener("change", () => r.restart());
+  return r;
+}
+
 /* ================= DRILL ENGINE ================= */
-function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check }) {
+function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, tallyId, next, check, onResult }) {
   const input = $(inputId), fb = $(feedbackId);
   let right = 0, wrong = 0, streak = 0, answered = false, current = null;
   const tally = {}; // rule id → times missed this session
@@ -1167,7 +1304,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
     answered = false;
     fb.innerHTML = "";
     input.value = "";
-    input.focus();
+    if (current) input.focus();
   }
   function renderTally() {
     const ids = Object.keys(tally).sort((a, b) => tally[b] - tally[a]);
@@ -1177,6 +1314,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       : "";
   }
   function doCheck() {
+    if (!current) return;
     if (answered) { newQuestion(); return; }
     if (!norm(input.value)) return;
     const res = check(current, input.value);
@@ -1190,6 +1328,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
       renderTally();
     }
     $(rightId).textContent = right; $(wrongId).textContent = wrong; $(streakId).textContent = streak;
+    if (onResult) onResult(current, res);
     fb.innerHTML = renderFeedback(res);
     if (res.say) speak(res.say);
   }
@@ -1218,7 +1357,7 @@ function sentenceRules(sent, mode, qw) {
 function checkSentence(cur, given, mode) {
   const g = norm(given);
   const ok = cur.answers.some(a => norm(a) === g);
-  const res = { ok, correct: cur.answers[0], say: ok ? cur.answers.find(a => norm(a) === g) : cur.say,
+  const res = { ok, correct: cur.answers[0], say: ok ? cur.answers.find(a => norm(a) === g) : cur.say, en: cur.en,
                 steps: cur.steps, rules: cur.rules, note: cur.note, mistakes: [] };
   if (ok) return res;
   // Diagnose against the model answer closest to what was typed.
@@ -1228,28 +1367,46 @@ function checkSentence(cur, given, mode) {
   return res;
 }
 
+/* ================= ROUNDS (Zinsbouw, Vragen) ================= */
+// "Les 4", "Voorbeeld", "Huiswerk 7" — the sentence's number in the lesson / huiswerk.
+const SENT_LABEL = new Map();
+["les", "huiswerk"].forEach(src => SENTENCES.filter(x => x.src === src).forEach((x, i) => SENT_LABEL.set(x, `${src === "les" ? "Les" : "Huiswerk"} ${i + 1}`)));
+SENTENCES.filter(x => x.src === "model").forEach(x => SENT_LABEL.set(x, "Voorbeeld"));
+// Each item is one question: the sentence + the mode (and the inversie / vraagwoord asked for).
+const ORDER_ITEMS = SENTENCES.flatMap(sent => [{ sent, mode: "hoofd" }, ...sent.inv.map(item => ({ sent, mode: "inv", item }))]);
+const ASK_ITEMS = SENTENCES.flatMap(sent => [{ sent, mode: "gesloten" }, ...sent.open.map(item => ({ sent, mode: "open", item }))]);
+const itemSay = it => ({ hoofd: it.sent.hoofd, gesloten: it.sent.gesloten })[it.mode] || it.item.s;
+const itemEn = it => it.mode === "gesloten" ? it.sent.enQ : it.mode === "open" ? it.item.en : it.sent.en;
+const inSet = (id, sent) => { const v = $(`${id}-set`).value; return v === "all" || (v === "huiswerk") === (sent.src === "huiswerk"); };
+const sentRound = (id, items) => makeRound(id, {
+  getItems: () => items.filter(it => inSet(id, it.sent)),
+  title: () => $(`${id}-set`).selectedOptions[0].textContent,
+  say: itemSay, en: itemEn, label: it => SENT_LABEL.get(it.sent),
+});
+const orderRound = sentRound("order", ORDER_ITEMS), askRound = sentRound("ask", ASK_ITEMS);
+
 /* ================= ZINSBOUW DRILL ================= */
 const orderDrill = makeDrill({
   inputId: "order-input", checkId: "order-check", feedbackId: "order-feedback",
   rightId: "order-right", wrongId: "order-wrong", streakId: "order-streak", tallyId: "order-tally",
   next() {
-    const sent = pick(SENTENCES);
-    // Half the rounds ask for the plain hoofdzin, half for an inversie.
-    const wantInv = sent.inv.length && Math.random() < 0.5;
+    const it = orderRound.draw();
+    if (!it) return null;
+    const { sent, item } = it;
     $("order-parts").innerHTML = shuffle(sent.parts).map(p => `<span>${esc(p)}</span>`).join("");
-    $("order-hint").textContent = SRC_LABEL[sent.src];
-    if (wantInv) {
-      const item = pick(sent.inv);
+    $("order-hint").textContent = `${orderRound.redoTag()}${orderRound.progress()} · ${SENT_LABEL.get(sent)} · ${SRC_LABEL[sent.src]}`;
+    if (it.mode === "inv") {
       $("order-target").innerHTML = `Hoofdzin met inversie — begin met: „${esc(item.start)}”`;
-      return { sent, mode: "inv", opt: { start: item.start }, answers: [item.s], say: item.s,
+      return { sent, mode: "inv", opt: { start: item.start }, answers: [item.s], say: item.s, en: sent.en,
                steps: sentenceSteps(sent, item.s, "inv", { start: item.start }),
                rules: sentenceRules(sent, "inv"), note: extraNote(sent, item).trim() };
     }
     $("order-target").innerHTML = `Hoofdzin`;
-    return { sent, mode: "hoofd", opt: {}, answers: [sent.hoofd, ...(sent.hoofdAlt || [])], say: sent.hoofd,
+    return { sent, mode: "hoofd", opt: {}, answers: [sent.hoofd, ...(sent.hoofdAlt || [])], say: sent.hoofd, en: sent.en,
              steps: sentenceSteps(sent, sent.hoofd, "hoofd"), rules: sentenceRules(sent, "hoofd"), note: extraNote(sent, null).trim() };
   },
   check(cur, given) { return checkSentence(cur, given, cur.mode); },
+  onResult(cur, res) { orderRound.result(res.ok); },
 });
 
 /* ================= VRAGEN DRILL ================= */
@@ -1257,35 +1414,39 @@ const askDrill = makeDrill({
   inputId: "ask-input", checkId: "ask-check", feedbackId: "ask-feedback",
   rightId: "ask-right", wrongId: "ask-wrong", streakId: "ask-streak", tallyId: "ask-tally",
   next() {
-    const sent = pick(SENTENCES);
-    const wantOpen = sent.open.length && Math.random() < 0.55;
+    const it = askRound.draw();
+    if (!it) return null;
+    const { sent, item } = it;
     $("ask-base").innerHTML = `${speakBtn(sent.hoofd)}${esc(sent.hoofd)}`;
-    $("ask-hint").textContent = SRC_LABEL[sent.src];
-    if (wantOpen) {
-      const item = pick(sent.open);
+    $("ask-hint").textContent = `${askRound.redoTag()}${askRound.progress()} · ${SENT_LABEL.get(sent)} · ${SRC_LABEL[sent.src]}`;
+    if (it.mode === "open") {
       $("ask-target").innerHTML = `Open vraag met „${esc(item.q)}”`;
-      return { sent, mode: "open", opt: { qw: item.q }, answers: [item.s], say: item.s,
+      return { sent, mode: "open", opt: { qw: item.q }, answers: [item.s], say: item.s, en: item.en,
                steps: sentenceSteps(sent, item.s, "open", { qw: item.q }),
                rules: sentenceRules(sent, "open", item.q), note: extraNote(sent, item).trim() };
     }
     $("ask-target").innerHTML = `Gesloten vraag`;
-    return { sent, mode: "gesloten", opt: {}, answers: [sent.gesloten], say: sent.gesloten,
+    return { sent, mode: "gesloten", opt: {}, answers: [sent.gesloten], say: sent.gesloten, en: sent.enQ,
              steps: sentenceSteps(sent, sent.gesloten, "gesloten"), rules: sentenceRules(sent, "gesloten"), note: extraNote(sent, null).trim() };
   },
   check(cur, given) { return checkSentence(cur, given, cur.mode); },
+  onResult(cur, res) { askRound.result(res.ok); },
 });
 
 /* ================= LISTENING DRILL ================= */
-const LISTEN_ITEMS = [
-  ...WORDS.map(w => w.nl),
-  ...QWORDS.map(w => w.nl),
-  ...EX_GESLOTEN.map(e => e[0]),
-  ...EX_OPEN.map(e => e[0]),
-  ...SENTENCES.map(s => s.hoofd),
-  ...SENTENCES.map(s => s.gesloten),
-  ...SENTENCES.flatMap(s => s.inv.map(i => i.s)),
-  ...SENTENCES.flatMap(s => s.open.map(o => o.s)),
-];
+// { text, en } per set; the same text is only asked once per round.
+const LISTEN_SETS = {
+  woorden: [...WORDS, ...QWORDS].map(w => ({ text: w.nl, en: w.en })),
+  voorbeelden: [...EX_GESLOTEN, ...EX_OPEN].map(([text, en]) => ({ text, en })),
+  zinnen: ORDER_ITEMS.map(it => ({ text: itemSay(it), en: itemEn(it) })),
+  vragen: ASK_ITEMS.map(it => ({ text: itemSay(it), en: itemEn(it) })),
+};
+const uniqText = items => [...new Map(items.map(it => [norm(it.text), it])).values()];
+const listenRound = makeRound("listen", {
+  getItems: () => { const v = $("listen-set").value; return uniqText(v === "all" ? Object.values(LISTEN_SETS).flat() : LISTEN_SETS[v]); },
+  title: () => $("listen-set").selectedOptions[0].textContent,
+  say: it => it.text, en: it => it.en,
+});
 // [what the answer has, what the learner may write instead, rule, explanation]
 const SOUND_SWAPS = [
   ["ij", "ei", "eij", w => `<b>ij</b> and <b>ei</b> sound exactly the same — ${q(w)} is spelled with <b>ij</b>.`],
@@ -1356,24 +1517,29 @@ const listenDrill = makeDrill({
   inputId: "listen-input", checkId: "listen-check", feedbackId: "listen-feedback",
   rightId: "listen-right", wrongId: "listen-wrong", streakId: "listen-streak", tallyId: "listen-tally",
   next() {
-    const text = pick(LISTEN_ITEMS);
-    $("listen-hint").textContent = text.split(" ").length > 1 ? `${text.split(" ").length} woorden` : "1 woord";
-    return { text };
+    const it = listenRound.draw();
+    if (!it) return null;
+    const n = it.text.split(" ").length;
+    $("listen-hint").textContent = `${listenRound.redoTag()}${listenRound.progress()} · ${n > 1 ? `${n} woorden` : "1 woord"}`;
+    return it;
   },
+  onResult(cur, res) { listenRound.result(res.ok); },
   check(cur, given) {
     const g = norm(given), a = norm(cur.text);
-    const res = { ok: g === a, correct: cur.text, say: cur.text, mistakes: [] };
+    const res = { ok: g === a, correct: cur.text, say: cur.text, en: cur.en, mistakes: [] };
     if (!res.ok) res.mistakes = diagnoseListen(g, a);
     return res;
   },
 });
-$("listen-play").addEventListener("click", () => speak(listenDrill.current.text));
+$("listen-audio").addEventListener("click", () => speak(listenDrill.current.text));
 $("listen-slow").addEventListener("click", () => speak(listenDrill.current.text, true));
 
 /* Start drills */
-orderDrill.newQuestion();
-askDrill.newQuestion();
-listenDrill.newQuestion();
+orderRound.drill = orderDrill; askRound.drill = askDrill; listenRound.drill = listenDrill;
+["order", "ask", "listen"].forEach(id => $(`${id}-set`).addEventListener("change", () => ({ order: orderRound, ask: askRound, listen: listenRound })[id].restart()));
+orderRound.restart();
+askRound.restart();
+listenRound.restart();
 </script>
 <script src="../offline.js"></script>
 </body>
