@@ -33,9 +33,20 @@ les-NN/
      "How does X work?" with the mechanism behind the rule + ▶/🐢 examples,
      all from one shared `RULES` dictionary;
    - per-drill "mistakes this session" tally grouped by rule;
-   - pronounce the answer with ▶/🐢 replay buttons.
+   - pronounce the answer with ▶/🐢 replay buttons;
+   - sentence drills: after every answer (right or wrong) show the whole
+     sentence + its English translation (`res.en` → the `.translation` line
+     in les-07's `renderFeedback`), so the vocabulary is learned too.
+3b. Drills over a fixed list (the PDF/book exercises, homework) run in
+   **rounds**, as les-07's Huiswerk tab does (`hwRound`, `hwShowDone`, the
+   `onResult` hook in `makeDrill`): every item once per round, misses come back
+   at the end until right, then a "Klaar!" card with the first-try score, the
+   missed sentences (▶/🐢) and "Alleen deze N"; plus a Volgorde option
+   (door elkaar / zoals in het boek). Show progress as `5/11 · 1 to redo`.
 4. Reuse the drill engine, tab system, flashcard logic, and `speak()` audio
-   fallback chain from `les-02/index.html` — copy, don't reinvent.
+   fallback chain — copy, don't reinvent. Take `makeDrill`, `renderFeedback`
+   and the round logic from `les-07/index.html` (the newest version: it has
+   the `onResult` hook and the translation line); the rest as in les-02.
 5. New grammar builds on old: include vocabulary/verbs from earlier lessons in
    drills when relevant.
 
