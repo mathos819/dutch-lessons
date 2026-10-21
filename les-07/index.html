@@ -211,6 +211,11 @@
   .done ul { list-style: none; padding: 0; margin: 10px 0 0; }
   .done li { border-top: 2px solid var(--ink); padding: 8px 0; font-family: var(--mono); font-size: 14px; }
   .done li .en { display: block; color: #6a685c; font-family: var(--body); font-size: 13px; }
+  .done .share { margin-top: 18px; padding-top: 14px; border-top: var(--rule); }
+  .done .share .actions { margin-top: 0; }
+  .done .shared { font-family: var(--mono); font-size: 13px; margin-top: 8px; min-height: 1em; }
+  .done pre { white-space: pre-wrap; font-family: var(--mono); font-size: 13px; background: var(--paper); border: 2px solid var(--ink); padding: 10px 12px; margin: 8px 0 0; user-select: all; }
+  .done details summary { cursor: pointer; font-family: var(--mono); font-size: 13px; margin-top: 10px; }
   .done .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .tally { margin-top: 14px; }
   .tally-head { font-family: var(--display); text-transform: uppercase; font-size: 13px; }
@@ -947,14 +952,17 @@ function makeDeck(getItems) {
 // and onResult → round.result(res.ok), then set round.drill.
 //   getItems() → the list · title() → card subtitle · say(it) → Dutch to show/play
 //   en(it) → its meaning · label(it) → optional, e.g. "Oefening 9 · 4"
-function makeRound(id, { getItems, title, say, en, label = () => "" }) {
+//   share: { num(it) } → homework: the card gets "Deel met docent", a text in book
+//   order with the first answer typed for each item (mistakes included).
+const STUDENT = "Matheus";
+function makeRound(id, { getItems, title, say, en, label = () => "", share = null }) {
   const $id = k => $(`${id}-${k}`);
   const r = {
-    drill: null, items: [], queue: [], retry: [], missed: new Set(), seen: 0, redo: false, last: null,
+    drill: null, items: [], queue: [], retry: [], missed: new Set(), first: new Map(), seen: 0, redo: false, last: null, full: true,
     start(items) {
-      r.items = items || getItems();
+      r.items = items || getItems(); r.full = !items;
       r.queue = $id("order") && $id("order").value === "book" ? [...r.items] : shuffle(r.items);
-      r.retry = []; r.missed = new Set(); r.seen = 0; r.redo = false;
+      r.retry = []; r.missed = new Set(); r.first = new Map(); r.seen = 0; r.redo = false;
       $id("done").hidden = true; $id("play").hidden = false;
     },
     restart(items) { r.start(items); r.drill.newQuestion(); },
@@ -966,7 +974,9 @@ function makeRound(id, { getItems, title, say, en, label = () => "" }) {
       return (r.last = r.queue.shift());
     },
     result(ok) {
-      if (ok || !r.last) return;
+      if (!r.last) return;
+      if (!r.redo) r.first.set(r.last, { ok, given: r.drill ? r.drill.given.trim() : "" });
+      if (ok) return;
       if (!r.redo) r.missed.add(r.last);
       r.retry.push(r.last);
     },
@@ -976,8 +986,35 @@ function makeRound(id, { getItems, title, say, en, label = () => "" }) {
         : `${r.seen}/${r.items.length}` + (r.retry.length ? ` · ${r.retry.length} to redo` : "");
     },
     redoTag() { return r.redo ? "↻ Opnieuw · " : ""; },
+    // The homework message: book order, ✓ or the first (wrong) answer under each item.
+    shareText() {
+      const les = ((document.querySelector(".eyebrow") || {}).textContent || "").match(/Les \d+/);
+      const d = new Date(), date = [d.getDate(), d.getMonth() + 1].map(n => String(n).padStart(2, "0")).join("-") + "-" + d.getFullYear();
+      const missed = r.items.filter(it => r.missed.has(it)).length;
+      return [`Huiswerk${les ? " · " + les[0] : ""} · ${title()}`, `${STUDENT} · ${date}`, "",
+        ...r.items.map(it => {
+          const f = r.first.get(it) || {}, line = `${share.num(it)}. ${say(it)}`;
+          return f.ok ? `${line} ✓` : `${line}\n   ✗ eerst: ${f.given || "—"}`;
+        }),
+        "", `${r.items.length - missed}/${r.items.length} goed in één keer`].join("\n");
+    },
+    async share() {
+      const text = r.shareText(), msg = $id("shared");
+      if (navigator.share) {
+        try { await navigator.share({ title: text.split("\n")[0], text }); return; }
+        catch (e) { if (e.name === "AbortError") return; }
+      }
+      try { await navigator.clipboard.writeText(text); msg.textContent = "Gekopieerd — plak het in WhatsApp of je e-mail."; }
+      catch (e) { msg.textContent = "Kopiëren lukte niet — selecteer de tekst hieronder."; $id("preview").open = true; }
+    },
+    async copy() {
+      const msg = $id("shared");
+      try { await navigator.clipboard.writeText(r.shareText()); msg.textContent = "Gekopieerd — plak het in WhatsApp of je e-mail."; }
+      catch (e) { msg.textContent = "Kopiëren lukte niet — selecteer de tekst hieronder."; $id("preview").open = true; }
+    },
     showDone() {
       const missed = r.items.filter(it => r.missed.has(it)), total = r.items.length, el = $id("done");
+      const canShare = share && r.full;
       el.className = "done card" + (missed.length ? "" : " perfect");
       el.innerHTML = `<div class="head">Klaar!<small>${esc(title())}</small></div><div class="body">` +
         `<div class="score">${total - missed.length}/${total} goed in één keer</div>` +
@@ -986,10 +1023,17 @@ function makeRound(id, { getItems, title, say, en, label = () => "" }) {
             missed.map(it => `<li>${speakBtn(say(it))}${esc(say(it))}<span class="en">${esc([label(it), en(it)].filter(Boolean).join(" · "))}</span></li>`).join("") + `</ul>`
           : `Everything right on the first try. Goed gedaan!`) +
         `<div class="actions"><button class="btn primary" id="${id}-again">Nog een keer</button>` +
-        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div></div>`;
+        (missed.length ? `<button class="btn" id="${id}-missed">Alleen deze ${missed.length}</button>` : "") + `</div>` +
+        (canShare
+          ? `<div class="share"><div class="actions"><button class="btn good" id="${id}-share">Deel met docent</button>` +
+            `<button class="btn" id="${id}-copy">Kopieer</button></div>` +
+            `<div class="shared" id="${id}-shared" aria-live="polite"></div>` +
+            `<details id="${id}-preview"><summary>Bekijk het bericht</summary><pre>${esc(r.shareText())}</pre></details></div>`
+          : "") + `</div>`;
       el.hidden = false; $id("play").hidden = true;
       $id("again").addEventListener("click", () => r.restart());
       if (missed.length) $id("missed").addEventListener("click", () => r.restart(missed));
+      if (canShare) { $id("share").addEventListener("click", r.share); $id("copy").addEventListener("click", r.copy); }
       $id("again").focus();
     },
   };
@@ -1328,7 +1372,7 @@ function makeDrill({ inputId, checkId, feedbackId, rightId, wrongId, streakId, t
   $(checkId).addEventListener("click", doCheck);
   // Tapping a ▶ or opening an explanation must not steal Enter from the answer box.
   fb.addEventListener("click", e => { if (e.target.closest("button, summary")) setTimeout(() => input.focus({ preventScroll: true }), 0); });
-  return { newQuestion, get current() { return current; } };
+  return { newQuestion, get current() { return current; }, get given() { return input.value; } };
 }
 
 /* ================= TABS ================= */
@@ -1475,6 +1519,7 @@ const hwRound = makeRound("hw", {
   getItems: () => { const s = $("hw-set").value; return HW.filter(it => s === "all" || it.set === s); },
   title: () => $("hw-set").selectedOptions[0].textContent,
   say: fullHw, en: it => it.en, label: hwLabel,
+  share: { num: it => $("hw-set").value === "all" ? hwLabel(it) : it.n },
 });
 const gapHtml = s => esc(s).replace(/_/g, '<span class="gap">?</span>');
 const hwDrill = makeDrill({

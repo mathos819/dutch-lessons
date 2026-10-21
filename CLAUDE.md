@@ -45,6 +45,10 @@ les-NN/
    at the end until right, then a "Klaar!" card with the first-try score, the
    missed sentences (▶/🐢) and "Alleen deze N"; plus a Volgorde option
    (door elkaar / zoals in het boek). Show progress as `5/11 · 1 to redo`.
+   Homework / book-exercise rounds also pass `share: { num }` to `makeRound`:
+   the Klaar! card then gets "Deel met docent" (iPhone share sheet → WhatsApp
+   or e-mail; copy fallback), a text in book order with Matheus's *first*
+   answer to each item, mistakes included — his teacher wants to see those.
 4. Reuse the drill engine, tab system, flashcard logic, and `speak()` audio
    fallback chain — copy, don't reinvent. Take `makeDrill`, `renderFeedback`
    and the round logic from `les-07/index.html` (the newest version: it has
